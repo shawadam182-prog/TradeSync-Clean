@@ -2,6 +2,7 @@ import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider, useData } from './contexts/DataContext';
 import { LoginPage } from './components/Auth/LoginPage';
+import { PWAPrompt, OfflineIndicator } from './components/PWAPrompt';
 import MainApp from '../App';
 import { Loader2 } from 'lucide-react';
 
@@ -65,7 +66,9 @@ const ProtectedApp: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <OfflineIndicator />
       <ProtectedApp />
+      <PWAPrompt />
     </AuthProvider>
   );
 };
