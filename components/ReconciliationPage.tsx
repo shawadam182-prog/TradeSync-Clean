@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Link2, Check, X, AlertCircle, Loader2, Search,
   Calendar, PoundSterling, ArrowRight, Sparkles,
-  CheckCircle, Building2, Filter, RefreshCw
+  CheckCircle, Building2, Filter, RefreshCw, Plus,
+  Unlink, ChevronDown, ChevronUp, Square, CheckSquare
 } from 'lucide-react';
-import { bankTransactionsService, expensesService, quotesService } from '../src/services/dataService';
+import { bankTransactionsService, expensesService, quotesService, reconciliationService } from '../src/services/dataService';
 
 interface BankTransaction {
   id: string;
@@ -24,6 +25,7 @@ interface Expense {
   expense_date: string;
   is_reconciled: boolean;
   category: string;
+  description?: string;
 }
 
 interface Invoice {
@@ -53,6 +55,12 @@ export const ReconciliationPage: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'unreconciled' | 'reconciled'>('unreconciled');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Multi-select modal state
+  const [multiSelectOpen, setMultiSelectOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<BankTransaction | null>(null);
+  const [selectedExpenseIds, setSelectedExpenseIds] = useState<Set<string>>(new Set());
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     loadData();
   }, []);
@@ -67,7 +75,6 @@ export const ReconciliationPage: React.FC = () => {
       ]);
       setTransactions(txData || []);
       setExpenses(expData || []);
-      // Filter to only paid invoices
       setInvoices((quoteData || []).filter((q: any) => q.type === 'invoice' && q.status === 'paid'));
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -86,7 +93,6 @@ export const ReconciliationPage: React.FC = () => {
     const matches: SuggestedMatch[] = [];
 
     unreconciledTx.forEach(tx => {
-      // For outgoing transactions (negative amounts), match with expenses
       if (tx.amount < 0) {
         const txAmount = Math.abs(tx.amount);
         const txDate = new Date(tx.transaction_date);
@@ -97,11 +103,9 @@ export const ReconciliationPage: React.FC = () => {
           const expDate = new Date(exp.expense_date);
           const daysDiff = Math.abs((txDate.getTime() - expDate.getTime()) / (1000 * 60 * 60 * 24));
 
-          // Exact amount match within 7 days
           if (Math.abs(txAmount - expAmount) < 0.01 && daysDiff <= 7) {
             return true;
           }
-          // Amount with VAT (20%) within 7 days
           const amountWithVat = expAmount * 1.2;
           if (Math.abs(txAmount - amountWithVat) < 0.01 && daysDiff <= 7) {
             return true;
@@ -127,7 +131,6 @@ export const ReconciliationPage: React.FC = () => {
         }
       }
 
-      // For incoming transactions (positive amounts), match with paid invoices
       if (tx.amount > 0) {
         const txAmount = tx.amount;
         const txDate = new Date(tx.transaction_date);
@@ -162,20 +165,88 @@ export const ReconciliationPage: React.FC = () => {
   const handleAcceptMatch = async (suggestion: SuggestedMatch) => {
     setProcessing(suggestion.transaction.id);
     try {
-      if (suggestion.expense) {
-        await bankTransactionsService.reconcileWithExpense(
-          suggestion.transaction.id,
-          suggestion.expense.id
-        );
-      } else if (suggestion.invoice) {
-        await bankTransactionsService.reconcileWithInvoice(
-          suggestion.transaction.id,
-          suggestion.invoice.id
-        );
-      }
+      const expenseIds = suggestion.expense ? [suggestion.expense.id] : [];
+      const invoiceIds = suggestion.invoice ? [suggestion.invoice.id] : [];
+      await reconciliationService.reconcileMulti(suggestion.transaction.id, expenseIds, invoiceIds);
       await loadData();
     } catch (error) {
       console.error('Failed to reconcile:', error);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleUnreconcile = async (transactionId: string) => {
+    setProcessing(transactionId);
+    try {
+      await reconciliationService.unreconcile(transactionId);
+      await loadData();
+    } catch (error) {
+      console.error('Failed to unreconcile:', error);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const openMultiSelect = (tx: BankTransaction) => {
+    setSelectedTransaction(tx);
+    setSelectedExpenseIds(new Set());
+    setSelectedInvoiceIds(new Set());
+    setMultiSelectOpen(true);
+  };
+
+  const toggleExpenseSelection = (expenseId: string) => {
+    setSelectedExpenseIds(prev => {
+      const next = new Set(prev);
+      if (next.has(expenseId)) {
+        next.delete(expenseId);
+      } else {
+        next.add(expenseId);
+      }
+      return next;
+    });
+  };
+
+  const toggleInvoiceSelection = (invoiceId: string) => {
+    setSelectedInvoiceIds(prev => {
+      const next = new Set(prev);
+      if (next.has(invoiceId)) {
+        next.delete(invoiceId);
+      } else {
+        next.add(invoiceId);
+      }
+      return next;
+    });
+  };
+
+  const selectedTotal = useMemo(() => {
+    let total = 0;
+    selectedExpenseIds.forEach(id => {
+      const exp = expenses.find(e => e.id === id);
+      if (exp) total += exp.amount;
+    });
+    selectedInvoiceIds.forEach(id => {
+      const inv = invoices.find(i => i.id === id);
+      if (inv) total += inv.total;
+    });
+    return total;
+  }, [selectedExpenseIds, selectedInvoiceIds, expenses, invoices]);
+
+  const handleMultiReconcile = async () => {
+    if (!selectedTransaction) return;
+
+    setProcessing(selectedTransaction.id);
+    try {
+      await reconciliationService.reconcileMulti(
+        selectedTransaction.id,
+        Array.from(selectedExpenseIds),
+        Array.from(selectedInvoiceIds)
+      );
+      setMultiSelectOpen(false);
+      setSelectedTransaction(null);
+      await loadData();
+    } catch (error) {
+      console.error('Failed to multi-reconcile:', error);
     } finally {
       setProcessing(null);
     }
@@ -189,6 +260,8 @@ export const ReconciliationPage: React.FC = () => {
       return true;
     });
   }, [transactions, filter, searchTerm]);
+
+  const unreconciledExpenses = useMemo(() => expenses.filter(e => !e.is_reconciled), [expenses]);
 
   const stats = useMemo(() => {
     const total = transactions.length;
@@ -320,6 +393,13 @@ export const ReconciliationPage: React.FC = () => {
                       <Check size={20} />
                     )}
                   </button>
+                  <button
+                    onClick={() => openMultiSelect(suggestion.transaction)}
+                    className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+                    title="Match multiple receipts"
+                  >
+                    <Plus size={20} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -393,8 +473,33 @@ export const ReconciliationPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className={`text-right font-black ${tx.amount < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                    {tx.amount < 0 ? '-' : '+'}£{Math.abs(tx.amount).toFixed(2)}
+                  <div className="flex items-center gap-3">
+                    <div className={`text-right font-black ${tx.amount < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                      {tx.amount < 0 ? '-' : '+'}£{Math.abs(tx.amount).toFixed(2)}
+                    </div>
+                    {!tx.is_reconciled && (
+                      <button
+                        onClick={() => openMultiSelect(tx)}
+                        className="p-2 bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-colors"
+                        title="Match receipts"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    )}
+                    {tx.is_reconciled && (
+                      <button
+                        onClick={() => handleUnreconcile(tx.id)}
+                        disabled={processing === tx.id}
+                        className="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-red-100 hover:text-red-600 transition-colors"
+                        title="Unreconcile"
+                      >
+                        {processing === tx.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Unlink size={18} />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -402,6 +507,139 @@ export const ReconciliationPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Multi-Select Modal */}
+      {multiSelectOpen && selectedTransaction && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Match Multiple Receipts</h2>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Select expenses that make up this transaction
+                  </p>
+                </div>
+                <button
+                  onClick={() => setMultiSelectOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Transaction Summary */}
+              <div className="mt-4 p-4 bg-slate-50 rounded-2xl">
+                <p className="text-xs text-slate-400 font-bold mb-1">Bank Transaction</p>
+                <p className="font-bold text-slate-900">{selectedTransaction.description}</p>
+                <div className="flex items-center gap-4 mt-2 text-sm">
+                  <span className="text-slate-500">
+                    {new Date(selectedTransaction.transaction_date).toLocaleDateString()}
+                  </span>
+                  <span className={`font-black ${selectedTransaction.amount < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                    {selectedTransaction.amount < 0 ? '-' : '+'}£{Math.abs(selectedTransaction.amount).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Running Total */}
+              <div className="mt-4 flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-200">
+                <div>
+                  <p className="text-xs font-bold text-amber-700">Selected Total</p>
+                  <p className="text-2xl font-black text-amber-900">£{selectedTotal.toFixed(2)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-slate-500">Difference</p>
+                  <p className={`text-lg font-black ${
+                    Math.abs(Math.abs(selectedTransaction.amount) - selectedTotal) < 0.01
+                      ? 'text-emerald-600'
+                      : 'text-slate-600'
+                  }`}>
+                    £{(Math.abs(selectedTransaction.amount) - selectedTotal).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Expense List */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+                Unreconciled Expenses ({unreconciledExpenses.length})
+              </p>
+
+              {unreconciledExpenses.length === 0 ? (
+                <div className="text-center py-8 text-slate-400">
+                  <p>No unreconciled expenses available</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {unreconciledExpenses.map(exp => (
+                    <button
+                      key={exp.id}
+                      onClick={() => toggleExpenseSelection(exp.id)}
+                      className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${
+                        selectedExpenseIds.has(exp.id)
+                          ? 'border-amber-500 bg-amber-50'
+                          : 'border-slate-100 hover:border-slate-200 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                          selectedExpenseIds.has(exp.id)
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-slate-100 text-slate-400'
+                        }`}>
+                          {selectedExpenseIds.has(exp.id) ? <Check size={14} /> : <Square size={14} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-slate-900 truncate">{exp.vendor}</p>
+                          <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                            <span>{new Date(exp.expense_date).toLocaleDateString()}</span>
+                            <span className="px-2 py-0.5 bg-slate-100 rounded-full">{exp.category}</span>
+                          </div>
+                        </div>
+                        <div className="font-black text-slate-900">
+                          £{exp.amount.toFixed(2)}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-slate-200 bg-slate-50">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setMultiSelectOpen(false)}
+                  className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 rounded-2xl font-bold hover:bg-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleMultiReconcile}
+                  disabled={selectedExpenseIds.size === 0 || processing === selectedTransaction.id}
+                  className="flex-1 px-6 py-3 bg-amber-500 text-slate-900 rounded-2xl font-black hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {processing === selectedTransaction.id ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Reconciling...
+                    </>
+                  ) : (
+                    <>
+                      <Link2 size={18} />
+                      Reconcile {selectedExpenseIds.size} Item{selectedExpenseIds.size !== 1 ? 's' : ''}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

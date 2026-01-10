@@ -14,7 +14,8 @@ import { ExpensesPage } from './components/ExpensesPage';
 import { BankImportPage } from './components/BankImportPage';
 import { ReconciliationPage } from './components/ReconciliationPage';
 import { VATSummaryPage } from './components/VATSummaryPage';
-import { VATSummaryPage } from './components/VATSummaryPage';
+import { PayablesPage } from './components/PayablesPage';
+import { FilingCabinetPage } from './components/FilingCabinetPage';
 import { useData } from './src/contexts/DataContext';
 import { useAuth } from './src/contexts/AuthContext';
 import { Quote, JobPack, Customer } from './types';
@@ -29,7 +30,7 @@ const App: React.FC = () => {
     addProject, saveProject,
   } = useData();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files'>('home');
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const [viewingQuoteId, setViewingQuoteId] = useState<string | null>(null);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
@@ -109,6 +110,8 @@ const App: React.FC = () => {
       {activeTab === 'bank' && <BankImportPage />}
       {activeTab === 'reconcile' && <ReconciliationPage />}
       {activeTab === 'vat' && <VATSummaryPage />}
+      {activeTab === 'payables' && <PayablesPage />}
+      {activeTab === 'files' && <FilingCabinetPage />}
       {activeTab === 'customers' && <CustomerManager customers={customers} setCustomers={setCustomers} />}
       {activeTab === 'settings' && <SettingsPage settings={settings} setSettings={setSettings} />}
       {activeTab === 'quote_edit' && <QuoteCreator existingQuote={quotes.find(q => q.id === editingQuoteId)} projectId={activeProjectId || undefined} customers={customers} settings={settings} onSave={handleSaveQuote} onAddCustomer={handleAddCustomer} onCancel={() => activeProjectId ? setActiveTab('jobpack_detail') : setActiveTab('quotes')} />}

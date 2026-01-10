@@ -681,3 +681,636 @@ export const bankTransactionsService = {
     if (error) throw error;
   },
 };
+
+// ============================================
+// RECONCILIATION (Multi-receipt support)
+// ============================================
+
+export interface ReconciliationLink {
+  id: string;
+  bank_transaction_id: string;
+  expense_id?: string;
+  invoice_id?: string;
+  amount_matched: number;
+  created_at: string;
+}
+
+export const reconciliationService = {
+  async getLinksForTransaction(transactionId: string) {
+    const { data, error } = await supabase
+      .from('reconciliation_links')
+      .select(`
+        *,
+        expense:expenses(*),
+        invoice:quotes(*)
+      `)
+      .eq('bank_transaction_id', transactionId);
+    if (error) throw error;
+    return data;
+  },
+
+  async reconcileMulti(transactionId: string, expenseIds: string[], invoiceIds: string[] = []) {
+    const { error } = await supabase.rpc('reconcile_transaction_multi', {
+      p_transaction_id: transactionId,
+      p_expense_ids: expenseIds,
+      p_invoice_ids: invoiceIds,
+    });
+    if (error) throw error;
+  },
+
+  async unreconcile(transactionId: string) {
+    const { error } = await supabase.rpc('unreconcile_transaction', {
+      p_transaction_id: transactionId,
+    });
+    if (error) throw error;
+  },
+
+  async getSummary() {
+    const { data, error } = await supabase
+      .from('reconciliation_summary')
+      .select('*')
+      .order('transaction_date', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  // Quick single-item reconciliation (backwards compatible)
+  async reconcileSingle(transactionId: string, expenseId?: string, invoiceId?: string) {
+    const expenseIds = expenseId ? [expenseId] : [];
+    const invoiceIds = invoiceId ? [invoiceId] : [];
+    return this.reconcileMulti(transactionId, expenseIds, invoiceIds);
+  },
+};
+
+// ============================================
+// PAYABLES (Bills to pay)
+// ============================================
+
+export interface Payable {
+  id: string;
+  user_id: string;
+  vendor_name: string;
+  vendor_id?: string;
+  invoice_number?: string;
+  description?: string;
+  amount: number;
+  vat_amount: number;
+  invoice_date: string;
+  due_date?: string;
+  paid_date?: string;
+  status: 'unpaid' | 'partial' | 'paid' | 'overdue' | 'disputed';
+  amount_paid: number;
+  category: string;
+  job_pack_id?: string;
+  document_path?: string;
+  notes?: string;
+  is_reconciled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export const payablesService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('payables')
+      .select('*')
+      .order('due_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async getByStatus(status: string) {
+    const { data, error } = await supabase
+      .from('payables')
+      .select('*')
+      .eq('status', status)
+      .order('due_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async getOverdue() {
+    const { data, error } = await supabase
+      .from('payables')
+      .select('*')
+      .in('status', ['unpaid', 'partial', 'overdue'])
+      .lt('due_date', new Date().toISOString().split('T')[0])
+      .order('due_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async getDueThisWeek() {
+    const today = new Date();
+    const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const { data, error } = await supabase
+      .from('payables')
+      .select('*')
+      .in('status', ['unpaid', 'partial'])
+      .gte('due_date', today.toISOString().split('T')[0])
+      .lte('due_date', weekFromNow.toISOString().split('T')[0])
+      .order('due_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async getSummary() {
+    const { data, error } = await supabase
+      .from('payables_summary')
+      .select('*')
+      .single();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
+  async create(payable: Omit<Payable, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'status' | 'amount_paid' | 'is_reconciled'>) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('payables')
+      .insert({ ...payable, user_id: user.id })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<Payable>) {
+    const { data, error } = await supabase
+      .from('payables')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async markPaid(id: string, paidDate?: string, transactionId?: string) {
+    const { error } = await supabase.rpc('mark_payable_paid', {
+      p_payable_id: id,
+      p_paid_date: paidDate || new Date().toISOString().split('T')[0],
+      p_transaction_id: transactionId || null,
+    });
+    if (error) throw error;
+  },
+
+  async recordPartialPayment(id: string, amount: number) {
+    const { data: current, error: fetchError } = await supabase
+      .from('payables')
+      .select('amount_paid')
+      .eq('id', id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    const { data, error } = await supabase
+      .from('payables')
+      .update({ amount_paid: (current?.amount_paid || 0) + amount })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('payables')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+};
+
+// ============================================
+// FILING CABINET
+// ============================================
+
+export type DocumentCategory = 'receipt' | 'invoice' | 'contract' | 'certificate' | 'insurance' | 'warranty' | 'tax' | 'bank' | 'general';
+
+export interface FiledDocument {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  file_type?: string;
+  file_size?: number;
+  storage_path: string;
+  category: DocumentCategory;
+  tags?: string[];
+  document_date?: string;
+  expiry_date?: string;
+  vendor_name?: string;
+  job_pack_id?: string;
+  expense_id?: string;
+  payable_id?: string;
+  extracted_text?: string;
+  tax_year?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const filingService = {
+  async getAll(category?: DocumentCategory) {
+    let query = supabase
+      .from('filed_documents')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  },
+
+  async getByTaxYear(taxYear: string) {
+    const { data, error } = await supabase
+      .from('filed_documents')
+      .select('*')
+      .eq('tax_year', taxYear)
+      .order('document_date', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async getExpiring(days: number = 30) {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + days);
+
+    const { data, error } = await supabase
+      .from('filed_documents')
+      .select('*')
+      .not('expiry_date', 'is', null)
+      .gte('expiry_date', new Date().toISOString().split('T')[0])
+      .lte('expiry_date', futureDate.toISOString().split('T')[0])
+      .order('expiry_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+
+  async search(query: string, category?: DocumentCategory, taxYear?: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase.rpc('search_filed_documents', {
+      p_user_id: user.id,
+      p_query: query,
+      p_category: category || null,
+      p_tax_year: taxYear || null,
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  async upload(file: File, metadata: {
+    name: string;
+    description?: string;
+    category: DocumentCategory;
+    tags?: string[];
+    document_date?: string;
+    expiry_date?: string;
+    vendor_name?: string;
+    job_pack_id?: string;
+    tax_year?: string;
+  }) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Upload file to storage
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'file';
+    const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('filed-documents')
+      .upload(fileName, file);
+    if (uploadError) throw uploadError;
+
+    // Create document record
+    const { data, error } = await supabase
+      .from('filed_documents')
+      .insert({
+        user_id: user.id,
+        name: metadata.name,
+        description: metadata.description,
+        file_type: fileExt,
+        file_size: file.size,
+        storage_path: fileName,
+        category: metadata.category,
+        tags: metadata.tags,
+        document_date: metadata.document_date,
+        expiry_date: metadata.expiry_date,
+        vendor_name: metadata.vendor_name,
+        job_pack_id: metadata.job_pack_id,
+        tax_year: metadata.tax_year,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<FiledDocument>) {
+    const { data, error } = await supabase
+      .from('filed_documents')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    // Get storage path first
+    const { data: doc, error: fetchError } = await supabase
+      .from('filed_documents')
+      .select('storage_path')
+      .eq('id', id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    // Delete from storage
+    if (doc?.storage_path) {
+      await supabase.storage.from('filed-documents').remove([doc.storage_path]);
+    }
+
+    // Delete record
+    const { error } = await supabase
+      .from('filed_documents')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async getDownloadUrl(storagePath: string) {
+    const { data, error } = await supabase.storage
+      .from('filed-documents')
+      .createSignedUrl(storagePath, 3600); // 1 hour expiry
+    if (error) throw error;
+    return data.signedUrl;
+  },
+
+  async getSummary() {
+    const { data, error } = await supabase
+      .from('filing_summary')
+      .select('*');
+    if (error) throw error;
+    return data;
+  },
+};
+
+
+// ============================================
+// EXPENSE CATEGORIES
+// ============================================
+
+export const expenseCategoriesService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('expense_categories')
+      .select('*')
+      .order('display_order');
+    if (error) throw error;
+    return data;
+  },
+
+  async create(category: { name: string; icon?: string; color?: string }) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Get max display_order
+    const { data: existing } = await supabase
+      .from('expense_categories')
+      .select('display_order')
+      .eq('user_id', user.id)
+      .order('display_order', { ascending: false })
+      .limit(1);
+
+    const maxOrder = existing?.[0]?.display_order || 0;
+
+    const { data, error } = await supabase
+      .from('expense_categories')
+      .insert({
+        user_id: user.id,
+        name: category.name,
+        icon: category.icon || 'tag',
+        color: category.color || '#f59e0b',
+        display_order: maxOrder + 1,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: { name?: string; icon?: string; color?: string; display_order?: number }) {
+    const { data, error } = await supabase
+      .from('expense_categories')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('expense_categories')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async reorder(categories: { id: string; display_order: number }[]) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    for (const cat of categories) {
+      await supabase
+        .from('expense_categories')
+        .update({ display_order: cat.display_order })
+        .eq('id', cat.id)
+        .eq('user_id', user.id);
+    }
+  },
+};
+
+// ============================================
+// VENDOR KEYWORDS (Auto-categorization)
+// ============================================
+
+export const vendorKeywordsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('vendor_keywords')
+      .select()
+      .order('match_count', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async findCategoryByVendor(vendorName: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return null;
+
+    const normalizedVendor = vendorName.toLowerCase().trim();
+
+    const { data, error } = await supabase
+      .from('vendor_keywords')
+      .select()
+      .eq('user_id', user.id);
+
+    if (error || !data) return null;
+
+    for (const keyword of data) {
+      if (normalizedVendor.includes(keyword.keyword.toLowerCase())) {
+        return keyword.category;
+      }
+    }
+
+    return null;
+  },
+
+  async learnKeyword(vendorName: string, categoryId: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const keyword = vendorName.toLowerCase().trim().split(/s+/)[0];
+    if (!keyword || keyword.length < 3) return;
+
+    const { data: existing } = await supabase
+      .from('vendor_keywords')
+      .select('id, match_count')
+      .eq('user_id', user.id)
+      .eq('keyword', keyword)
+      .single();
+
+    if (existing) {
+      await supabase
+        .from('vendor_keywords')
+        .update({
+          category_id: categoryId,
+          match_count: existing.match_count + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existing.id);
+    } else {
+      await supabase
+        .from('vendor_keywords')
+        .insert({
+          user_id: user.id,
+          keyword,
+          category_id: categoryId,
+          match_count: 1,
+        });
+    }
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('vendor_keywords')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteByKeyword(keyword: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('vendor_keywords')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('keyword', keyword.toLowerCase());
+    if (error) throw error;
+  },
+};
+
+// ============================================
+// VENDORS (Auto-fill and history tracking)
+// ============================================
+
+export const vendorsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .order('expense_count', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async search(query: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('user_id', user.id)
+      .ilike('name', `%${query}%`)
+      .order('expense_count', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Vendor search failed:', error);
+      return [];
+    }
+    return data || [];
+  },
+
+  async getByName(name: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('user_id', user.id)
+      .ilike('name', name)
+      .single();
+
+    if (error) return null;
+    return data;
+  },
+
+  async getTopVendors(limit = 5) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('total_spent', { ascending: false })
+      .limit(limit);
+
+    if (error) return [];
+    return data || [];
+  },
+
+  async update(id: string, updates: { notes?: string; default_category?: string; default_payment_method?: string }) {
+    const { data, error } = await supabase
+      .from('vendors')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('vendors')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+};
