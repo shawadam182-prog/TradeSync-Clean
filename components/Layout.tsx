@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users, FileText, Settings, Hammer, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt } from 'lucide-react';
+import { Users, FileText, Settings, Hammer, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +17,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
     { id: 'quotes', label: 'Quotes', icon: FileText },
     { id: 'invoices', label: 'Invoices', icon: ReceiptText },
     { id: 'expenses', label: 'Expenses', icon: Receipt },
+    { id: 'bank', label: 'Bank', icon: Landmark },
+    { id: 'reconcile', label: 'Reconcile', icon: Link2 },
+    { id: 'vat', label: 'VAT', icon: Calculator },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
