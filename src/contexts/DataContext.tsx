@@ -6,6 +6,14 @@ import {
   quotesService,
   scheduleService,
   userSettingsService,
+  expensesService,
+  bankTransactionsService,
+  reconciliationService,
+  payablesService,
+  filingService,
+  expenseCategoriesService,
+  vendorsService,
+  vendorKeywordsService,
 } from '../services/dataService';
 import type { Customer, Quote, JobPack, ScheduleEntry, AppSettings } from '../../types';
 
@@ -89,6 +97,18 @@ interface DataContextType {
 
   // Setters for components that need direct control
   setCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+
+  // Direct access to services for components that need them
+  services: {
+    expenses: typeof expensesService;
+    bankTransactions: typeof bankTransactionsService;
+    reconciliation: typeof reconciliationService;
+    payables: typeof payablesService;
+    filing: typeof filingService;
+    expenseCategories: typeof expenseCategoriesService;
+    vendors: typeof vendorsService;
+    vendorKeywords: typeof vendorKeywordsService;
+  };
 
   // Refresh data
   refresh: () => Promise<void>;
@@ -518,6 +538,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateSettings,
     setSettings,
     setCustomers,
+    services: {
+      expenses: expensesService,
+      bankTransactions: bankTransactionsService,
+      reconciliation: reconciliationService,
+      payables: payablesService,
+      filing: filingService,
+      expenseCategories: expenseCategoriesService,
+      vendors: vendorsService,
+      vendorKeywords: vendorKeywordsService,
+    },
     refresh: fetchData,
   };
 
