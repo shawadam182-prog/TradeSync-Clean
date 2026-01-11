@@ -1,11 +1,14 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ScheduleEntry, Customer, JobPack } from '../types';
-import { 
-  Mic, Trash2, MapPin, Clock, Navigation, 
+import { ScheduleEntry, Customer, JobPack, Quote } from '../types';
+import {
+  Mic, Trash2, MapPin, Clock, Navigation,
   Bell, BellRing, Play, CheckCircle2,
-  Calendar, ArrowRight, Sparkles, 
-  Timer, Loader2, MicOff, StickyNote, Eraser
+  Calendar, ArrowRight, Sparkles,
+  Timer, Loader2, MicOff, StickyNote, Eraser,
+  Briefcase, FileText, Receipt, UserPlus,
+  PoundSterling, FileWarning, AlertTriangle,
+  LogIn, LogOut
 } from 'lucide-react';
 import { parseReminderVoiceInput } from '../src/services/geminiService';
 
@@ -13,7 +16,26 @@ interface HomeProps {
   schedule: ScheduleEntry[];
   customers: Customer[];
   projects: JobPack[];
+  quotes: Quote[];
   onNavigateToSchedule: () => void;
+  onCreateJob?: () => void;
+  onCreateQuote?: () => void;
+  onLogExpense?: () => void;
+  onAddCustomer?: () => void;
+}
+
+interface SiteLog {
+  id: string;
+  clockInTime: string;
+  clockInLocation?: { lat: number; lng: number };
+  clockOutTime?: string;
+  clockOutLocation?: { lat: number; lng: number };
+  jobTitle?: string;
+}
+
+interface SiteSession {
+  currentSession: SiteLog | null;
+  history: SiteLog[];
 }
 
 interface Reminder {
@@ -24,24 +46,38 @@ interface Reminder {
   isAlarming?: boolean;
 }
 
-export const Home: React.FC<HomeProps> = ({ schedule, customers, projects, onNavigateToSchedule }) => {
+export const Home: React.FC<HomeProps> = ({
+  schedule,
+  customers,
+  projects,
+  quotes,
+  onNavigateToSchedule,
+  onCreateJob,
+  onCreateQuote,
+  onLogExpense,
+  onAddCustomer
+}) => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [quickNotes, setQuickNotes] = useState<string>('');
   const [isListeningReminder, setIsListeningReminder] = useState(false);
   const [isListeningNote, setIsListeningNote] = useState(false);
   const [isProcessingReminder, setIsProcessingReminder] = useState(false);
-  
+  const [siteSession, setSiteSession] = useState<SiteSession>({ currentSession: null, history: [] });
+  const [elapsedTime, setElapsedTime] = useState<string>('0h 0m');
+
   const [newReminderText, setNewReminderText] = useState('');
   const [newReminderTime, setNewReminderTime] = useState('');
-  
+
   const recognitionRef = useRef<any>(null);
   const noteRecognitionRef = useRef<any>(null);
 
   useEffect(() => {
     const savedReminders = localStorage.getItem('bq_home_reminders');
     const savedNotes = localStorage.getItem('bq_home_quick_notes');
+    const savedSiteSession = localStorage.getItem('bq_site_log');
     if (savedReminders) setReminders(JSON.parse(savedReminders));
     if (savedNotes) setQuickNotes(savedNotes);
+    if (savedSiteSession) setSiteSession(JSON.parse(savedSiteSession));
   }, []);
 
   useEffect(() => {
@@ -51,6 +87,27 @@ export const Home: React.FC<HomeProps> = ({ schedule, customers, projects, onNav
   useEffect(() => {
     localStorage.setItem('bq_home_quick_notes', quickNotes);
   }, [quickNotes]);
+
+  useEffect(() => {
+    localStorage.setItem('bq_site_log', JSON.stringify(siteSession));
+  }, [siteSession]);
+
+  // Update elapsed time when on site
+  useEffect(() => {
+    if (!siteSession.currentSession) {
+      setElapsedTime('0h 0m');
+      return;
+    }
+    const updateElapsed = () => {
+      const diff = Date.now() - new Date(siteSession.currentSession!.clockInTime).getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setElapsedTime(`${hours}h ${minutes}m`);
+    };
+    updateElapsed();
+    const interval = setInterval(updateElapsed, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [siteSession.currentSession]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -155,6 +212,182 @@ export const Home: React.FC<HomeProps> = ({ schedule, customers, projects, onNav
     setNewReminderTime('');
   };
 
+  // Clock In/Out functions
+  const clockIn = async () => {
+    let location: { lat: number; lng: number } | undefined;
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+      });
+      location = { lat: position.coords.latitude, lng: position.coords.longitude };
+    } catch (e) {
+      // Location optional, continue without
+    }
+    const newSession: SiteLog = {
+      id: Math.random().toString(36).substr(2, 9),
+      clockInTime: new Date().toISOString(),
+      clockInLocation: location,
+      jobTitle: nextJob?.title
+    };
+    setSiteSession(prev => ({ ...prev, currentSession: newSession }));
+  };
+
+  const clockOut = async () => {
+    if (!siteSession.currentSession) return;
+    let location: { lat: number; lng: number } | undefined;
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+      });
+      location = { lat: position.coords.latitude, lng: position.coords.longitude };
+    } catch (e) {}
+    const completedSession: SiteLog = {
+      ...siteSession.currentSession,
+      clockOutTime: new Date().toISOString(),
+      clockOutLocation: location
+    };
+    setSiteSession(prev => ({
+      currentSession: null,
+      history: [completedSession, ...prev.history].slice(0, 30)
+    }));
+  };
+
+  // Calculate quote total helper
+  const calculateQuoteTotal = (quote: Quote): number => {
+    const sections = quote.sections || [];
+    const materialsTotal = sections.reduce((sum, section) =>
+      sum + (section.items || []).reduce((itemSum, item) => itemSum + (item.totalPrice || 0), 0), 0);
+    const labourHoursTotal = sections.reduce((sum, section) => sum + (section.labourHours || 0), 0);
+    const labourTotal = labourHoursTotal * (quote.labourRate || 0);
+    const subtotal = materialsTotal + labourTotal;
+    const markup = subtotal * ((quote.markupPercent || 0) / 100);
+    const tax = (subtotal + markup) * ((quote.taxPercent || 0) / 100);
+    return subtotal + markup + tax;
+  };
+
+  // Today's stats
+  const todayStats = useMemo(() => {
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
+
+    // Start of week (Monday)
+    const dayOfWeek = today.getDay();
+    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfWeek.getDate() - diff);
+
+    const jobsToday = schedule.filter(entry => {
+      const start = new Date(entry.start);
+      return start >= startOfToday && start < endOfToday;
+    }).length;
+
+    const weeklyRevenue = quotes
+      .filter(q => q.type === 'invoice' && q.status === 'paid')
+      .filter(q => {
+        const updatedAt = new Date(q.updatedAt);
+        return updatedAt >= startOfWeek && updatedAt <= today;
+      })
+      .reduce((sum, q) => sum + calculateQuoteTotal(q), 0);
+
+    const outstandingInvoices = quotes.filter(
+      q => q.type === 'invoice' && q.status !== 'paid' && q.status !== 'draft'
+    ).length;
+
+    const pendingQuotes = quotes.filter(
+      q => (q.type === 'estimate' || q.type === 'quotation') && q.status === 'sent'
+    ).length;
+
+    return { jobsToday, weeklyRevenue, outstandingInvoices, pendingQuotes };
+  }, [schedule, quotes]);
+
+  // Week preview
+  const weekPreview = useMemo(() => {
+    const days: { date: Date; dayName: string; jobCount: number }[] = [];
+    const today = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+
+      const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+      const jobCount = schedule.filter(entry => {
+        const start = new Date(entry.start);
+        return start >= startOfDay && start < endOfDay;
+      }).length;
+
+      days.push({
+        date,
+        dayName: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-GB', { weekday: 'short' }),
+        jobCount
+      });
+    }
+
+    return days;
+  }, [schedule]);
+
+  // Alerts
+  const alerts = useMemo(() => {
+    const alertList: { id: string; type: string; title: string; description: string; severity: 'warning' | 'info' }[] = [];
+    const now = new Date();
+
+    // Overdue invoices (sent/accepted > 14 days old)
+    quotes
+      .filter(q => q.type === 'invoice' && (q.status === 'sent' || q.status === 'accepted'))
+      .forEach(invoice => {
+        const invoiceDate = new Date(invoice.date);
+        const dueDate = new Date(invoiceDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+        if (now > dueDate) {
+          const customer = customers.find(c => c.id === invoice.customerId);
+          alertList.push({
+            id: `overdue-${invoice.id}`,
+            type: 'overdue',
+            title: `Overdue: ${invoice.title}`,
+            description: `${customer?.name || 'Unknown'} - Due ${dueDate.toLocaleDateString()}`,
+            severity: 'warning'
+          });
+        }
+      });
+
+    // Pending quotes (sent > 7 days ago)
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    quotes
+      .filter(q => (q.type === 'estimate' || q.type === 'quotation') && q.status === 'sent')
+      .filter(q => new Date(q.updatedAt) < sevenDaysAgo)
+      .forEach(quote => {
+        const customer = customers.find(c => c.id === quote.customerId);
+        alertList.push({
+          id: `pending-${quote.id}`,
+          type: 'pending_quote',
+          title: `Follow Up: ${quote.title}`,
+          description: `Sent to ${customer?.name || 'Unknown'} - No response`,
+          severity: 'info'
+        });
+      });
+
+    // Upcoming jobs (within 24 hours)
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    schedule
+      .filter(entry => {
+        const start = new Date(entry.start);
+        return start > now && start < tomorrow;
+      })
+      .forEach(job => {
+        const customer = customers.find(c => c.id === job.customerId);
+        alertList.push({
+          id: `upcoming-${job.id}`,
+          type: 'upcoming_job',
+          title: job.title,
+          description: `${new Date(job.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${customer?.name || 'Site visit'}`,
+          severity: 'info'
+        });
+      });
+
+    return alertList.slice(0, 5);
+  }, [quotes, schedule, customers]);
+
   const nextJob = useMemo(() => {
     const now = new Date();
     return [...schedule]
@@ -186,6 +419,80 @@ export const Home: React.FC<HomeProps> = ({ schedule, customers, projects, onNav
           <span className="font-black text-slate-900 text-lg">
             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
+        </div>
+      </div>
+
+      {/* Quick Actions Bar */}
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        <button
+          onClick={onCreateJob}
+          className="flex-shrink-0 flex items-center gap-3 bg-blue-500 text-white px-6 py-4 rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
+        >
+          <Briefcase size={20} />
+          <span className="font-black text-sm uppercase tracking-wide">New Job</span>
+        </button>
+        <button
+          onClick={onCreateQuote}
+          className="flex-shrink-0 flex items-center gap-3 bg-amber-500 text-white px-6 py-4 rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+        >
+          <FileText size={20} />
+          <span className="font-black text-sm uppercase tracking-wide">New Quote</span>
+        </button>
+        <button
+          onClick={onLogExpense}
+          className="flex-shrink-0 flex items-center gap-3 bg-emerald-500 text-white px-6 py-4 rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+        >
+          <Receipt size={20} />
+          <span className="font-black text-sm uppercase tracking-wide">Log Expense</span>
+        </button>
+        <button
+          onClick={onAddCustomer}
+          className="flex-shrink-0 flex items-center gap-3 bg-purple-500 text-white px-6 py-4 rounded-2xl hover:bg-purple-600 transition-all shadow-lg shadow-purple-500/20"
+        >
+          <UserPlus size={20} />
+          <span className="font-black text-sm uppercase tracking-wide">Add Customer</span>
+        </button>
+      </div>
+
+      {/* Today's Stats Card */}
+      <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl">
+            <div className="p-3 bg-blue-500 text-white rounded-xl">
+              <Calendar size={20} />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">{todayStats.jobsToday}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Jobs Today</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-2xl">
+            <div className="p-3 bg-emerald-500 text-white rounded-xl">
+              <PoundSterling size={20} />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">{todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">This Week</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-2xl">
+            <div className="p-3 bg-amber-500 text-white rounded-xl">
+              <FileWarning size={20} />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">{todayStats.outstandingInvoices}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Outstanding</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-2xl">
+            <div className="p-3 bg-purple-500 text-white rounded-xl">
+              <Clock size={20} />
+            </div>
+            <div>
+              <p className="text-2xl font-black text-slate-900">{todayStats.pendingQuotes}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pending Quotes</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -270,6 +577,95 @@ export const Home: React.FC<HomeProps> = ({ schedule, customers, projects, onNav
           </div>
         )}
       </div>
+
+      {/* On Site Clock + Week Preview Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* On Site Clock */}
+        <div className={`rounded-[32px] p-6 ${siteSession.currentSession ? 'bg-emerald-500' : 'bg-slate-900'} text-white shadow-lg`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest opacity-70 mb-1">
+                {siteSession.currentSession ? 'On Site' : 'Off Site'}
+              </p>
+              {siteSession.currentSession ? (
+                <>
+                  <p className="text-3xl font-black">{elapsedTime}</p>
+                  <p className="text-sm opacity-80 mt-1">
+                    Since {new Date(siteSession.currentSession.clockInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {siteSession.currentSession.jobTitle && ` - ${siteSession.currentSession.jobTitle}`}
+                  </p>
+                </>
+              ) : (
+                <p className="text-lg font-bold opacity-60">Tap to clock in when you arrive</p>
+              )}
+            </div>
+            <button
+              onClick={siteSession.currentSession ? clockOut : clockIn}
+              className={`h-16 w-16 rounded-[20px] flex items-center justify-center font-black text-sm transition-all ${
+                siteSession.currentSession
+                  ? 'bg-white text-emerald-600 hover:bg-emerald-50'
+                  : 'bg-amber-500 text-slate-900 hover:bg-amber-400'
+              }`}
+            >
+              {siteSession.currentSession ? <LogOut size={24} /> : <LogIn size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Week Preview */}
+        <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm">
+          <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4">Week Ahead</h3>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            {weekPreview.map((day, idx) => (
+              <button
+                key={idx}
+                onClick={onNavigateToSchedule}
+                className={`flex-shrink-0 w-14 p-3 rounded-xl text-center transition-all ${
+                  idx === 0 ? 'bg-amber-500 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-900'
+                }`}
+              >
+                <p className="text-[9px] font-black uppercase">{day.dayName}</p>
+                <p className="text-lg font-black">{day.date.getDate()}</p>
+                <div className={`text-[10px] font-bold ${day.jobCount > 0 ? '' : 'opacity-40'}`}>
+                  {day.jobCount} {day.jobCount === 1 ? 'job' : 'jobs'}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Alerts Section */}
+      {alerts.length > 0 && (
+        <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm">
+          <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
+            <AlertTriangle size={18} className="text-amber-500" />
+            Attention Needed
+          </h3>
+          <div className="space-y-3">
+            {alerts.map(alert => (
+              <div
+                key={alert.id}
+                className={`p-4 rounded-xl flex items-center justify-between ${
+                  alert.severity === 'warning' ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50 border border-slate-100'
+                }`}
+              >
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-900 truncate">{alert.title}</p>
+                  <p className="text-xs text-slate-500 truncate">{alert.description}</p>
+                </div>
+                <div className={`ml-3 px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                  alert.type === 'overdue' ? 'bg-amber-500 text-white' :
+                  alert.type === 'pending_quote' ? 'bg-purple-500 text-white' :
+                  'bg-blue-500 text-white'
+                }`}>
+                  {alert.type === 'overdue' ? 'Overdue' : alert.type === 'pending_quote' ? 'Follow Up' : 'Soon'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Reminders Section */}

@@ -148,7 +148,17 @@ const App: React.FC = () => {
 
   return (
     <Layout activeTab={activeTab === 'view' || activeTab === 'jobpack_detail' || activeTab === 'quote_edit' ? '' : activeTab} setActiveTab={setActiveTab} onSignOut={signOut}>
-      {activeTab === 'home' && <Home schedule={schedule} customers={customers} projects={projects} onNavigateToSchedule={() => setActiveTab('schedule')} />}
+      {activeTab === 'home' && <Home
+        schedule={schedule}
+        customers={customers}
+        projects={projects}
+        quotes={quotes}
+        onNavigateToSchedule={() => setActiveTab('schedule')}
+        onCreateJob={() => setActiveTab('jobpacks')}
+        onCreateQuote={() => handleCreateQuote()}
+        onLogExpense={() => setActiveTab('expenses')}
+        onAddCustomer={() => setActiveTab('customers')}
+      />}
       {activeTab === 'jobpacks' && <JobPackList projects={[...projects].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} onOpenProject={openProject} onAddProject={handleAddProject} onAddCustomer={handleAddCustomer} />}
       {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} setEntries={setScheduleEntries} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} />}
       {activeTab === 'jobpack_detail' && activeProjectId && (activeProject ? <JobPackView project={activeProject} customers={customers} quotes={quotes.filter(q => q.projectId === activeProjectId)} onSaveProject={handleSaveProject} onViewQuote={handleViewQuote} onCreateQuote={() => handleCreateQuote(activeProjectId)} onBack={() => setActiveTab('jobpacks')} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><AlertCircle size={48} className="text-amber-500 mb-4" /><p>Job Pack Not Found</p><button onClick={() => setActiveTab('jobpacks')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
