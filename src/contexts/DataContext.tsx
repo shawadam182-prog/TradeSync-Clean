@@ -14,6 +14,8 @@ import {
   expenseCategoriesService,
   vendorsService,
   vendorKeywordsService,
+  materialsLibraryService,
+  materialsImportHistoryService,
 } from '../services/dataService';
 import type { Customer, Quote, JobPack, ScheduleEntry, AppSettings } from '../../types';
 
@@ -108,6 +110,8 @@ interface DataContextType {
     expenseCategories: typeof expenseCategoriesService;
     vendors: typeof vendorsService;
     vendorKeywords: typeof vendorKeywordsService;
+    materialsLibrary: typeof materialsLibraryService;
+    materialsImportHistory: typeof materialsImportHistoryService;
   };
 
   // Refresh data
@@ -566,6 +570,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       expenseCategories: expenseCategoriesService,
       vendors: vendorsService,
       vendorKeywords: vendorKeywordsService,
+      materialsLibrary: materialsLibraryService,
+      materialsImportHistory: materialsImportHistoryService,
     },
     refresh: fetchData,
   };

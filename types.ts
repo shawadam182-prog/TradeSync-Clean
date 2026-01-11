@@ -298,3 +298,101 @@ export interface QuarterSummary {
   expenseCount: number;
   invoiceCount: number;
 }
+
+// ============================================
+// MATERIALS LIBRARY TYPES
+// For wholesaler CSV imports and product catalog
+// ============================================
+
+export interface MaterialLibraryItem {
+  id: string;
+  productCode?: string;
+  name: string;
+  description?: string;
+  unit: string;
+  costPrice?: number;
+  sellPrice?: number;
+  supplier?: string;
+  category?: string;
+  isFavourite: boolean;
+  lastUpdated: string;
+  createdAt: string;
+}
+
+export interface DBMaterialLibraryItem {
+  id: string;
+  user_id: string;
+  product_code?: string;
+  name: string;
+  description?: string;
+  unit: string;
+  cost_price?: number;
+  sell_price?: number;
+  supplier?: string;
+  category?: string;
+  is_favourite: boolean;
+  last_updated: string;
+  created_at: string;
+}
+
+export interface MaterialsImportHistory {
+  id: string;
+  supplier?: string;
+  filename?: string;
+  itemsImported: number;
+  itemsUpdated: number;
+  itemsFailed: number;
+  importedAt: string;
+}
+
+export interface DBMaterialsImportHistory {
+  id: string;
+  user_id: string;
+  supplier?: string;
+  filename?: string;
+  items_imported: number;
+  items_updated: number;
+  items_failed: number;
+  imported_at: string;
+}
+
+export interface WholesalerPreset {
+  id: string;
+  name: string;
+  columns: {
+    productCode?: number;
+    name: number;
+    description?: number;
+    unit?: number;
+    costPrice: number;
+    sellPrice?: number;
+    category?: number;
+  };
+  skipRows: number;
+  hasHeader: boolean;
+}
+
+export type MaterialCategory =
+  | 'timber'
+  | 'plasterboard'
+  | 'plaster'
+  | 'fixings'
+  | 'insulation'
+  | 'electrical'
+  | 'plumbing'
+  | 'drainage'
+  | 'roofing'
+  | 'flooring'
+  | 'paint'
+  | 'adhesives'
+  | 'tools'
+  | 'ppe'
+  | 'aggregates'
+  | 'cement'
+  | 'blocks'
+  | 'bricks'
+  | 'metalwork'
+  | 'doors'
+  | 'windows'
+  | 'landscaping'
+  | 'other';

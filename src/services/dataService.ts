@@ -975,6 +975,8 @@ export const filingService = {
     expiry_date?: string;
     vendor_name?: string;
     job_pack_id?: string;
+    expense_id?: string;
+    payable_id?: string;
     tax_year?: string;
   }) {
     const user = (await supabase.auth.getUser()).data.user;
@@ -1005,6 +1007,8 @@ export const filingService = {
         expiry_date: metadata.expiry_date,
         vendor_name: metadata.vendor_name,
         job_pack_id: metadata.job_pack_id,
+        expense_id: metadata.expense_id,
+        payable_id: metadata.payable_id,
         tax_year: metadata.tax_year,
       })
       .select()
@@ -1312,5 +1316,301 @@ export const vendorsService = {
       .delete()
       .eq('id', id);
     if (error) throw error;
+  },
+};
+
+// ============================================
+// MATERIALS LIBRARY
+// ============================================
+
+export interface MaterialLibraryInsert {
+  product_code?: string;
+  name: string;
+  description?: string;
+  unit?: string;
+  cost_price?: number;
+  sell_price?: number;
+  supplier?: string;
+  category?: string;
+  is_favourite?: boolean;
+}
+
+export const materialsLibraryService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  async getBySupplier(supplier: string) {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .eq('supplier', supplier)
+      .order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  async getByCategory(category: string) {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .eq('category', category)
+      .order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  async getFavourites() {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .eq('is_favourite', true)
+      .order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  async search(query: string) {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .or(`name.ilike.%${query}%,product_code.ilike.%${query}%,description.ilike.%${query}%`)
+      .order('name')
+      .limit(50);
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async create(material: MaterialLibraryInsert) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('materials_library')
+      .insert({ ...material, user_id: user.id })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<MaterialLibraryInsert>) {
+    const { data, error } = await supabase
+      .from('materials_library')
+      .update({ ...updates, last_updated: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('materials_library')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async deleteBySupplier(supplier: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('materials_library')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('supplier', supplier);
+    if (error) throw error;
+  },
+
+  async toggleFavourite(id: string) {
+    const { data: current, error: fetchError } = await supabase
+      .from('materials_library')
+      .select('is_favourite')
+      .eq('id', id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    const { data, error } = await supabase
+      .from('materials_library')
+      .update({ is_favourite: !current?.is_favourite })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async upsertBatch(materials: MaterialLibraryInsert[], supplier: string) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const results = {
+      imported: 0,
+      updated: 0,
+      failed: 0,
+      errors: [] as string[],
+    };
+
+    for (const material of materials) {
+      try {
+        // Check if exists by product_code + supplier
+        if (material.product_code) {
+          const { data: existing } = await supabase
+            .from('materials_library')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('supplier', supplier)
+            .eq('product_code', material.product_code)
+            .single();
+
+          if (existing) {
+            // Update existing
+            await supabase
+              .from('materials_library')
+              .update({
+                ...material,
+                supplier,
+                last_updated: new Date().toISOString(),
+              })
+              .eq('id', existing.id);
+            results.updated++;
+          } else {
+            // Insert new
+            await supabase
+              .from('materials_library')
+              .insert({
+                ...material,
+                supplier,
+                user_id: user.id,
+              });
+            results.imported++;
+          }
+        } else {
+          // No product code - just insert
+          await supabase
+            .from('materials_library')
+            .insert({
+              ...material,
+              supplier,
+              user_id: user.id,
+            });
+          results.imported++;
+        }
+      } catch (err) {
+        results.failed++;
+        results.errors.push(`${material.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
+    }
+
+    return results;
+  },
+
+  async getSuppliers() {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('supplier')
+      .eq('user_id', user.id)
+      .not('supplier', 'is', null);
+
+    if (error) throw error;
+
+    // Get unique suppliers
+    const suppliers = [...new Set(data?.map(d => d.supplier).filter(Boolean))] as string[];
+    return suppliers.sort();
+  },
+
+  async getCategories() {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('category')
+      .eq('user_id', user.id)
+      .not('category', 'is', null);
+
+    if (error) throw error;
+
+    // Get unique categories
+    const categories = [...new Set(data?.map(d => d.category).filter(Boolean))] as string[];
+    return categories.sort();
+  },
+
+  async getStats() {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return { totalItems: 0, suppliers: 0, categories: 0, favourites: 0 };
+
+    const { data, error } = await supabase
+      .from('materials_library')
+      .select('id, supplier, category, is_favourite')
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    const suppliers = new Set(data?.map(d => d.supplier).filter(Boolean));
+    const categories = new Set(data?.map(d => d.category).filter(Boolean));
+    const favourites = data?.filter(d => d.is_favourite).length || 0;
+
+    return {
+      totalItems: data?.length || 0,
+      suppliers: suppliers.size,
+      categories: categories.size,
+      favourites,
+    };
+  },
+};
+
+// ============================================
+// MATERIALS IMPORT HISTORY
+// ============================================
+
+export const materialsImportHistoryService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('materials_import_history')
+      .select('*')
+      .order('imported_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async create(record: {
+    supplier?: string;
+    filename?: string;
+    items_imported: number;
+    items_updated: number;
+    items_failed: number;
+  }) {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('materials_import_history')
+      .insert({ ...record, user_id: user.id })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
 };

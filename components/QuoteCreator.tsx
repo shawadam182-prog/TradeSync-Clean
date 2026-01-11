@@ -1,20 +1,21 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions } from '../types';
-import { 
-  analyzeJobRequirements, 
-  parseVoiceCommandForItems, 
+import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions, DBMaterialLibraryItem } from '../types';
+import {
+  analyzeJobRequirements,
+  parseVoiceCommandForItems,
   parseCustomerVoiceInput,
   formatAddressAI,
   reverseGeocode
 } from '../src/services/geminiService';
-import { 
-  ArrowLeft, Mic, Sparkles, Plus, 
+import {
+  ArrowLeft, Mic, Sparkles, Plus,
   Trash2, Loader2, Camera,
   UserPlus, ChevronDown, X, MapPinned, MicOff, AlertCircle,
   HardHat, PoundSterling, Clock, Percent, Package, FileText, ShieldCheck,
-  Calendar, GripVertical, Copy, Layers, LocateFixed
+  Calendar, GripVertical, Copy, Layers, LocateFixed, Library
 } from 'lucide-react';
+import { MaterialsLibrary } from './MaterialsLibrary';
 
 interface QuoteCreatorProps {
   existingQuote?: Quote;
@@ -45,6 +46,10 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   const [isVerifyingAddress, setIsVerifyingAddress] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
+
+  // Materials Library modal state
+  const [showMaterialsLibrary, setShowMaterialsLibrary] = useState(false);
+  const [librarySectionId, setLibrarySectionId] = useState<string | null>(null);
   
   // Migration logic for old flat quotes
   const getInitialData = (): Partial<Quote> => {
@@ -287,17 +292,49 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       ...prev,
       sections: prev.sections?.map(s => s.id === sectionId ? {
         ...s,
-        items: [...s.items, { 
-          id: Math.random().toString(36).substr(2, 9), 
-          name: '', 
-          description: '', 
-          quantity: 1, 
-          unit: 'pc', 
-          unitPrice: 0, 
-          totalPrice: 0 
+        items: [...s.items, {
+          id: Math.random().toString(36).substr(2, 9),
+          name: '',
+          description: '',
+          quantity: 1,
+          unit: 'pc',
+          unitPrice: 0,
+          totalPrice: 0
         }]
       } : s)
     }));
+  };
+
+  const openLibraryForSection = (sectionId: string) => {
+    setLibrarySectionId(sectionId);
+    setShowMaterialsLibrary(true);
+  };
+
+  const handleAddFromLibrary = (material: DBMaterialLibraryItem) => {
+    if (!librarySectionId) return;
+
+    const sellPrice = material.sell_price ? Number(material.sell_price) : (material.cost_price ? Number(material.cost_price) : 0);
+
+    const newItem: MaterialItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: material.name,
+      description: material.description || (material.product_code ? `Code: ${material.product_code}` : ''),
+      quantity: 1,
+      unit: material.unit || 'pc',
+      unitPrice: sellPrice,
+      totalPrice: sellPrice,
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === librarySectionId ? {
+        ...s,
+        items: [...s.items, newItem]
+      } : s)
+    }));
+
+    setShowMaterialsLibrary(false);
+    setLibrarySectionId(null);
   };
 
   const updateItem = (sectionId: string, itemId: string, updates: Partial<MaterialItem>) => {
@@ -604,6 +641,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 </div>
                 <div className="flex gap-4">
                    <button onClick={() => addMaterialToSection(section.id)} className="flex-1 py-4 border-2 border-dashed border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:border-amber-200 hover:text-amber-500 transition-all flex items-center justify-center gap-2"><Plus size={14}/> Add Item</button>
+                   <button onClick={() => openLibraryForSection(section.id)} className="flex-1 py-4 border-2 border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center justify-center gap-2"><Library size={14}/> Add from Library</button>
                 </div>
               </div>
 
@@ -662,6 +700,32 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Materials Library Modal */}
+      {showMaterialsLibrary && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[40px] max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-200">
+            <div className="sticky top-0 bg-white border-b border-slate-100 p-6 flex justify-between items-center z-10">
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Add from Materials Library</h3>
+                <p className="text-sm text-slate-500">Select a material to add to your quote</p>
+              </div>
+              <button
+                onClick={() => { setShowMaterialsLibrary(false); setLibrarySectionId(null); }}
+                className="p-3 hover:bg-slate-100 rounded-xl transition-colors"
+              >
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-6">
+              <MaterialsLibrary
+                selectionMode={true}
+                onSelectMaterial={handleAddFromLibrary}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
