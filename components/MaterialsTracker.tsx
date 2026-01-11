@@ -61,12 +61,14 @@ export const MaterialsTracker: React.FC<MaterialsTrackerProps> = ({
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      if (target === 'scratch') {
-        setScratchpadText(prev => (prev + ' ' + transcript).trim());
-      } else {
-        setQuickInput(transcript);
-        handleQuickAdd(transcript);
+      if (event.results?.[0]?.[0]?.transcript) {
+        const transcript = event.results[0][0].transcript;
+        if (target === 'scratch') {
+          setScratchpadText(prev => (prev + ' ' + transcript).trim());
+        } else {
+          setQuickInput(transcript);
+          handleQuickAdd(transcript);
+        }
       }
     };
 

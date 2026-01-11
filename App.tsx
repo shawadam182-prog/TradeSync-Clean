@@ -25,9 +25,10 @@ const App: React.FC = () => {
   const { signOut } = useAuth();
   const {
     customers, quotes, projects, schedule, settings,
-    setCustomers, setScheduleEntries, setSettings, updateSettings,
+    setCustomers, setSettings, updateSettings,
     addCustomer, saveQuote, updateQuote, updateQuoteStatus,
     addProject, saveProject,
+    addScheduleEntry, updateScheduleEntry, deleteScheduleEntry,
   } = useData();
 
   const [activeTab, setActiveTab] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files'>('home');
@@ -160,7 +161,7 @@ const App: React.FC = () => {
         onAddCustomer={() => setActiveTab('customers')}
       />}
       {activeTab === 'jobpacks' && <JobPackList projects={[...projects].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} onOpenProject={openProject} onAddProject={handleAddProject} onAddCustomer={handleAddCustomer} />}
-      {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} setEntries={setScheduleEntries} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} />}
+      {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} onAddEntry={addScheduleEntry} onUpdateEntry={updateScheduleEntry} onDeleteEntry={deleteScheduleEntry} />}
       {activeTab === 'jobpack_detail' && activeProjectId && (activeProject ? <JobPackView project={activeProject} customers={customers} quotes={quotes.filter(q => q.projectId === activeProjectId)} onSaveProject={handleSaveProject} onViewQuote={handleViewQuote} onCreateQuote={() => handleCreateQuote(activeProjectId)} onBack={() => setActiveTab('jobpacks')} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><AlertCircle size={48} className="text-amber-500 mb-4" /><p>Job Pack Not Found</p><button onClick={() => setActiveTab('jobpacks')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
       {activeTab === 'quotes' && <QuotesList quotes={[...quotes].filter(q => q.type === 'estimate' || q.type === 'quotation').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onEditQuote={handleEditQuote} onCreateQuote={() => handleCreateQuote()} />}
       {activeTab === 'invoices' && <InvoicesList quotes={[...quotes].filter(q => q.type === 'invoice').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onCreateInvoice={() => handleCreateQuote()} />}

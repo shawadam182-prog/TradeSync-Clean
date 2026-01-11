@@ -49,18 +49,24 @@ export const JobPackList: React.FC<JobPackListProps> = ({
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'en-GB';
-      
+
       recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => { 
-        setIsListening(false); 
-        setIsListeningField(null); 
+      recognition.onend = () => {
+        setIsListening(false);
+        setIsListeningField(null);
         activeFieldVoiceRef.current = null;
       };
-      
+      recognition.onerror = () => {
+        setIsListening(false);
+        setIsListeningField(null);
+        activeFieldVoiceRef.current = null;
+      };
+
       recognition.onresult = async (event: any) => {
+        if (!event.results?.[0]?.[0]?.transcript) return;
         const transcript = event.results[0][0].transcript;
         const targetField = activeFieldVoiceRef.current;
-        
+
         if (targetField) {
           setNewCustomer(prev => ({ ...prev, [targetField]: transcript }));
         } else {
@@ -76,9 +82,12 @@ export const JobPackList: React.FC<JobPackListProps> = ({
           }
         }
       };
-      
+
       recognitionRef.current = recognition;
     }
+    return () => {
+      recognitionRef.current?.abort();
+    };
   }, []);
 
   const filtered = projects.filter(project => {

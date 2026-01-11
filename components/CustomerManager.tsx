@@ -42,15 +42,22 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'en-GB';
-      
+
       recognition.onend = () => {
         setIsListeningGlobal(false);
         setActiveFieldVoice(null);
         isListeningGlobalRef.current = false;
         activeFieldVoiceRef.current = null;
       };
-      
+      recognition.onerror = () => {
+        setIsListeningGlobal(false);
+        setActiveFieldVoice(null);
+        isListeningGlobalRef.current = false;
+        activeFieldVoiceRef.current = null;
+      };
+
       recognition.onresult = async (event: any) => {
+        if (!event.results?.[0]?.[0]?.transcript) return;
         const transcript = event.results[0][0].transcript;
         const wasGlobal = isListeningGlobalRef.current;
         const targetField = activeFieldVoiceRef.current;
@@ -63,6 +70,9 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
       };
       recognitionRef.current = recognition;
     }
+    return () => {
+      recognitionRef.current?.abort();
+    };
   }, []);
 
   const handleParsedSpeech = async (transcript: string) => {

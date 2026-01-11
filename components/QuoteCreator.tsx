@@ -124,8 +124,11 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       recognition.lang = 'en-GB';
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
       recognition.onresult = (event: any) => {
-        if (event.results[0].isFinal) handleVoiceCommand(event.results[0][0].transcript);
+        if (event.results?.[0]?.isFinal && event.results[0][0]?.transcript) {
+          handleVoiceCommand(event.results[0][0].transcript);
+        }
       };
       recognitionRef.current = recognition;
 
@@ -134,8 +137,11 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       titleRec.lang = 'en-GB';
       titleRec.onstart = () => setIsListeningTitle(true);
       titleRec.onend = () => setIsListeningTitle(false);
+      titleRec.onerror = () => setIsListeningTitle(false);
       titleRec.onresult = (event: any) => {
-        setFormData(prev => ({ ...prev, title: event.results[0][0].transcript }));
+        if (event.results?.[0]?.[0]?.transcript) {
+          setFormData(prev => ({ ...prev, title: event.results[0][0].transcript }));
+        }
       };
       titleRecognitionRef.current = titleRec;
 
@@ -144,21 +150,29 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       custRec.lang = 'en-GB';
       custRec.onstart = () => setIsListeningCustomer(true);
       custRec.onend = () => setIsListeningCustomer(false);
+      custRec.onerror = () => setIsListeningCustomer(false);
       custRec.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setIsProcessingCustomer(true);
-        setCustomerError(null);
-        try {
-          const details = await parseCustomerVoiceInput(transcript);
-          setNewCustomer(prev => ({ ...prev, ...details }));
-        } catch (err) {
-          setCustomerError("Magic fill failed.");
-        } finally {
-          setIsProcessingCustomer(false);
+        if (event.results?.[0]?.[0]?.transcript) {
+          const transcript = event.results[0][0].transcript;
+          setIsProcessingCustomer(true);
+          setCustomerError(null);
+          try {
+            const details = await parseCustomerVoiceInput(transcript);
+            setNewCustomer(prev => ({ ...prev, ...details }));
+          } catch (err) {
+            setCustomerError("Magic fill failed.");
+          } finally {
+            setIsProcessingCustomer(false);
+          }
         }
       };
       customerRecognitionRef.current = custRec;
     }
+    return () => {
+      recognitionRef.current?.abort();
+      titleRecognitionRef.current?.abort();
+      customerRecognitionRef.current?.abort();
+    };
   }, []);
 
   const handleVoiceCommand = async (transcript: string) => {

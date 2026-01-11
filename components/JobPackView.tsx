@@ -96,10 +96,12 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
       setIsRecording(false);
     };
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      const updated = notepadContent ? `${notepadContent}\n${transcript}` : transcript;
-      setNotepadContent(updated);
-      handleSaveNotepad(updated);
+      if (event.results?.[0]?.[0]?.transcript) {
+        const transcript = event.results[0][0].transcript;
+        const updated = notepadContent ? `${notepadContent}\n${transcript}` : transcript;
+        setNotepadContent(updated);
+        handleSaveNotepad(updated);
+      }
     };
     recognition.onerror = () => setIsRecording(false);
 
@@ -129,6 +131,9 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             updatedAt: new Date().toISOString()
           });
         };
+        reader.onerror = () => {
+          console.error('Failed to read photo file');
+        };
         reader.readAsDataURL(file);
       }
     };
@@ -156,6 +161,9 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             drawings: [drawing, ...(project.drawings || [])],
             updatedAt: new Date().toISOString()
           });
+        };
+        reader.onerror = () => {
+          console.error('Failed to read drawing file');
         };
         reader.readAsDataURL(file);
       }

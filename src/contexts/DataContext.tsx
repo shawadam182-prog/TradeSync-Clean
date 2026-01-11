@@ -254,29 +254,48 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
 
     try {
-      const [customersData, jobPacksData, quotesData, scheduleData, settingsData] = await Promise.all([
+      const results = await Promise.allSettled([
         customersService.getAll(),
         jobPacksService.getAll(),
         quotesService.getAll(),
         scheduleService.getAll(),
-        userSettingsService.get().catch(() => null),
+        userSettingsService.get(),
       ]);
 
-      setCustomers(customersData.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        email: c.email || '',
-        phone: c.phone || '',
-        address: c.address || '',
-        company: c.company || undefined,
-      })));
+      const [customersResult, jobPacksResult, quotesResult, scheduleResult, settingsResult] = results;
 
-      setProjects(jobPacksData.map(dbJobPackToApp));
-      setQuotes(quotesData.map(dbQuoteToApp));
-      setSchedule(scheduleData.map(dbScheduleToApp));
+      // Process successful results, use empty arrays for failures
+      if (customersResult.status === 'fulfilled') {
+        setCustomers(customersResult.value.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          email: c.email || '',
+          phone: c.phone || '',
+          address: c.address || '',
+          company: c.company || undefined,
+        })));
+      }
 
-      if (settingsData) {
-        setSettings(dbSettingsToApp(settingsData));
+      if (jobPacksResult.status === 'fulfilled') {
+        setProjects(jobPacksResult.value.map(dbJobPackToApp));
+      }
+
+      if (quotesResult.status === 'fulfilled') {
+        setQuotes(quotesResult.value.map(dbQuoteToApp));
+      }
+
+      if (scheduleResult.status === 'fulfilled') {
+        setSchedule(scheduleResult.value.map(dbScheduleToApp));
+      }
+
+      if (settingsResult.status === 'fulfilled' && settingsResult.value) {
+        setSettings(dbSettingsToApp(settingsResult.value));
+      }
+
+      // Check if any critical services failed
+      const failures = results.filter(r => r.status === 'rejected');
+      if (failures.length > 0) {
+        console.warn('Some services failed to load:', failures);
       }
     } catch (err: any) {
       console.error('Error fetching data:', err);

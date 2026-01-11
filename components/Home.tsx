@@ -133,9 +133,11 @@ export const Home: React.FC<HomeProps> = ({
       recognition.lang = 'en-GB';
       recognition.onstart = () => setIsListeningReminder(true);
       recognition.onend = () => setIsListeningReminder(false);
+      recognition.onerror = () => setIsListeningReminder(false);
       recognition.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        handleVoiceReminder(transcript);
+        if (event.results?.[0]?.[0]?.transcript) {
+          handleVoiceReminder(event.results[0][0].transcript);
+        }
       };
       recognitionRef.current = recognition;
 
@@ -144,15 +146,20 @@ export const Home: React.FC<HomeProps> = ({
       noteRecognition.continuous = false;
       noteRecognition.lang = 'en-GB';
       noteRecognition.onstart = () => setIsListeningNote(true);
-      noteRecognition.onend = () => {
-        setIsListeningNote(false);
-      };
+      noteRecognition.onend = () => setIsListeningNote(false);
+      noteRecognition.onerror = () => setIsListeningNote(false);
       noteRecognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setQuickNotes(prev => (prev ? `${prev}\n${transcript}` : transcript));
+        if (event.results?.[0]?.[0]?.transcript) {
+          const transcript = event.results[0][0].transcript;
+          setQuickNotes(prev => (prev ? `${prev}\n${transcript}` : transcript));
+        }
       };
       noteRecognitionRef.current = noteRecognition;
     }
+    return () => {
+      recognitionRef.current?.abort();
+      noteRecognitionRef.current?.abort();
+    };
   }, []);
 
   const startVoiceReminder = () => {

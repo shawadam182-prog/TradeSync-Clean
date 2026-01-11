@@ -14,13 +14,23 @@ import { parseScheduleVoiceInput, parseCustomerVoiceInput, formatAddressAI, reve
 
 interface ScheduleCalendarProps {
   entries: ScheduleEntry[];
-  setEntries: React.Dispatch<React.SetStateAction<ScheduleEntry[]>>;
   projects: JobPack[];
   customers: Customer[];
   onAddCustomer: (customer: Customer) => void;
+  onAddEntry: (entry: Omit<ScheduleEntry, 'id'>) => Promise<ScheduleEntry>;
+  onUpdateEntry: (id: string, updates: Partial<ScheduleEntry>) => Promise<void>;
+  onDeleteEntry: (id: string) => Promise<void>;
 }
 
-export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, setEntries, projects, customers, onAddCustomer }) => {
+export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
+  entries,
+  projects,
+  customers,
+  onAddCustomer,
+  onAddEntry,
+  onUpdateEntry,
+  onDeleteEntry
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date>(new Date());
   const [viewType, setViewType] = useState<'month' | 'week' | 'day'>('month');
@@ -52,14 +62,14 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, set
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.lang = 'en-GB';
-      
+
       recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => {
-        setIsListening(false);
-      };
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
       recognition.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        handleVoiceBooking(transcript);
+        if (event.results?.[0]?.[0]?.transcript) {
+          handleVoiceBooking(event.results[0][0].transcript);
+        }
       };
       recognitionRef.current = recognition;
 
@@ -69,12 +79,18 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, set
       custRec.lang = 'en-GB';
       custRec.onstart = () => setIsListeningCustomer(true);
       custRec.onend = () => setIsListeningCustomer(false);
+      custRec.onerror = () => setIsListeningCustomer(false);
       custRec.onresult = async (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        handleVoiceCustomer(transcript);
+        if (event.results?.[0]?.[0]?.transcript) {
+          handleVoiceCustomer(event.results[0][0].transcript);
+        }
       };
       customerRecognitionRef.current = custRec;
     }
+    return () => {
+      recognitionRef.current?.abort();
+      customerRecognitionRef.current?.abort();
+    };
   }, []);
 
   const handleVoiceBooking = async (transcript: string) => {
@@ -175,14 +191,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, set
     setIsAddingManual(true);
   };
 
-  const saveEntry = () => {
+  const saveEntry = async () => {
     if (!draft.title || !draft.start) {
       setError("Title and start date are required.");
       return;
     }
 
-    const newEntry: ScheduleEntry = {
-      id: editingId || Math.random().toString(36).substr(2, 9),
+    const entryData = {
       title: draft.title,
       start: draft.start,
       end: draft.end || new Date(new Date(draft.start).getTime() + 3600000).toISOString(),
@@ -191,20 +206,24 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, set
       description: draft.description
     };
 
-    if (editingId) {
-      setEntries(entries.map(e => e.id === editingId ? newEntry : e));
-    } else {
-      setEntries([...entries, newEntry]);
-    }
+    try {
+      if (editingId) {
+        await onUpdateEntry(editingId, entryData);
+      } else {
+        await onAddEntry(entryData);
+      }
 
-    setIsReviewingAI(false);
-    setIsAddingManual(false);
-    setEditingId(null);
-    setDraft({});
-    setError(null);
-    
-    setSelectedDay(new Date(newEntry.start));
-    setViewType('day');
+      setIsReviewingAI(false);
+      setIsAddingManual(false);
+      setEditingId(null);
+      setDraft({});
+      setError(null);
+
+      setSelectedDay(new Date(entryData.start));
+      setViewType('day');
+    } catch (err) {
+      setError("Failed to save entry. Please try again.");
+    }
   };
 
   const getDayEntries = (date: Date) => 
@@ -540,8 +559,8 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ entries, set
                             >
                               <Pencil size={24}/>
                             </button>
-                            <button 
-                              onClick={() => confirm('Cancel site booking?') && setEntries(entries.filter(ent => ent.id !== entry.id))}
+                            <button
+                              onClick={() => confirm('Cancel site booking?') && onDeleteEntry(entry.id)}
                               className="p-6 bg-red-50 text-red-300 rounded-[28px] hover:bg-red-500 hover:text-white transition-all shadow-sm"
                             >
                               <Trash2 size={24}/>
