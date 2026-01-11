@@ -5,7 +5,8 @@ import {
   ArrowUpRight, ArrowDownRight, Building2, AlertCircle,
   Download, Car, Clock, CheckCircle, Info, Percent
 } from 'lucide-react';
-import { expensesService, quotesService, userSettingsService } from '../src/services/dataService';
+import { expensesService, quotesService } from '../src/services/dataService';
+import { useData } from '../src/contexts/DataContext';
 
 interface Expense {
   id: string;
@@ -81,10 +82,10 @@ const getQuarterDeadline = (quarterStr: string): Date => {
 };
 
 export const VATSummaryPage: React.FC = () => {
+  const { settings } = useData();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isVatRegistered, setIsVatRegistered] = useState(false);
   const [selectedQuarter, setSelectedQuarter] = useState<string | 'all'>('all');
   const [vatScheme, setVatScheme] = useState<'standard' | 'flat_rate'>('standard');
   const [frsBusinessType, setFrsBusinessType] = useState('general_building');
@@ -98,14 +99,12 @@ export const VATSummaryPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [expData, quoteData, settings] = await Promise.all([
+      const [expData, quoteData] = await Promise.all([
         expensesService.getAll(),
         quotesService.getAll(),
-        userSettingsService.get(),
       ]);
       setExpenses(expData || []);
       setInvoices((quoteData || []).filter((q: any) => q.type === 'invoice' && q.status === 'paid'));
-      setIsVatRegistered(settings?.is_vat_registered || false);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -305,7 +304,7 @@ export const VATSummaryPage: React.FC = () => {
     );
   }
 
-  if (!isVatRegistered) {
+  if (!settings.isVatRegistered) {
     return (
       <div className="max-w-2xl mx-auto py-16 text-center">
         <div className="bg-amber-50 rounded-3xl border border-amber-200 p-10">

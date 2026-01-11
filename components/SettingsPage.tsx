@@ -1,24 +1,26 @@
 
 import React, { useState } from 'react';
 import { AppSettings, QuoteDisplayOptions } from '../types';
-import { 
-  Save, Building2, Calculator, MapPin, 
-  PoundSterling, CheckCircle, FileText, 
+import {
+  Save, Building2, Calculator, MapPin,
+  PoundSterling, CheckCircle, FileText,
   Settings2, Info, Palette, ReceiptText,
   ChevronRight, Building, Upload, X, Image as ImageIcon,
-  Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash
+  Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2
 } from 'lucide-react';
 
 interface SettingsPageProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
+  onSave?: (settings: Partial<AppSettings>) => Promise<void>;
 }
 
 type SettingsCategory = 'company' | 'quotes' | 'invoices';
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSettings }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSettings, onSave }) => {
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('company');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const handleNumericChange = (field: keyof AppSettings, val: string) => {
     if (val === '') {
@@ -63,9 +65,23 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
     });
   };
 
-  const handleSave = () => {
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+  const handleSave = async () => {
+    if (!onSave) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await onSave(settings);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const CategoryButton = ({ id, label, icon: Icon, color }: { id: SettingsCategory, label: string, icon: any, color: string }) => (
@@ -110,12 +126,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
           </div>
 
           <div className="pt-10 border-t border-slate-100">
-            <button 
+            <button
               onClick={handleSave}
-              className="w-full flex items-center justify-center gap-3 bg-slate-900 text-amber-500 p-5 rounded-[24px] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 uppercase text-xs tracking-widest border-b-4 border-slate-950 active:translate-y-1 active:border-b-0"
+              disabled={saving}
+              className="w-full flex items-center justify-center gap-3 bg-slate-900 text-amber-500 p-5 rounded-[24px] font-black hover:bg-black transition-all shadow-xl shadow-slate-200 uppercase text-xs tracking-widest border-b-4 border-slate-950 active:translate-y-1 active:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Save size={18} />
-              Save Configuration
+              {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+              {saving ? 'Saving...' : 'Save Configuration'}
             </button>
             {saveSuccess && (
               <div className="mt-4 flex items-center justify-center gap-2 text-green-600 font-black animate-in fade-in slide-in-from-top-2 text-[10px] uppercase tracking-widest">
