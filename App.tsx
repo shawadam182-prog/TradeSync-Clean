@@ -79,6 +79,54 @@ const App: React.FC = () => {
     try { await updateQuoteStatus(id, status); } catch (error) { console.error('Failed:', error); }
   };
 
+  const handleConvertToInvoice = async () => {
+    if (!viewingQuoteId) return;
+    const quote = quotes.find(q => q.id === viewingQuoteId);
+    if (!quote) return;
+
+    try {
+      const invoiceQuote: Quote = {
+        ...quote,
+        id: '', // Will be generated
+        type: 'invoice',
+        status: 'draft',
+        referenceNumber: undefined, // Will be auto-assigned
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const saved = await saveQuote(invoiceQuote);
+      // Update original quote status to invoiced
+      await updateQuoteStatus(viewingQuoteId, 'invoiced');
+      setViewingQuoteId(saved.id);
+    } catch (error) {
+      console.error('Failed to convert to invoice:', error);
+    }
+  };
+
+  const handleDuplicateQuote = async () => {
+    if (!viewingQuoteId) return;
+    const quote = quotes.find(q => q.id === viewingQuoteId);
+    if (!quote) return;
+
+    try {
+      const duplicatedQuote: Quote = {
+        ...quote,
+        id: '', // Will be generated
+        title: `${quote.title} (Copy)`,
+        status: 'draft',
+        referenceNumber: undefined, // Will be auto-assigned
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const saved = await saveQuote(duplicatedQuote);
+      setViewingQuoteId(saved.id);
+    } catch (error) {
+      console.error('Failed to duplicate quote:', error);
+    }
+  };
+
   const openProject = (id: string) => {
     setActiveProjectId(id);
     setActiveTab('jobpack_detail');
@@ -115,7 +163,7 @@ const App: React.FC = () => {
       {activeTab === 'customers' && <CustomerManager customers={customers} setCustomers={setCustomers} />}
       {activeTab === 'settings' && <SettingsPage settings={settings} setSettings={setSettings} onSave={updateSettings} />}
       {activeTab === 'quote_edit' && <QuoteCreator existingQuote={quotes.find(q => q.id === editingQuoteId)} projectId={activeProjectId || undefined} customers={customers} settings={settings} onSave={handleSaveQuote} onAddCustomer={handleAddCustomer} onCancel={() => activeProjectId ? setActiveTab('jobpack_detail') : setActiveTab('quotes')} />}
-      {activeTab === 'view' && viewingQuoteId && (activeViewQuote ? <QuoteView quote={activeViewQuote} customer={activeViewCustomer || { id: 'unknown', name: 'Unassigned Client', email: '', phone: '', address: 'N/A' }} settings={settings} onEdit={() => handleEditQuote(viewingQuoteId)} onBack={() => activeProjectId ? setActiveTab('jobpack_detail') : setActiveTab('quotes')} onUpdateStatus={(status) => handleUpdateQuoteStatus(viewingQuoteId, status)} onUpdateQuote={handleUpdateQuote} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><FileWarning size={48} className="text-amber-500 mb-4" /><p>Document Not Found</p><button onClick={() => setActiveTab('quotes')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
+      {activeTab === 'view' && viewingQuoteId && (activeViewQuote ? <QuoteView quote={activeViewQuote} customer={activeViewCustomer || { id: 'unknown', name: 'Unassigned Client', email: '', phone: '', address: 'N/A' }} settings={settings} onEdit={() => handleEditQuote(viewingQuoteId)} onBack={() => activeProjectId ? setActiveTab('jobpack_detail') : (activeViewQuote.type === 'invoice' ? setActiveTab('invoices') : setActiveTab('quotes'))} onUpdateStatus={(status) => handleUpdateQuoteStatus(viewingQuoteId, status)} onUpdateQuote={handleUpdateQuote} onConvertToInvoice={handleConvertToInvoice} onDuplicate={handleDuplicateQuote} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><FileWarning size={48} className="text-amber-500 mb-4" /><p>Document Not Found</p><button onClick={() => setActiveTab('quotes')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
     </Layout>
   );
 };

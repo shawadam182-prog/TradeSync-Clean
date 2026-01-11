@@ -1,14 +1,15 @@
 
 import React, { useState, useRef } from 'react';
 import { Quote, Customer, AppSettings, QuoteDisplayOptions, QuoteSection } from '../types';
-import { 
+import {
   ArrowLeft, Edit3, Hammer, User, FileText, Info,
   Landmark, Package, HardHat, FileDown, Loader2, Navigation, PoundSterling,
   Settings2, Eye, EyeOff, ChevronDown, ChevronUp, LayoutGrid, List,
   Image as ImageIcon, AlignLeft, ReceiptText, ShieldCheck, ListChecks, FileDigit,
-  Box,
-  Circle
+  Box, Circle, Share2, Copy, MessageCircle, MapPin
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 interface QuoteViewProps {
   quote: Quote;
@@ -18,10 +19,13 @@ interface QuoteViewProps {
   onBack: () => void;
   onUpdateStatus: (status: Quote['status']) => void;
   onUpdateQuote: (quote: Quote) => void;
+  onConvertToInvoice?: () => void;
+  onDuplicate?: () => void;
 }
 
-export const QuoteView: React.FC<QuoteViewProps> = ({ 
-  quote, customer, settings, onEdit, onBack, onUpdateStatus, onUpdateQuote
+export const QuoteView: React.FC<QuoteViewProps> = ({
+  quote, customer, settings, onEdit, onBack, onUpdateStatus, onUpdateQuote,
+  onConvertToInvoice, onDuplicate
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [showCustomiser, setShowCustomiser] = useState(false);
@@ -94,8 +98,6 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
 
   const handleDownloadPDF = async () => {
     if (!documentRef.current) return;
-    const html2pdf = (window as any).html2pdf;
-    if (!html2pdf) return;
 
     setIsDownloading(true);
     try {
@@ -104,19 +106,82 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       const cleanTitle = (activeQuote.title || 'estimate').replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const filename = `${prefix}${numStr}_${cleanTitle}.pdf`;
 
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+      // Capture the document as canvas
+      const canvas = await html2canvas(documentRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
 
-      await html2pdf().set(opt).from(documentRef.current).save();
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
+
+      // Handle multi-page if content is tall
+      const pageHeight = pdfHeight;
+      const scaledHeight = (imgHeight * pdfWidth) / imgWidth;
+      let heightLeft = scaledHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, scaledHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - scaledHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, scaledHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(filename);
     } catch (err) {
+      console.error('PDF generation failed:', err);
       window.print();
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const prefix = activeQuote.type === 'invoice' ? (settings.invoicePrefix || 'INV-') : (settings.quotePrefix || 'EST-');
+    const numStr = (activeQuote.referenceNumber || 1).toString().padStart(4, '0');
+    const docType = activeQuote.type === 'invoice' ? 'Invoice' : 'Quote';
+
+    const message = `Hi ${customer?.name || 'there'},
+
+Here's your ${docType} (${prefix}${numStr}) for "${activeQuote.title}":
+
+💰 Total: £${totals.grandTotal.toFixed(2)}
+📅 Date: ${activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString() : 'N/A'}
+
+${activeQuote.type === 'invoice' ? 'Payment due within 14 days.' : 'Let me know if you have any questions!'}
+
+- ${settings?.companyName || 'TradeMate'}`;
+
+    const phoneNumber = customer?.phone?.replace(/\D/g, '') || '';
+    const url = phoneNumber
+      ? `https://wa.me/${phoneNumber.startsWith('44') ? phoneNumber : '44' + phoneNumber.replace(/^0/, '')}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    window.open(url, '_blank');
+  };
+
+  const handleOpenMaps = () => {
+    if (customer?.address) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`;
+      window.open(url, '_blank');
     }
   };
 
@@ -163,8 +228,8 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
             <ArrowLeft size={16} />
             <span className="font-black text-[10px] uppercase tracking-widest">Back</span>
           </button>
-          <div className="flex gap-2">
-            <button 
+          <div className="flex flex-wrap gap-2">
+            <button
               onClick={() => setShowCustomiser(!showCustomiser)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold transition-all text-[10px] uppercase tracking-widest shadow-sm border ${
                 showCustomiser ? 'bg-purple-600 text-white border-purple-700' : 'bg-white text-purple-600 border-purple-100 hover:border-purple-300'
@@ -174,9 +239,27 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
               Layout {showCustomiser ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
             </button>
             <button onClick={onEdit} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold hover:bg-slate-50 transition-all text-[10px] uppercase tracking-widest shadow-sm"><Edit3 size={14} /> Edit</button>
+            {onDuplicate && (
+              <button onClick={onDuplicate} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold hover:bg-slate-50 transition-all text-[10px] uppercase tracking-widest shadow-sm">
+                <Copy size={14} /> Copy
+              </button>
+            )}
+            {activeQuote.type !== 'invoice' && onConvertToInvoice && activeQuote.status === 'accepted' && (
+              <button onClick={onConvertToInvoice} className="flex items-center gap-2 bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-black hover:bg-emerald-600 transition-all text-[10px] uppercase tracking-widest shadow-md shadow-emerald-200">
+                <ReceiptText size={14} /> Convert to Invoice
+              </button>
+            )}
+            <button onClick={handleWhatsAppShare} className="flex items-center gap-2 bg-green-500 text-white px-3 py-1.5 rounded-lg font-black hover:bg-green-600 transition-all text-[10px] uppercase tracking-widest shadow-md shadow-green-200">
+              <MessageCircle size={14} /> WhatsApp
+            </button>
+            {customer?.address && (
+              <button onClick={handleOpenMaps} className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1.5 rounded-lg font-black hover:bg-blue-600 transition-all text-[10px] uppercase tracking-widest shadow-md shadow-blue-200">
+                <MapPin size={14} /> Maps
+              </button>
+            )}
             <button onClick={handleDownloadPDF} disabled={isDownloading} className="flex items-center gap-2 bg-amber-500 text-white px-4 py-1.5 rounded-lg font-black hover:bg-amber-600 transition-all text-[10px] uppercase tracking-widest shadow-md shadow-amber-200 disabled:opacity-50">
               {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <FileDown size={16} />}
-              {isDownloading ? 'Working...' : 'Download PDF'}
+              {isDownloading ? 'Working...' : 'PDF'}
             </button>
           </div>
         </div>
