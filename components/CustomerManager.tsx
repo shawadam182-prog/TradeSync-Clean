@@ -9,6 +9,7 @@ import {
 import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { useToast } from '../src/contexts/ToastContext';
 import { validateCustomerData } from '../src/utils/inputValidation';
+import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 
 interface CustomerManagerProps {
   customers: Customer[];
@@ -278,11 +279,13 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
         </div>
         <div className="flex items-center gap-3">
           {!editingId && (
-            <button 
-              onClick={() => { setEditingId('new'); setCustomerForm({}); }} 
-              className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-slate-200"
+            <button
+              onClick={() => { hapticTap(); setEditingId('new'); setCustomerForm({}); }}
+              className="bg-slate-900 text-white px-5 py-3 min-h-[48px] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-slate-200 active:scale-95"
             >
-              <UserPlus size={18} /> New Contact
+              <UserPlus size={20} />
+              <span className="hidden sm:inline">New Contact</span>
+              <span className="sm:hidden">Add</span>
             </button>
           )}
         </div>
@@ -340,63 +343,132 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { id: 'name', label: 'Full Name *', icon: UserIcon, placeholder: 'e.g. John Smith' },
-                { id: 'company', label: 'Company Name', icon: Building, placeholder: 'e.g. Smith & Co Roofing' },
-                { id: 'email', label: 'Email Address', icon: Mail, placeholder: 'john@example.com' },
-                { id: 'phone', label: 'Phone Number', icon: Phone, placeholder: '07123 456789' }
-              ].map(field => (
-                <div key={field.id} className="space-y-1">
-                  <div className="flex justify-between items-center px-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic">
-                      <field.icon size={12} /> {field.label}
-                    </label>
-                    <button 
-                      type="button" 
-                      onClick={() => startFieldListening(field.id)} 
-                      className={`p-1.5 rounded-lg border transition-all ${activeFieldVoice === field.id ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
-                    >
-                      <Mic size={14} />
-                    </button>
-                  </div>
-                  <input 
-                    type="text" 
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-bold text-sm outline-none focus:bg-white focus:border-amber-500 transition-all" 
-                    value={(customerForm as any)[field.id] || ''} 
-                    placeholder={field.placeholder} 
-                    onChange={e => setCustomerForm({...customerForm, [field.id]: e.target.value})} 
-                  />
+              {/* Name Field */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic">
+                    <UserIcon size={12} /> Full Name *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { hapticTap(); startFieldListening('name'); }}
+                    className={`p-2 rounded-lg border transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${activeFieldVoice === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
+                  >
+                    <Mic size={16} />
+                  </button>
                 </div>
-              ))}
+                <input
+                  type="text"
+                  autoComplete="name"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                  value={customerForm.name || ''}
+                  placeholder="e.g. John Smith"
+                  onChange={e => setCustomerForm({...customerForm, name: e.target.value})}
+                />
+              </div>
+
+              {/* Company Field */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic">
+                    <Building size={12} /> Company Name
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { hapticTap(); startFieldListening('company'); }}
+                    className={`p-2 rounded-lg border transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${activeFieldVoice === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
+                  >
+                    <Mic size={16} />
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  autoComplete="organization"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                  value={customerForm.company || ''}
+                  placeholder="e.g. Smith & Co Roofing"
+                  onChange={e => setCustomerForm({...customerForm, company: e.target.value})}
+                />
+              </div>
+
+              {/* Email Field - with proper type for mobile keyboard */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic">
+                    <Mail size={12} /> Email Address
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { hapticTap(); startFieldListening('email'); }}
+                    className={`p-2 rounded-lg border transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${activeFieldVoice === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
+                  >
+                    <Mic size={16} />
+                  </button>
+                </div>
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                  value={customerForm.email || ''}
+                  placeholder="john@example.com"
+                  onChange={e => setCustomerForm({...customerForm, email: e.target.value})}
+                />
+              </div>
+
+              {/* Phone Field - with proper type for mobile keyboard */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center px-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic">
+                    <Phone size={12} /> Phone Number
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => { hapticTap(); startFieldListening('phone'); }}
+                    className={`p-2 rounded-lg border transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${activeFieldVoice === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
+                  >
+                    <Mic size={16} />
+                  </button>
+                </div>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                  value={customerForm.phone || ''}
+                  placeholder="07123 456789"
+                  onChange={e => setCustomerForm({...customerForm, phone: e.target.value})}
+                />
+              </div>
 
               <div className="md:col-span-2 space-y-1 relative">
                 <div className="flex justify-between items-center px-1">
                   <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic"><MapPin size={12} /> Main Site Address</label>
-                  <div className="flex gap-2">
-                    <button 
-                      type="button" 
-                      onClick={() => startFieldListening('address')} 
-                      className={`p-1.5 rounded-lg border transition-all ${activeFieldVoice === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => { hapticTap(); startFieldListening('address'); }}
+                      className={`p-2 rounded-lg border transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${activeFieldVoice === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 hover:border-amber-400 bg-white shadow-sm'}`}
                     >
-                      <Mic size={14} />
+                      <Mic size={16} />
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={handleUseCurrentLocation}
+                    <button
+                      type="button"
+                      onClick={() => { hapticTap(); handleUseCurrentLocation(); }}
                       disabled={isLocating}
-                      className="text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 flex items-center gap-1 px-3 py-1 disabled:opacity-30"
+                      className="min-h-[44px] px-4 text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 flex items-center gap-2 disabled:opacity-30 bg-blue-50 rounded-xl active:scale-95"
                     >
-                      {isLocating ? <Loader2 size={10} className="animate-spin" /> : <LocateFixed size={14} />}
-                      Use Location
+                      {isLocating ? <Loader2 size={14} className="animate-spin" /> : <LocateFixed size={16} />}
+                      <span className="hidden sm:inline">Use Location</span>
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={handleVerifyAddress} 
-                      disabled={!customerForm.address || isVerifyingAddress} 
-                      className="text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-1 px-3 py-1 disabled:opacity-30"
+                    <button
+                      type="button"
+                      onClick={() => { hapticTap(); handleVerifyAddress(); }}
+                      disabled={!customerForm.address || isVerifyingAddress}
+                      className="min-h-[44px] px-4 text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-2 disabled:opacity-30 bg-amber-50 rounded-xl active:scale-95"
                     >
-                      {isVerifyingAddress ? <Loader2 size={10} className="animate-spin" /> : <MapPinned size={14} />}
-                      AI Verify
+                      {isVerifyingAddress ? <Loader2 size={14} className="animate-spin" /> : <MapPinned size={16} />}
+                      <span className="hidden sm:inline">AI Verify</span>
                     </button>
                   </div>
                 </div>
@@ -441,7 +513,26 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
               </div>
             )}
 
-            <div className="flex gap-4 pt-4 border-t border-slate-50">
+            {/* Mobile sticky buttons - visible only on mobile */}
+            <div className="md:hidden mobile-sticky-actions">
+              <button
+                type="submit"
+                onClick={() => hapticTap()}
+                className="flex-1 bg-amber-500 text-white font-black min-h-[52px] rounded-2xl shadow-lg shadow-amber-200 uppercase tracking-widest text-xs active:scale-95"
+              >
+                {editingId === 'new' ? 'Register' : 'Update'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { hapticTap(); setEditingId(null); setError(null); }}
+                className="px-6 bg-slate-100 text-slate-500 font-black min-h-[52px] rounded-2xl uppercase tracking-widest text-xs active:scale-95"
+              >
+                Cancel
+              </button>
+            </div>
+
+            {/* Desktop buttons */}
+            <div className="hidden md:flex gap-4 pt-4 border-t border-slate-50">
               <button type="submit" className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs">
                 {editingId === 'new' ? 'Register Contact' : 'Update Credentials'}
               </button>
@@ -453,12 +544,13 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
         <>
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search directory by name, email or company..." 
-              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-amber-200 outline-none shadow-sm transition-all" 
-              value={searchTerm} 
-              onChange={e => setSearchTerm(e.target.value)} 
+            <input
+              type="search"
+              inputMode="search"
+              placeholder="Search by name, email or company..."
+              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 min-h-[52px] font-bold text-base text-slate-900 focus:border-amber-200 outline-none shadow-sm transition-all"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
 

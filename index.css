@@ -11,7 +11,209 @@
 }
 
 .animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+  animation: slide-up 0.2s ease-out;
+}
+
+/* ================================================
+   MOBILE OPTIMIZATION STYLES
+   ================================================ */
+
+/* Touch target minimum size - 44x44px for accessibility */
+@media (max-width: 768px) {
+  /* All buttons get minimum touch target */
+  button,
+  [role="button"],
+  a[href],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Form inputs - larger for fat fingers */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    min-height: 48px;
+    font-size: 16px !important; /* Prevents iOS auto-zoom */
+    -webkit-appearance: none;
+    border-radius: 12px;
+  }
+
+  /* Larger tap area for checkboxes and radios */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}
+
+/* Sticky action buttons container for mobile forms */
+.mobile-sticky-actions {
+  position: fixed;
+  bottom: 80px; /* Above bottom nav */
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 70%, rgba(255,255,255,0) 100%);
+  z-index: 90;
+  display: flex;
+  gap: 12px;
+}
+
+@media (min-width: 769px) {
+  .mobile-sticky-actions {
+    display: none;
+  }
+}
+
+/* Hide scrollbar but allow scrolling */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pull to refresh indicator */
+.pull-refresh-indicator {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: transform 0.2s ease-out;
+}
+
+.pull-refresh-indicator.visible {
+  transform: translateX(-50%) translateY(70px);
+}
+
+.pull-refresh-indicator.refreshing {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translateX(-50%) translateY(70px) rotate(0deg); }
+  to { transform: translateX(-50%) translateY(70px) rotate(360deg); }
+}
+
+/* Faster transitions on mobile for snappier feel */
+@media (max-width: 768px) {
+  * {
+    transition-duration: 0.15s !important;
+  }
+
+  /* Exceptions for specific animations */
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    transition-duration: unset !important;
+  }
+}
+
+/* Full width buttons on mobile */
+@media (max-width: 640px) {
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+/* Better spacing for mobile cards */
+@media (max-width: 768px) {
+  .mobile-card {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+}
+
+/* Floating Action Button styles */
+.fab {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #f59e0b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+  z-index: 95;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+@media (min-width: 769px) {
+  .fab {
+    display: none;
+  }
+}
+
+/* Swipe hint animation */
+@keyframes swipe-hint {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-10px); }
+}
+
+.swipe-hint {
+  animation: swipe-hint 1.5s ease-in-out 2;
+}
+
+/* Better focus states for mobile */
+@media (max-width: 768px) {
+  input:focus,
+  textarea:focus,
+  select:focus,
+  button:focus {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+  }
+}
+
+/* Haptic feedback visual cue */
+.haptic-tap {
+  transform: scale(0.97);
+}
+
+/* Safe area padding for notched phones */
+@supports (padding: max(0px)) {
+  .safe-area-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
 }
 
 /* Skeleton shimmer animation */

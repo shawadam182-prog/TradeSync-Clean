@@ -16,6 +16,7 @@ import {
   Calendar, GripVertical, Copy, Layers, LocateFixed, Library
 } from 'lucide-react';
 import { MaterialsLibrary } from './MaterialsLibrary';
+import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 
 interface QuoteCreatorProps {
   existingQuote?: Quote;
@@ -445,13 +446,30 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20">
-      <div className="flex items-center justify-between">
-        <button onClick={onCancel} className="flex items-center gap-2 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-slate-900 transition-colors">
-          <ArrowLeft size={16} /> Cancel
+      {/* Header with actions */}
+      <div className="flex items-center justify-between gap-2">
+        <button
+          onClick={() => { hapticTap(); onCancel(); }}
+          className="flex items-center gap-2 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-slate-900 transition-colors min-h-[44px] px-2"
+        >
+          <ArrowLeft size={18} />
+          <span className="hidden sm:inline">Cancel</span>
         </button>
         <div className="flex gap-2">
-          <button onClick={() => onSave(formData as Quote)} className="bg-white border-2 border-slate-100 text-slate-700 px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">Save Draft</button>
-          <button onClick={() => onSave({...formData as Quote, status: 'sent'})} className="bg-amber-500 text-white px-7 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all">Finalize & Send</button>
+          <button
+            onClick={() => { hapticTap(); onSave(formData as Quote); }}
+            className="bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 min-h-[44px] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+          >
+            <span className="hidden sm:inline">Save Draft</span>
+            <span className="sm:hidden">Save</span>
+          </button>
+          <button
+            onClick={() => { hapticSuccess(); onSave({...formData as Quote, status: 'sent'}); }}
+            className="bg-amber-500 text-white px-4 sm:px-7 py-2.5 min-h-[44px] rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all active:scale-95"
+          >
+            <span className="hidden sm:inline">Finalize & Send</span>
+            <span className="sm:hidden">Send</span>
+          </button>
         </div>
       </div>
 

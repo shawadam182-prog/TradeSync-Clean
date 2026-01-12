@@ -11,6 +11,7 @@ import {
   LogIn, LogOut
 } from 'lucide-react';
 import { parseReminderVoiceInput } from '../src/services/geminiService';
+import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 
 interface HomeProps {
   schedule: ScheduleEntry[];
@@ -431,35 +432,35 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </div>
 
-      {/* Quick Actions Bar */}
-      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+      {/* Quick Actions Bar - Optimized for mobile touch */}
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
         <button
-          onClick={onCreateJob}
-          className="flex-shrink-0 flex items-center gap-3 bg-blue-500 text-white px-6 py-4 rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
+          onClick={() => { hapticTap(); onCreateJob?.(); }}
+          className="flex-shrink-0 flex items-center gap-3 bg-blue-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-blue-500/20"
         >
-          <Briefcase size={20} />
-          <span className="font-black text-sm uppercase tracking-wide">New Job</span>
+          <Briefcase size={22} />
+          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">New Job</span>
         </button>
         <button
-          onClick={onCreateQuote}
-          className="flex-shrink-0 flex items-center gap-3 bg-amber-500 text-white px-6 py-4 rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20"
+          onClick={() => { hapticTap(); onCreateQuote?.(); }}
+          className="flex-shrink-0 flex items-center gap-3 bg-amber-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-amber-500/20"
         >
-          <FileText size={20} />
-          <span className="font-black text-sm uppercase tracking-wide">New Quote</span>
+          <FileText size={22} />
+          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">New Quote</span>
         </button>
         <button
-          onClick={onLogExpense}
-          className="flex-shrink-0 flex items-center gap-3 bg-emerald-500 text-white px-6 py-4 rounded-2xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+          onClick={() => { hapticTap(); onLogExpense?.(); }}
+          className="flex-shrink-0 flex items-center gap-3 bg-emerald-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-emerald-500/20"
         >
-          <Receipt size={20} />
-          <span className="font-black text-sm uppercase tracking-wide">Log Expense</span>
+          <Receipt size={22} />
+          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">Expense</span>
         </button>
         <button
-          onClick={onAddCustomer}
-          className="flex-shrink-0 flex items-center gap-3 bg-purple-500 text-white px-6 py-4 rounded-2xl hover:bg-purple-600 transition-all shadow-lg shadow-purple-500/20"
+          onClick={() => { hapticTap(); onAddCustomer?.(); }}
+          className="flex-shrink-0 flex items-center gap-3 bg-purple-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-purple-500/20"
         >
-          <UserPlus size={20} />
-          <span className="font-black text-sm uppercase tracking-wide">Add Customer</span>
+          <UserPlus size={22} />
+          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">Customer</span>
         </button>
       </div>
 
@@ -609,14 +610,17 @@ export const Home: React.FC<HomeProps> = ({
               )}
             </div>
             <button
-              onClick={siteSession.currentSession ? clockOut : clockIn}
-              className={`h-16 w-16 rounded-[20px] flex items-center justify-center font-black text-sm transition-all ${
+              onClick={() => {
+                hapticTap();
+                siteSession.currentSession ? clockOut() : clockIn();
+              }}
+              className={`h-16 w-16 min-w-[64px] rounded-[20px] flex items-center justify-center font-black text-sm active:scale-95 transition-transform ${
                 siteSession.currentSession
-                  ? 'bg-white text-emerald-600 hover:bg-emerald-50'
-                  : 'bg-amber-500 text-slate-900 hover:bg-amber-400'
+                  ? 'bg-white text-emerald-600'
+                  : 'bg-amber-500 text-slate-900'
               }`}
             >
-              {siteSession.currentSession ? <LogOut size={24} /> : <LogIn size={24} />}
+              {siteSession.currentSession ? <LogOut size={26} /> : <LogIn size={26} />}
             </button>
           </div>
         </div>
@@ -705,23 +709,23 @@ export const Home: React.FC<HomeProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <input 
-              type="text" 
-              placeholder="What needs reminding?..." 
-              className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[24px] p-5 font-bold text-slate-900 outline-none focus:border-blue-400 transition-all"
+            <input
+              type="text"
+              placeholder="What needs reminding?..."
+              className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[24px] p-4 min-h-[52px] font-bold text-base text-slate-900 outline-none focus:border-blue-400 transition-all"
               value={newReminderText}
               onChange={e => setNewReminderText(e.target.value)}
             />
-            <input 
-              type="time" 
-              className="w-full sm:w-40 bg-slate-50 border-2 border-slate-100 rounded-[24px] p-5 font-bold text-slate-900 outline-none focus:border-blue-400 transition-all cursor-pointer"
+            <input
+              type="time"
+              className="w-full sm:w-40 bg-slate-50 border-2 border-slate-100 rounded-[24px] p-4 min-h-[52px] font-bold text-base text-slate-900 outline-none focus:border-blue-400 transition-all cursor-pointer"
               value={newReminderTime}
               onChange={e => setNewReminderTime(e.target.value)}
             />
-            <button 
-              onClick={addReminder}
+            <button
+              onClick={() => { hapticTap(); addReminder(); }}
               disabled={!newReminderText || !newReminderTime}
-              className="bg-slate-900 text-white px-8 py-5 rounded-[24px] shadow-lg hover:bg-black transition-all disabled:opacity-20 font-black uppercase text-xs tracking-widest"
+              className="bg-slate-900 text-white px-8 min-h-[52px] rounded-[24px] shadow-lg active:scale-95 transition-transform disabled:opacity-20 font-black uppercase text-xs tracking-widest"
             >
               Add
             </button>

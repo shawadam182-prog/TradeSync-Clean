@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Users, FileText, Settings, Hammer, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Wallet, Building2, Cog, Package } from 'lucide-react';
+import { hapticTap } from '../src/hooks/useHaptic';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -136,21 +137,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
         </div>
       </aside>
 
-      {/* Mobile Nav - Horizontally Scrollable Fix */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[100] overflow-x-auto no-scrollbar shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div className="flex w-max gap-1 px-4 py-2">
+      {/* Mobile Nav - Horizontally Scrollable with larger touch targets */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[100] overflow-x-auto no-scrollbar shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] safe-area-bottom">
+        <div className="flex w-max gap-1 px-3 py-2">
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 p-2 min-w-[72px] shrink-0 transition-all rounded-xl ${
-                activeTab === item.id 
-                  ? 'text-amber-600 bg-amber-50/50' 
-                  : 'text-slate-400 active:bg-slate-50'
+              onClick={() => {
+                hapticTap();
+                setActiveTab(item.id);
+              }}
+              className={`flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[56px] px-3 py-2 shrink-0 rounded-xl active:scale-95 ${
+                activeTab === item.id
+                  ? 'text-amber-600 bg-amber-50'
+                  : 'text-slate-400 active:bg-slate-100'
               }`}
             >
-              <item.icon size={22} className={activeTab === item.id ? 'scale-110 transition-transform' : ''} />
-              <span className={`text-[9px] font-black uppercase tracking-tighter ${activeTab === item.id ? 'opacity-100' : 'opacity-70'}`}>
+              <item.icon size={24} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+              <span className={`text-[9px] font-black uppercase tracking-tight ${activeTab === item.id ? 'opacity-100' : 'opacity-60'}`}>
                 {item.label}
               </span>
             </button>
