@@ -1,16 +1,18 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ScheduleEntry, JobPack, Customer } from '../types';
-import { 
-  ChevronLeft, ChevronRight, Plus, Mic, Sparkles, 
+import {
+  ChevronLeft, ChevronRight, Plus, Mic, Sparkles,
   Trash2, MapPin, Clock, Loader2,
   AlertCircle, X, Calendar as CalendarIcon,
   ChevronDown, MicOff,
   LayoutGrid, List,
   Pencil, CheckCircle2, CalendarRange, ArrowRight,
-  UserPlus, User, Mail, Phone, Hammer, MapPinned, LocateFixed
+  UserPlus, User, Mail, Phone, Hammer, MapPinned, LocateFixed,
+  Briefcase, Link2
 } from 'lucide-react';
 import { parseScheduleVoiceInput, parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
+import { hapticTap } from '../src/hooks/useHaptic';
 
 interface ScheduleCalendarProps {
   entries: ScheduleEntry[];
@@ -52,6 +54,10 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   const [isVerifyingAddress, setIsVerifyingAddress] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
+
+  // Schedule entry location and linking
+  const [isLocatingEntry, setIsLocatingEntry] = useState(false);
+  const [linkType, setLinkType] = useState<'none' | 'job' | 'customer'>('none');
 
   const recognitionRef = useRef<any>(null);
   const customerRecognitionRef = useRef<any>(null);
@@ -185,10 +191,67 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
     setCustomerError(null);
   };
 
+  // Get current location for schedule entry
+  const handleUseLocationForEntry = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocatingEntry(true);
+    setError(null);
+    hapticTap();
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const address = await reverseGeocode(latitude, longitude);
+          if (address) {
+            setDraft(prev => ({ ...prev, location: address }));
+          } else {
+            setError("Could not determine address from your location.");
+          }
+        } catch (err) {
+          setError("Failed to geocode your location.");
+        } finally {
+          setIsLocatingEntry(false);
+        }
+      },
+      (err) => {
+        setIsLocatingEntry(false);
+        setError("Location access denied or unavailable.");
+      }
+    );
+  };
+
+  // Handle linking to job pack
+  const handleLinkToJob = (jobId: string) => {
+    const job = projects.find(p => p.id === jobId);
+    if (job) {
+      setDraft(prev => ({
+        ...prev,
+        projectId: jobId,
+        customerId: job.customerId,
+        title: prev.title || job.title,
+        location: prev.location || job.siteAddress || customers.find(c => c.id === job.customerId)?.address || '',
+      }));
+      setLinkType('job');
+    }
+  };
+
   const handleEdit = (entry: ScheduleEntry) => {
     setDraft(entry);
     setEditingId(entry.id);
     setIsAddingManual(true);
+    // Set link type based on existing entry data
+    if ((entry as any).projectId) {
+      setLinkType('job');
+    } else if (entry.customerId) {
+      setLinkType('customer');
+    } else {
+      setLinkType('none');
+    }
   };
 
   const saveEntry = async () => {
@@ -203,6 +266,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
       end: draft.end || new Date(new Date(draft.start).getTime() + 3600000).toISOString(),
       location: draft.location,
       customerId: draft.customerId,
+      projectId: (draft as any).projectId,
       description: draft.description
     };
 
@@ -218,6 +282,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
       setEditingId(null);
       setDraft({});
       setError(null);
+      setLinkType('none');
 
       setSelectedDay(new Date(entryData.start));
       setViewType('day');
@@ -670,33 +735,131 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                     <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-black text-3xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={draft.title || ''} onChange={e => setDraft({...draft, title: e.target.value})} placeholder="e.g. Groundworks" />
                   </div>
 
+                  {/* Link to Job or Customer */}
                   <div className="space-y-3">
-                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Assign Client</label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <select className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all appearance-none cursor-pointer" value={draft.customerId || ''} onChange={e => setDraft({...draft, customerId: e.target.value})}>
-                          <option value="">Select Client...</option>
-                          {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>)}
-                        </select>
-                        <ChevronDown className="absolute right-10 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={32} />
-                      </div>
-                      <button onClick={() => setIsAddingCustomer(true)} className="p-7 bg-slate-900 text-amber-500 rounded-[36px] hover:bg-black transition-all shadow-lg border-b-4 border-slate-950 active:translate-y-1 active:border-b-0">
-                        <UserPlus size={32} />
+                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2">
+                      <Link2 size={14} /> Link To
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { hapticTap(); setLinkType('none'); setDraft(prev => ({ ...prev, projectId: undefined })); }}
+                        className={`p-4 rounded-2xl font-black text-sm uppercase tracking-wide flex flex-col items-center gap-2 min-h-[80px] justify-center transition-all ${
+                          linkType === 'none' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                        }`}
+                      >
+                        <CalendarIcon size={20} />
+                        <span className="text-[10px]">Standalone</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { hapticTap(); setLinkType('job'); }}
+                        className={`p-4 rounded-2xl font-black text-sm uppercase tracking-wide flex flex-col items-center gap-2 min-h-[80px] justify-center transition-all ${
+                          linkType === 'job' ? 'bg-blue-500 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                        }`}
+                      >
+                        <Briefcase size={20} />
+                        <span className="text-[10px]">Job Pack</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { hapticTap(); setLinkType('customer'); }}
+                        className={`p-4 rounded-2xl font-black text-sm uppercase tracking-wide flex flex-col items-center gap-2 min-h-[80px] justify-center transition-all ${
+                          linkType === 'customer' ? 'bg-purple-500 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
+                        }`}
+                      >
+                        <User size={20} />
+                        <span className="text-[10px]">Customer</span>
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest italic">Project Site Address</label>
-                      {selectedCustomer?.address && (
-                        <button 
-                          onClick={() => setDraft({ ...draft, location: selectedCustomer.address })}
-                          className="text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-2 transition-colors"
+                  {/* Job Pack Selection */}
+                  {linkType === 'job' && (
+                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2">
+                        <Briefcase size={14} /> Select Job Pack
+                      </label>
+                      <div className="relative">
+                        <select
+                          className="w-full bg-blue-50 border-2 border-blue-200 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-blue-400 focus:bg-white transition-all appearance-none cursor-pointer"
+                          value={(draft as any).projectId || ''}
+                          onChange={e => handleLinkToJob(e.target.value)}
                         >
-                          <MapPinned size={14} /> Use Client Address
+                          <option value="">Select Job Pack...</option>
+                          {projects.map(p => {
+                            const customer = customers.find(c => c.id === p.customerId);
+                            return (
+                              <option key={p.id} value={p.id}>
+                                {p.title} {customer ? `- ${customer.name}` : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <ChevronDown className="absolute right-10 top-1/2 -translate-y-1/2 text-blue-300 pointer-events-none" size={32} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Customer Selection */}
+                  {linkType === 'customer' && (
+                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Assign Client</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <select
+                            className="w-full bg-purple-50 border-2 border-purple-200 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-purple-400 focus:bg-white transition-all appearance-none cursor-pointer"
+                            value={draft.customerId || ''}
+                            onChange={e => {
+                              const cust = customers.find(c => c.id === e.target.value);
+                              setDraft({
+                                ...draft,
+                                customerId: e.target.value,
+                                location: draft.location || cust?.address || ''
+                              });
+                            }}
+                          >
+                            <option value="">Select Client...</option>
+                            {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>)}
+                          </select>
+                          <ChevronDown className="absolute right-10 top-1/2 -translate-y-1/2 text-purple-300 pointer-events-none" size={32} />
+                        </div>
+                        <button
+                          onClick={() => { hapticTap(); setIsAddingCustomer(true); }}
+                          className="p-7 bg-slate-900 text-amber-500 rounded-[36px] hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                          <UserPlus size={32} />
                         </button>
-                      )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Location Input with Current Location Button */}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap justify-between items-center px-1 gap-2">
+                      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest italic">Project Site Address</label>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={handleUseLocationForEntry}
+                          disabled={isLocatingEntry}
+                          className="min-h-[44px] px-4 text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 flex items-center gap-2 disabled:opacity-30 bg-blue-50 rounded-xl active:scale-95"
+                        >
+                          {isLocatingEntry ? <Loader2 size={14} className="animate-spin" /> : <LocateFixed size={16} />}
+                          <span className="hidden sm:inline">Current Location</span>
+                          <span className="sm:hidden">Locate</span>
+                        </button>
+                        {selectedCustomer?.address && (
+                          <button
+                            type="button"
+                            onClick={() => { hapticTap(); setDraft({ ...draft, location: selectedCustomer.address }); }}
+                            className="min-h-[44px] px-4 text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-2 bg-amber-50 rounded-xl active:scale-95"
+                          >
+                            <MapPinned size={16} />
+                            <span className="hidden sm:inline">Client Address</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-[36px] px-8 focus-within:border-amber-400 focus-within:bg-white transition-all shadow-inner">
                       <MapPin className="text-slate-300 mr-5" size={24} />
