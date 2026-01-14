@@ -432,35 +432,43 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </div>
 
-      {/* Quick Actions Bar - Optimized for mobile touch */}
-      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+      {/* Quick Actions Grid - No Scrolling */}
+      <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => { hapticTap(); onCreateJob?.(); }}
-          className="flex-shrink-0 flex items-center gap-3 bg-blue-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-blue-500/20"
+          className="flex flex-col items-center justify-center gap-3 bg-blue-500 text-white p-6 min-h-[100px] rounded-[28px] active:scale-95 transition-all shadow-xl shadow-blue-500/20 hover:shadow-2xl group"
         >
-          <Briefcase size={22} />
-          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">New Job</span>
+          <div className="p-3 bg-white/20 rounded-2xl group-active:scale-90 transition-transform">
+            <Briefcase size={28} />
+          </div>
+          <span className="font-black text-sm uppercase tracking-widest leading-none">New Job</span>
         </button>
         <button
           onClick={() => { hapticTap(); onCreateQuote?.(); }}
-          className="flex-shrink-0 flex items-center gap-3 bg-amber-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-amber-500/20"
+          className="flex flex-col items-center justify-center gap-3 bg-amber-500 text-white p-6 min-h-[100px] rounded-[28px] active:scale-95 transition-all shadow-xl shadow-amber-500/20 hover:shadow-2xl group"
         >
-          <FileText size={22} />
-          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">New Quote</span>
+          <div className="p-3 bg-white/20 rounded-2xl group-active:scale-90 transition-transform">
+            <FileText size={28} />
+          </div>
+          <span className="font-black text-sm uppercase tracking-widest leading-none">New Quote</span>
         </button>
         <button
           onClick={() => { hapticTap(); onLogExpense?.(); }}
-          className="flex-shrink-0 flex items-center gap-3 bg-emerald-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-emerald-500/20"
+          className="flex flex-col items-center justify-center gap-3 bg-emerald-500 text-white p-6 min-h-[100px] rounded-[28px] active:scale-95 transition-all shadow-xl shadow-emerald-500/20 hover:shadow-2xl group"
         >
-          <Receipt size={22} />
-          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">Expense</span>
+          <div className="p-3 bg-white/20 rounded-2xl group-active:scale-90 transition-transform">
+            <Receipt size={28} />
+          </div>
+          <span className="font-black text-sm uppercase tracking-widest leading-none">Expense</span>
         </button>
         <button
           onClick={() => { hapticTap(); onAddCustomer?.(); }}
-          className="flex-shrink-0 flex items-center gap-3 bg-purple-500 text-white px-5 py-4 min-h-[56px] rounded-2xl active:scale-95 transition-transform shadow-lg shadow-purple-500/20"
+          className="flex flex-col items-center justify-center gap-3 bg-purple-500 text-white p-6 min-h-[100px] rounded-[28px] active:scale-95 transition-all shadow-xl shadow-purple-500/20 hover:shadow-2xl group"
         >
-          <UserPlus size={22} />
-          <span className="font-black text-sm uppercase tracking-wide whitespace-nowrap">Customer</span>
+          <div className="p-3 bg-white/20 rounded-2xl group-active:scale-90 transition-transform">
+            <UserPlus size={28} />
+          </div>
+          <span className="font-black text-sm uppercase tracking-widest leading-none">Customer</span>
         </button>
       </div>
 
