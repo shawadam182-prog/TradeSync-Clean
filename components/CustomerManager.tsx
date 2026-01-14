@@ -292,8 +292,9 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
       </div>
 
       {editingId ? (
-        <div className="bg-white p-4 md:p-8 rounded-[32px] border border-slate-200 shadow-xl animate-in fade-in slide-in-from-bottom-4 pb-[200px] md:pb-8">
-          <div className="flex justify-between items-center mb-6 md:mb-8">
+        <>
+          <div className="bg-white p-3 md:p-8 rounded-[32px] border border-slate-200 shadow-xl animate-in fade-in slide-in-from-bottom-4 pb-32 md:pb-8">
+            <div className="flex justify-between items-center mb-4 md:mb-8">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200">
                 {editingId === 'new' ? <UserPlus size={24} /> : <Pencil size={24} />}
@@ -341,10 +342,10 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <form id="customer-form" onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
               {/* Name Field */}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
                   <UserIcon size={12} /> Full Name *
                 </label>
@@ -352,7 +353,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                   <input
                     type="text"
                     autoComplete="name"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.name || ''}
                     placeholder="e.g. John Smith"
                     onChange={e => setCustomerForm({...customerForm, name: e.target.value})}
@@ -368,7 +369,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
               </div>
 
               {/* Company Field */}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
                   <Building size={12} /> Company Name
                 </label>
@@ -376,7 +377,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                   <input
                     type="text"
                     autoComplete="organization"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.company || ''}
                     placeholder="e.g. Smith & Co Roofing"
                     onChange={e => setCustomerForm({...customerForm, company: e.target.value})}
@@ -392,7 +393,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
               </div>
 
               {/* Email Field - with proper type for mobile keyboard */}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
                   <Mail size={12} /> Email Address
                 </label>
@@ -401,7 +402,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                     type="email"
                     inputMode="email"
                     autoComplete="email"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.email || ''}
                     placeholder="john@example.com"
                     onChange={e => setCustomerForm({...customerForm, email: e.target.value})}
@@ -417,7 +418,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
               </div>
 
               {/* Phone Field - with proper type for mobile keyboard */}
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
                   <Phone size={12} /> Phone Number
                 </label>
@@ -426,7 +427,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.phone || ''}
                     placeholder="07123 456789"
                     onChange={e => setCustomerForm({...customerForm, phone: e.target.value})}
@@ -441,13 +442,13 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                 </div>
               </div>
 
-              <div className="md:col-span-2 space-y-1 relative">
+              <div className="md:col-span-2 space-y-0.5 relative">
                 <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
                   <MapPin size={12} /> Main Site Address
                 </label>
                 <div className="relative">
                   <textarea
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-4 pr-32 text-slate-950 font-bold text-sm outline-none min-h-[80px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-32 text-slate-950 font-bold text-sm outline-none min-h-[60px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
                     placeholder="Street, Town, Postcode..."
                     value={customerForm.address || ''}
                     onChange={e => {
@@ -516,24 +517,6 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
               </div>
             )}
 
-            {/* Mobile sticky buttons - visible only on mobile */}
-            <div className="md:hidden mobile-sticky-actions">
-              <button
-                type="submit"
-                onClick={() => hapticTap()}
-                className="flex-1 bg-amber-500 text-white font-black min-h-[52px] rounded-2xl shadow-lg shadow-amber-200 uppercase tracking-widest text-xs active:scale-95"
-              >
-                {editingId === 'new' ? 'Register' : 'Update'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { hapticTap(); setEditingId(null); setError(null); }}
-                className="px-6 bg-slate-100 text-slate-500 font-black min-h-[52px] rounded-2xl uppercase tracking-widest text-xs active:scale-95"
-              >
-                Cancel
-              </button>
-            </div>
-
             {/* Desktop buttons */}
             <div className="hidden md:flex gap-4 pt-4 border-t border-slate-50">
               <button type="submit" className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs">
@@ -543,6 +526,28 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
             </div>
           </form>
         </div>
+
+        {/* Mobile sticky buttons - OUTSIDE container for proper fixed positioning */}
+        <div className="md:hidden fixed bottom-[70px] left-0 right-0 px-4 py-3 bg-gradient-to-t from-white via-white to-transparent z-[200]">
+          <div className="flex gap-2">
+            <button
+              form="customer-form"
+              type="submit"
+              onClick={() => hapticTap()}
+              className="flex-1 bg-amber-500 text-white font-black min-h-[52px] rounded-2xl shadow-lg shadow-amber-200/50 uppercase tracking-widest text-xs active:scale-95 transition-transform"
+            >
+              {editingId === 'new' ? 'Register' : 'Update'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { hapticTap(); setEditingId(null); setError(null); }}
+              className="px-6 bg-slate-100 text-slate-500 font-black min-h-[52px] rounded-2xl uppercase tracking-widest text-xs active:scale-95 transition-transform"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </>
       ) : (
         <>
           <div className="relative group">

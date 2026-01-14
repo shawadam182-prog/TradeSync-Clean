@@ -202,7 +202,7 @@ export const MobileInput: React.FC<MobileInputProps> = ({
   };
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`space-y-0.5 ${className}`}>
       {label && (
         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
           {label}
@@ -217,7 +217,7 @@ export const MobileInput: React.FC<MobileInputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         className={`
-          w-full min-h-[48px] bg-slate-50 border-2 rounded-2xl px-4 py-2 md:py-3
+          w-full min-h-[44px] bg-slate-50 border-2 rounded-2xl px-4 py-2 md:py-3
           text-base font-bold text-slate-900 outline-none
           focus:border-amber-400 focus:bg-white
           disabled:opacity-50 disabled:cursor-not-allowed
@@ -252,7 +252,7 @@ export const MobileTextarea: React.FC<MobileTextareaProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`space-y-0.5 ${className}`}>
       {label && (
         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
           {label}
@@ -264,7 +264,7 @@ export const MobileTextarea: React.FC<MobileTextareaProps> = ({
         placeholder={placeholder}
         rows={rows}
         className="
-          w-full min-h-[80px] md:min-h-[100px] bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-3
+          w-full min-h-[60px] md:min-h-[100px] bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-3
           text-base font-medium text-slate-900 outline-none resize-none
           focus:border-amber-400 focus:bg-white
         "
