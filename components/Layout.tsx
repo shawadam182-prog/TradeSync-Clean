@@ -245,7 +245,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             <span className="font-black text-lg tracking-tight">TradeMate<span className="text-amber-500">Pro</span></span>
           </div>
         </header>
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <div className="p-2 md:p-8 max-w-7xl mx-auto">
           {children}
         </div>
       </main>

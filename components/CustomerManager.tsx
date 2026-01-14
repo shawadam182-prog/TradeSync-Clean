@@ -293,67 +293,52 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
 
       {editingId ? (
         <>
-          <div className="bg-white p-3 md:p-8 rounded-[32px] border border-slate-200 shadow-xl animate-in fade-in slide-in-from-bottom-4 pb-32 md:pb-8">
-            <div className="flex justify-between items-center mb-4 md:mb-8">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200">
-                {editingId === 'new' ? <UserPlus size={24} /> : <Pencil size={24} />}
-              </div>
-              <div>
-                <h3 className="font-black text-xl text-slate-900 uppercase tracking-tight">
-                  {editingId === 'new' ? 'Register New Client' : `Editing Client Record`}
-                </h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Update credentials and site information</p>
-              </div>
+          <div className="bg-white p-2 md:p-8 rounded-3xl border border-slate-200 shadow-xl animate-in fade-in slide-in-from-bottom-4 pb-28 md:pb-8">
+            <div className="flex justify-between items-center mb-2 md:mb-8">
+              <h3 className="font-black text-sm md:text-xl text-slate-900 uppercase tracking-tight">
+                {editingId === 'new' ? 'Register Client' : `Edit Client`}
+              </h3>
+              <button
+                type="button"
+                onClick={startGlobalListening}
+                disabled={isProcessing}
+                className={`flex items-center gap-1 px-3 py-1.5 md:px-6 md:py-3 rounded-xl font-black text-[9px] md:text-[10px] uppercase transition-all border ${
+                  isListeningGlobal
+                    ? 'bg-red-500 text-white border-red-600 animate-pulse'
+                    : isProcessing
+                    ? 'bg-amber-500 text-white border-amber-600'
+                    : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
+                }`}
+              >
+                {isProcessing ? <Loader2 size={10} className="md:w-3 md:h-3" className="animate-spin" /> : isListeningGlobal ? <MicOff size={10} className="md:w-3 md:h-3" /> : <Sparkles size={10} className="md:w-3 md:h-3" />}
+                <span className="hidden sm:inline">{isProcessing ? 'Analyzing...' : isListeningGlobal ? 'Stop' : 'Voice'}</span>
+              </button>
             </div>
-            
-            <button
-              type="button"
-              onClick={startGlobalListening}
-              disabled={isProcessing}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase transition-all border shadow-sm ${
-                isListeningGlobal
-                  ? 'bg-red-500 text-white border-red-600 animate-pulse'
-                  : isProcessing
-                  ? 'bg-amber-500 text-white border-amber-600'
-                  : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
-              }`}
-            >
-              {isProcessing ? <Loader2 size={14} className="animate-spin" /> : isListeningGlobal ? <MicOff size={14} /> : <Sparkles size={14} />}
-              {isProcessing ? 'Analyzing...' : isListeningGlobal ? 'Tap to stop' : 'Magic Fill (Voice)'}
-            </button>
-          </div>
 
           {/* Live transcript display */}
           {(isListeningGlobal || interimTranscript) && (
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-2 h-2 rounded-full ${isListeningGlobal ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  {isListeningGlobal ? 'Listening... speak now' : 'Processing...'}
-                </span>
+            <div className="bg-slate-800 rounded-lg p-2 md:p-4 border border-slate-700 mb-2 md:mb-4">
+              <div className="flex items-center gap-1.5">
+                <div className={`w-1.5 h-1.5 rounded-full ${isListeningGlobal ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                <p className="text-white text-xs flex-1 truncate">
+                  {interimTranscript || 'Speak now...'}
+                </p>
               </div>
-              <p className="text-white text-sm min-h-[2rem]">
-                {interimTranscript || 'Say customer name, phone, address...'}
-              </p>
-              {isListeningGlobal && (
-                <p className="text-slate-500 text-xs mt-2">Stops automatically after 2 seconds of silence</p>
-              )}
             </div>
           )}
 
-          <form id="customer-form" onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+          <form id="customer-form" onSubmit={handleSubmit} className="space-y-2 md:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
               {/* Name Field */}
               <div className="space-y-0.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
-                  <UserIcon size={12} /> Full Name *
+                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <UserIcon size={10} className="md:w-3 md:h-3" /> Full Name *
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     autoComplete="name"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.name || ''}
                     placeholder="e.g. John Smith"
                     onChange={e => setCustomerForm({...customerForm, name: e.target.value})}
@@ -361,23 +346,23 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                   <button
                     type="button"
                     onClick={() => { hapticTap(); startFieldListening('name'); }}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${activeFieldVoice === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
                   >
-                    <Mic size={18} />
+                    <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                   </button>
                 </div>
               </div>
 
               {/* Company Field */}
               <div className="space-y-0.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
-                  <Building size={12} /> Company Name
+                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Building size={10} className="md:w-3 md:h-3" /> Company Name
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     autoComplete="organization"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.company || ''}
                     placeholder="e.g. Smith & Co Roofing"
                     onChange={e => setCustomerForm({...customerForm, company: e.target.value})}
@@ -394,15 +379,15 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
 
               {/* Email Field - with proper type for mobile keyboard */}
               <div className="space-y-0.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
-                  <Mail size={12} /> Email Address
+                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Mail size={10} className="md:w-3 md:h-3" /> Email Address
                 </label>
                 <div className="relative">
                   <input
                     type="email"
                     inputMode="email"
                     autoComplete="email"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.email || ''}
                     placeholder="john@example.com"
                     onChange={e => setCustomerForm({...customerForm, email: e.target.value})}
@@ -419,15 +404,15 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
 
               {/* Phone Field - with proper type for mobile keyboard */}
               <div className="space-y-0.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic px-1">
-                  <Phone size={12} /> Phone Number
+                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Phone size={10} className="md:w-3 md:h-3" /> Phone Number
                 </label>
                 <div className="relative">
                   <input
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-12 text-slate-950 font-bold text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
                     value={customerForm.phone || ''}
                     placeholder="07123 456789"
                     onChange={e => setCustomerForm({...customerForm, phone: e.target.value})}
@@ -444,11 +429,11 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
 
               <div className="md:col-span-2 space-y-0.5 relative">
                 <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
-                  <MapPin size={12} /> Main Site Address
+                  <MapPin size={10} className="md:w-3 md:h-3" /> Main Site Address
                 </label>
                 <div className="relative">
                   <textarea
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2.5 md:py-4 pr-32 text-slate-950 font-bold text-sm outline-none min-h-[60px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
                     placeholder="Street, Town, Postcode..."
                     value={customerForm.address || ''}
                     onChange={e => {
@@ -459,32 +444,32 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
                     }}
                     onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
                   />
-                  <div className="absolute right-2 top-2 flex gap-1">
+                  <div className="absolute right-1 top-1 flex gap-0.5">
                     <button
                       type="button"
                       onClick={() => { hapticTap(); startFieldListening('address'); }}
-                      className={`p-2 rounded-lg transition-all ${activeFieldVoice === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                      className={`p-1 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
                       title="Voice input"
                     >
-                      <Mic size={18} />
+                      <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                     </button>
                     <button
                       type="button"
                       onClick={() => { hapticTap(); handleUseCurrentLocation(); }}
                       disabled={isLocating}
-                      className="p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
+                      className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
                       title="Use current location"
                     >
-                      {isLocating ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
+                      {isLocating ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />}
                     </button>
                     <button
                       type="button"
                       onClick={() => { hapticTap(); handleVerifyAddress(); }}
                       disabled={!customerForm.address || isVerifyingAddress}
-                      className="p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
+                      className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
                       title="AI verify address"
                     >
-                      {isVerifyingAddress ? <Loader2 size={18} className="animate-spin" /> : <MapPinned size={18} />}
+                      {isVerifyingAddress ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />}
                     </button>
                   </div>
                 </div>
@@ -528,20 +513,20 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
         </div>
 
         {/* Mobile sticky buttons - OUTSIDE container for proper fixed positioning */}
-        <div className="md:hidden fixed bottom-[70px] left-0 right-0 px-4 py-3 bg-gradient-to-t from-white via-white to-transparent z-[200]">
-          <div className="flex gap-2">
+        <div className="md:hidden fixed bottom-[60px] left-0 right-0 px-2 py-2 bg-gradient-to-t from-white via-white to-transparent z-[200]">
+          <div className="flex gap-1.5">
             <button
               form="customer-form"
               type="submit"
               onClick={() => hapticTap()}
-              className="flex-1 bg-amber-500 text-white font-black min-h-[52px] rounded-2xl shadow-lg shadow-amber-200/50 uppercase tracking-widest text-xs active:scale-95 transition-transform"
+              className="flex-1 bg-amber-500 text-white font-black min-h-[44px] rounded-xl shadow-lg shadow-amber-200/50 uppercase tracking-wider text-[10px] active:scale-95 transition-transform"
             >
               {editingId === 'new' ? 'Register' : 'Update'}
             </button>
             <button
               type="button"
               onClick={() => { hapticTap(); setEditingId(null); setError(null); }}
-              className="px-6 bg-slate-100 text-slate-500 font-black min-h-[52px] rounded-2xl uppercase tracking-widest text-xs active:scale-95 transition-transform"
+              className="px-4 bg-slate-100 text-slate-500 font-black min-h-[44px] rounded-xl uppercase tracking-wider text-[10px] active:scale-95 transition-transform"
             >
               Cancel
             </button>

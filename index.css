@@ -60,14 +60,14 @@
 /* Sticky action buttons container for mobile forms */
 .mobile-sticky-actions {
   position: fixed;
-  bottom: 70px; /* Above bottom nav */
+  bottom: 60px; /* Above bottom nav */
   left: 0;
   right: 0;
-  padding: 10px 16px;
+  padding: 8px 12px;
   background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 70%, rgba(255,255,255,0) 100%);
   z-index: 90;
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 @media (min-width: 769px) {

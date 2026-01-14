@@ -50,7 +50,7 @@ export const MobileButton: React.FC<MobileButtonProps> = ({
     }
   };
 
-  const baseClasses = 'min-h-[48px] px-6 py-2 md:py-3 rounded-2xl font-black text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition-transform';
+  const baseClasses = 'min-h-[42px] px-4 py-2 md:px-6 md:py-3 rounded-xl font-black text-xs md:text-sm uppercase tracking-wide flex items-center justify-center gap-2 active:scale-95 transition-transform';
 
   const variantClasses = {
     primary: 'bg-amber-500 text-white shadow-lg shadow-amber-500/20 disabled:bg-amber-300',
@@ -204,7 +204,7 @@ export const MobileInput: React.FC<MobileInputProps> = ({
   return (
     <div className={`space-y-0.5 ${className}`}>
       {label && (
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+        <label className="block text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider px-0.5">
           {label}
         </label>
       )}
@@ -217,8 +217,8 @@ export const MobileInput: React.FC<MobileInputProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         className={`
-          w-full min-h-[44px] bg-slate-50 border-2 rounded-2xl px-4 py-2 md:py-3
-          text-base font-bold text-slate-900 outline-none
+          w-full min-h-[38px] bg-slate-50 border-2 rounded-xl px-3 py-1.5 md:px-4 md:py-3
+          text-sm md:text-base font-bold text-slate-900 outline-none
           focus:border-amber-400 focus:bg-white
           disabled:opacity-50 disabled:cursor-not-allowed
           ${error ? 'border-red-300' : 'border-slate-100'}
@@ -254,7 +254,7 @@ export const MobileTextarea: React.FC<MobileTextareaProps> = ({
   return (
     <div className={`space-y-0.5 ${className}`}>
       {label && (
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+        <label className="block text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider px-0.5">
           {label}
         </label>
       )}
@@ -264,8 +264,8 @@ export const MobileTextarea: React.FC<MobileTextareaProps> = ({
         placeholder={placeholder}
         rows={rows}
         className="
-          w-full min-h-[60px] md:min-h-[100px] bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-2 md:py-3
-          text-base font-medium text-slate-900 outline-none resize-none
+          w-full min-h-[50px] md:min-h-[100px] bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-3
+          text-sm md:text-base font-medium text-slate-900 outline-none resize-none
           focus:border-amber-400 focus:bg-white
         "
       />
