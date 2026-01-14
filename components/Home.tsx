@@ -553,18 +553,21 @@ export const Home: React.FC<HomeProps> = ({
                   )}
                   
                   {nextJob.location && (
-                    <a 
+                    <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextJob.location)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 min-w-[200px] flex items-center justify-between gap-4 bg-amber-500 p-4 rounded-3xl hover:bg-amber-400 transition-all text-slate-900 shadow-xl shadow-amber-500/20"
+                      className="flex-1 min-w-[200px] flex flex-col gap-2 bg-amber-500 p-5 rounded-3xl hover:bg-amber-400 transition-all text-slate-900 shadow-xl shadow-amber-500/20 group/nav"
                     >
-                      <div className="flex items-center gap-3 truncate pr-2">
-                        <MapPin size={24} className="shrink-0" />
-                        <span className="font-black text-sm truncate uppercase tracking-tighter">{nextJob.location}</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-75">Navigate to Site</span>
+                        <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shrink-0 group-hover/nav:scale-110 transition-transform">
+                          <Navigation size={16} />
+                        </div>
                       </div>
-                      <div className="h-10 w-10 bg-slate-900 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
-                        <Navigation size={20} />
+                      <div className="flex items-center gap-3">
+                        <MapPin size={20} className="shrink-0" />
+                        <span className="font-black text-sm truncate">{nextJob.location}</span>
                       </div>
                     </a>
                   )}
