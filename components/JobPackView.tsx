@@ -395,7 +395,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
         </div>
       </div>
 
-      <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar gap-8">
+      <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar gap-1 md:gap-8 px-2">
         {[
           { id: 'log', label: 'Notepad', icon: StickyNote },
           { id: 'photos', label: 'Photos', icon: ImageIcon },
@@ -403,12 +403,12 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
           { id: 'materials', label: 'Materials', icon: PackageSearch },
           { id: 'finance', label: 'Finances', icon: ReceiptText },
         ].map(tab => (
-          <button 
+          <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 pb-4 text-xs font-black uppercase tracking-widest border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'border-amber-500 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+            className={`flex items-center gap-1 md:gap-2 pb-4 px-2 md:px-0 text-[10px] md:text-xs font-black uppercase tracking-tight md:tracking-widest border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'border-amber-500 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
           >
-            <tab.icon size={16} /> {tab.label}
+            <tab.icon size={14} className="md:w-4 md:h-4" /> {tab.label}
           </button>
         ))}
       </div>

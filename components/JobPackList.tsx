@@ -222,7 +222,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
       </div>
 
       {isAdding && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 pb-28 md:pb-4 overflow-y-auto">
           <div className="bg-white rounded-[48px] p-8 md:p-12 max-w-2xl w-full shadow-2xl border border-slate-200 my-auto animate-in zoom-in-95 duration-300">
             {isAddingCustomer ? (
               <div className="space-y-8 animate-in slide-in-from-right-4">
