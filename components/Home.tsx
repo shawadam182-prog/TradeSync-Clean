@@ -475,41 +475,33 @@ export const Home: React.FC<HomeProps> = ({
       {/* Today's Stats Card */}
       <div className="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl">
+          <div className="flex flex-col items-center justify-center gap-3 p-4 bg-blue-50 rounded-2xl text-center">
             <div className="p-3 bg-blue-500 text-white rounded-xl">
               <Calendar size={20} />
             </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">{todayStats.jobsToday}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Jobs Today</p>
-            </div>
+            <p className="text-2xl font-black text-slate-900 leading-none">{todayStats.jobsToday}</p>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Jobs<br/>Today</p>
           </div>
-          <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-2xl">
+          <div className="flex flex-col items-center justify-center gap-3 p-4 bg-emerald-50 rounded-2xl text-center">
             <div className="p-3 bg-emerald-500 text-white rounded-xl">
               <PoundSterling size={20} />
             </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">{todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">This Week</p>
-            </div>
+            <p className="text-2xl font-black text-slate-900 leading-none">{todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}</p>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">This<br/>Week</p>
           </div>
-          <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-2xl">
+          <div className="flex flex-col items-center justify-center gap-3 p-4 bg-amber-50 rounded-2xl text-center">
             <div className="p-3 bg-amber-500 text-white rounded-xl">
               <FileWarning size={20} />
             </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">{todayStats.outstandingInvoices}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Outstanding</p>
-            </div>
+            <p className="text-2xl font-black text-slate-900 leading-none">{todayStats.outstandingInvoices}</p>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Outstanding</p>
           </div>
-          <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-2xl">
+          <div className="flex flex-col items-center justify-center gap-3 p-4 bg-purple-50 rounded-2xl text-center">
             <div className="p-3 bg-purple-500 text-white rounded-xl">
               <Clock size={20} />
             </div>
-            <div>
-              <p className="text-2xl font-black text-slate-900">{todayStats.pendingQuotes}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pending Quotes</p>
-            </div>
+            <p className="text-2xl font-black text-slate-900 leading-none">{todayStats.pendingQuotes}</p>
+            <p className="text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Pending<br/>Quotes</p>
           </div>
         </div>
       </div>
