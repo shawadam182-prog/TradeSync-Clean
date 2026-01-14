@@ -40,11 +40,12 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [isAddingManual, setIsAddingManual] = useState(false);
   const [isReviewingAI, setIsReviewingAI] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Partial<ScheduleEntry>>({});
+  const [isListeningTitle, setIsListeningTitle] = useState(false);
 
   // Customer Quick Add States
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
@@ -61,6 +62,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
 
   const recognitionRef = useRef<any>(null);
   const customerRecognitionRef = useRef<any>(null);
+  const titleRecognitionRef = useRef<any>(null);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -92,10 +94,26 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
         }
       };
       customerRecognitionRef.current = custRec;
+
+      // Title Recognition
+      const titleRec = new SpeechRecognition();
+      titleRec.continuous = false;
+      titleRec.lang = 'en-GB';
+      titleRec.onstart = () => setIsListeningTitle(true);
+      titleRec.onend = () => setIsListeningTitle(false);
+      titleRec.onerror = () => setIsListeningTitle(false);
+      titleRec.onresult = (event: any) => {
+        if (event.results?.[0]?.[0]?.transcript) {
+          const transcript = event.results[0][0].transcript;
+          setDraft(prev => ({ ...prev, title: transcript }));
+        }
+      };
+      titleRecognitionRef.current = titleRec;
     }
     return () => {
       recognitionRef.current?.abort();
       customerRecognitionRef.current?.abort();
+      titleRecognitionRef.current?.abort();
     };
   }, []);
 
@@ -255,15 +273,22 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   };
 
   const saveEntry = async () => {
-    if (!draft.title || !draft.start) {
-      setError("Title and start date are required.");
+    if (!draft.title) {
+      setError("Title is required.");
       return;
     }
 
+    // Default start time to 8:00 AM today if not provided
+    const defaultStart = draft.start || (() => {
+      const date = new Date();
+      date.setHours(8, 0, 0, 0);
+      return date.toISOString();
+    })();
+
     const entryData = {
       title: draft.title,
-      start: draft.start,
-      end: draft.end || new Date(new Date(draft.start).getTime() + 3600000).toISOString(),
+      start: defaultStart,
+      end: draft.end || new Date(new Date(defaultStart).getTime() + 3600000).toISOString(),
       location: draft.location,
       customerId: draft.customerId,
       projectId: (draft as any).projectId,
@@ -381,8 +406,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
             ))}
           </div>
 
-          <button 
-            onClick={() => { setDraft({ start: new Date().toISOString() }); setIsAddingManual(true); }}
+          <button
+            onClick={() => {
+              const defaultDate = new Date();
+              defaultDate.setHours(8, 0, 0, 0);
+              setDraft({ start: defaultDate.toISOString() });
+              setIsAddingManual(true);
+            }}
             className="h-12 px-6 rounded-2xl flex items-center gap-2 bg-white border-2 border-slate-100 text-slate-900 font-black uppercase text-[10px] tracking-widest hover:border-amber-400 transition-all shadow-sm"
           >
             <Plus size={18} /> Book Site
@@ -556,8 +586,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                     <CalendarIcon size={56} />
                   </div>
                   <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-sm italic">Nothing on the agenda for today</p>
-                  <button 
-                    onClick={() => { setDraft({ start: selectedDay.toISOString() }); setIsAddingManual(true); }}
+                  <button
+                    onClick={() => {
+                      const defaultDate = new Date(selectedDay);
+                      defaultDate.setHours(8, 0, 0, 0);
+                      setDraft({ start: defaultDate.toISOString() });
+                      setIsAddingManual(true);
+                    }}
                     className="mt-10 bg-slate-900 text-amber-500 px-12 py-5 rounded-[28px] font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-2xl active:scale-95"
                   >
                     + Log New Site Booking
@@ -588,9 +623,9 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                               <h4 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-4 group-hover:text-amber-600 transition-colors">
                                 {entry.title}
                               </h4>
-                              <div className="flex flex-wrap gap-6">
+                              <div className="flex flex-wrap gap-4">
                                 {customer && (
-                                  <div className="flex items-center gap-3 text-slate-500 font-bold text-base italic">
+                                  <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl text-slate-500 font-bold text-base">
                                     <div className="h-10 w-10 bg-slate-100 rounded-2xl flex items-center justify-center text-amber-500 font-black not-italic text-sm shadow-sm">
                                       {customer.name.charAt(0)}
                                     </div>
@@ -598,13 +633,18 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                                   </div>
                                 )}
                                 {entry.location && (
-                                  <a 
+                                  <a
                                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.location)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2.5 text-amber-600 font-black text-sm uppercase tracking-widest hover:underline"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-center gap-3 bg-amber-500 text-slate-900 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg group/map"
                                   >
-                                    <MapPin size={20} /> {entry.location}
+                                    <MapPin size={20} />
+                                    <span className="max-w-[200px] truncate">Navigate</span>
+                                    <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 ml-2">
+                                      <ArrowRight size={16} className="group-hover/map:translate-x-0.5 transition-transform" />
+                                    </div>
                                   </a>
                                 )}
                               </div>
@@ -681,6 +721,14 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                     <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Hammer size={14}/> Company</label>
                     <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.company || ''} onChange={e => setNewCustomer({...newCustomer, company: e.target.value})} placeholder="Optional" />
                   </div>
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Mail size={14}/> Email</label>
+                    <input type="email" className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.email || ''} onChange={e => setNewCustomer({...newCustomer, email: e.target.value})} placeholder="Optional" />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Phone size={14}/> Phone</label>
+                    <input type="tel" className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.phone || ''} onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})} placeholder="Optional" />
+                  </div>
                   <div className="md:col-span-2 space-y-3">
                     <div className="flex justify-between items-center px-1">
                       <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic"><MapPin size={14}/> Site Address</label>
@@ -704,10 +752,18 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-6 pt-6">
-                  <button onClick={saveQuickCustomer} className="flex-1 bg-slate-900 text-white font-black py-8 rounded-[40px] flex items-center justify-center gap-6 uppercase text-sm tracking-[0.2em] shadow-2xl hover:bg-black transition-all active:scale-95">
-                    Save & Assign
+                  <button
+                    onClick={() => {
+                      hapticTap();
+                      saveQuickCustomer();
+                    }}
+                    disabled={!newCustomer.name?.trim()}
+                    className="flex-1 bg-amber-500 text-slate-900 font-black py-8 rounded-[40px] flex items-center justify-center gap-6 uppercase text-sm tracking-[0.2em] shadow-2xl hover:bg-amber-400 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <CheckCircle2 size={32} />
+                    Save & Assign Client
                   </button>
-                  <button onClick={() => setIsAddingCustomer(false)} className="px-14 bg-slate-50 text-slate-500 font-black py-8 rounded-[40px] hover:bg-slate-100 transition-all uppercase text-[12px] tracking-widest">Back</button>
+                  <button onClick={() => setIsAddingCustomer(false)} className="px-14 bg-slate-50 text-slate-500 font-black py-8 rounded-[40px] hover:bg-slate-100 transition-all uppercase text-[12px] tracking-widest">Cancel</button>
                 </div>
               </div>
             ) : (
@@ -732,7 +788,18 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                 <div className="space-y-10">
                   <div className="space-y-3">
                     <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Booking Reference *</label>
-                    <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-black text-3xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={draft.title || ''} onChange={e => setDraft({...draft, title: e.target.value})} placeholder="e.g. Groundworks" />
+                    <div className="flex gap-3">
+                      <input className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-black text-3xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={draft.title || ''} onChange={e => setDraft({...draft, title: e.target.value})} placeholder="e.g. Groundworks" />
+                      <button
+                        type="button"
+                        onClick={() => isListeningTitle ? titleRecognitionRef.current?.stop() : titleRecognitionRef.current?.start()}
+                        className={`p-7 rounded-[36px] shadow-lg transition-all active:scale-95 ${
+                          isListeningTitle ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-900 text-amber-500 hover:bg-black'
+                        }`}
+                      >
+                        <Mic size={32} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Link to Job or Customer */}
