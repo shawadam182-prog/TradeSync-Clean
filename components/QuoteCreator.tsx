@@ -451,7 +451,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-3 md:space-y-6 pb-20">
+    <div className="max-w-4xl mx-auto space-y-2 md:space-y-4 pb-20">
       {/* Header with actions */}
       <div className="flex items-center justify-between gap-2">
         <button
@@ -479,7 +479,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         </div>
       </div>
 
-      <div className="bg-white p-4 md:p-8 rounded-[32px] border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="bg-white p-3 md:p-5 rounded-[32px] border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="space-y-1">
           <div className="flex justify-between items-center px-1">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Document Title</label>
@@ -667,8 +667,8 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       )}
 
       {/* Global AI Magic Builder targeting sections */}
-      <div className="bg-amber-500/5 border-2 border-amber-500/10 p-3 md:p-6 rounded-[32px] shadow-sm group">
-        <div className="flex items-center justify-between">
+      <div className="bg-amber-500/5 border-2 border-amber-500/10 p-2 md:p-4 rounded-[24px] shadow-sm group">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700 italic flex items-center gap-2"><Sparkles size={14} className="animate-pulse"/> AI Magic Item Builder</h3>
             <div className="h-4 w-px bg-amber-200 mx-2"></div>
@@ -679,31 +679,31 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </select>
             </div>
           </div>
-          <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest opacity-60">Speech or Photos</span>
+          <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest opacity-60 hidden md:inline">Speech or Photos</span>
         </div>
-        <div className="relative">
-          <textarea className="w-full bg-white border-2 border-amber-100 rounded-[24px] p-5 min-h-[100px] text-sm font-bold text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-amber-300/60 shadow-inner" placeholder="Describe items for the selected section..." value={aiInput} onChange={e => setAiInput(e.target.value)} />
-          <button onClick={() => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start()} className={`absolute right-3 bottom-3 p-3 rounded-2xl shadow-xl transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-amber-500 text-white hover:bg-amber-600'}`}>
-            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+        <div className="relative mb-2">
+          <textarea className="w-full bg-white border-2 border-amber-100 rounded-[20px] p-3 md:p-4 min-h-[80px] text-sm font-bold text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-amber-300/60 shadow-inner" placeholder="Describe items for the selected section..." value={aiInput} onChange={e => setAiInput(e.target.value)} />
+          <button onClick={() => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start()} className={`absolute right-2 bottom-2 p-2 rounded-xl shadow-xl transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-amber-500 text-white hover:bg-amber-600'}`}>
+            {isListening ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e: any) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = (ev) => setAttachedImage(ev.target?.result as string); r.readAsDataURL(f); } }; i.click(); }} className="flex-1 bg-white border-2 border-amber-100 text-amber-600 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-50 transition-all shadow-sm flex items-center justify-center gap-2">
-            <Camera size={16} /> {attachedImage ? 'Photo Attached' : 'Attach Photo'}
+        <div className="flex gap-2">
+          <button onClick={() => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e: any) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = (ev) => setAttachedImage(ev.target?.result as string); r.readAsDataURL(f); } }; i.click(); }} className="flex-1 bg-white border-2 border-amber-100 text-amber-600 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-50 transition-all shadow-sm flex items-center justify-center gap-2">
+            <Camera size={14} /> {attachedImage ? 'Photo Attached' : 'Attach Photo'}
           </button>
-          <button onClick={runAIAnalysis} disabled={loading || (!aiInput && !attachedImage)} className="flex-1 bg-slate-900 text-white px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black disabled:opacity-30 flex items-center justify-center gap-2 transition-all">
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Analyze Job Details
+          <button onClick={runAIAnalysis} disabled={loading || (!aiInput && !attachedImage)} className="flex-1 bg-slate-900 text-white px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-black disabled:opacity-30 flex items-center justify-center gap-2 transition-all">
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Analyze Job Details
           </button>
         </div>
       </div>
 
       {/* Multiple Sections / Jobs List */}
-      <div className="space-y-10">
+      <div className="space-y-4 md:space-y-6">
         {(formData.sections || []).map((section, sectionIdx) => (
-          <div key={section.id} className="bg-white rounded-[40px] border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
+          <div key={section.id} className="bg-white rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
             <div className="absolute top-0 left-0 w-2 h-full bg-slate-900 transition-all group-hover/section:bg-amber-500"></div>
-            
-            <div className="p-8 space-y-6">
+
+            <div className="p-4 md:p-6 space-y-3 md:space-y-4">
               <div className="flex justify-between items-center gap-4">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-3">
@@ -731,16 +731,16 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </div>
 
               {/* Material Items inside Section */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">
                   <div className="col-span-6">Material / Description</div>
                   <div className="col-span-2 text-center">Quantity</div>
                   <div className="col-span-2 text-right">Unit Price (£)</div>
                   <div className="col-span-2 text-right pr-6">Total</div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {section.items.map((item) => (
-                    <div key={item.id} className="group grid grid-cols-1 md:grid-cols-12 gap-3 items-center p-3 rounded-2xl border-2 border-slate-50 bg-white transition-all hover:border-slate-200">
+                    <div key={item.id} className="group grid grid-cols-1 md:grid-cols-12 gap-2 items-center p-2.5 rounded-xl border-2 border-slate-50 bg-white transition-all hover:border-slate-200">
                       <div className="md:col-span-6 flex items-start gap-3">
                         <div className="flex flex-col gap-0.5 flex-1">
                           <input type="text" className="w-full font-black text-sm bg-transparent text-slate-950 outline-none focus:text-amber-600 transition-colors" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item name..." />
@@ -766,59 +766,59 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-4">
-                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 py-4 border-2 border-dashed border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:border-amber-200 hover:text-amber-500 transition-all flex items-center justify-center gap-2"><Plus size={14}/> Add Item</button>
-                   <button onClick={() => openLibraryForSection(section.id)} className="flex-1 py-4 border-2 border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center justify-center gap-2"><Library size={14}/> Add from Library</button>
+                <div className="flex gap-2">
+                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 py-3 border-2 border-dashed border-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:border-amber-200 hover:text-amber-500 transition-all flex items-center justify-center gap-2"><Plus size={14}/> Add Item</button>
+                   <button onClick={() => openLibraryForSection(section.id)} className="flex-1 py-3 border-2 border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center justify-center gap-2"><Library size={14}/> Add from Library</button>
                 </div>
               </div>
 
               {/* Section Labour Estimate */}
-              <div className="pt-6 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                   <div className="space-y-2">
+              <div className="pt-3 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Clock size={12} className="text-amber-500" /> Labour Est (Hrs)</label>
-                    <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-3 focus-within:border-amber-400 focus-within:bg-white transition-all">
+                    <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2 focus-within:border-amber-400 focus-within:bg-white transition-all">
                       <input type="number" className="bg-transparent border-none text-slate-950 font-black text-sm outline-none w-20" value={section.labourHours || ''} onChange={e => updateSectionLabour(section.id, parseFloat(e.target.value) || 0)} placeholder="0.0" />
                       <span className="text-[10px] font-black text-slate-300 uppercase">hrs</span>
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100 text-right">
+                <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 text-right">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Section Subtotal</p>
-                  <p className="text-xl font-black text-slate-900">£{(section.items.reduce((s, i) => s + i.totalPrice, 0) + (section.labourHours * (formData.labourRate || 0))).toFixed(2)}</p>
+                  <p className="text-lg font-black text-slate-900">£{(section.items.reduce((s, i) => s + i.totalPrice, 0) + (section.labourHours * (formData.labourRate || 0))).toFixed(2)}</p>
                 </div>
               </div>
             </div>
           </div>
         ))}
 
-        <button onClick={addSection} className="w-full py-12 border-4 border-dashed border-slate-100 text-slate-300 hover:border-amber-200 hover:text-amber-500 rounded-[40px] transition-all flex flex-col items-center justify-center gap-3">
-          <div className="h-14 w-14 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-500 transition-colors">
-            <Layers size={32} />
+        <button onClick={addSection} className="w-full py-6 md:py-8 border-4 border-dashed border-slate-100 text-slate-300 hover:border-amber-200 hover:text-amber-500 rounded-[32px] transition-all flex flex-col items-center justify-center gap-2">
+          <div className="h-12 w-12 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-500 transition-colors">
+            <Layers size={24} />
           </div>
-          <span className="text-sm font-black uppercase tracking-[0.2em]">Add Another Job Section</span>
-          <span className="text-[10px] font-bold italic">Separate distinct parts of the project</span>
+          <span className="text-xs font-black uppercase tracking-[0.2em]">Add Another Job Section</span>
+          <span className="text-[9px] font-bold italic">Separate distinct parts of the project</span>
         </button>
       </div>
 
       {/* Global Terms & Financial Summary */}
-      <div className="bg-white p-4 md:p-8 rounded-[32px] border border-slate-200 space-y-3 md:space-y-6 shadow-sm">
-        <div className="flex items-center gap-3 border-b border-slate-50 pb-4">
+      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-slate-200 space-y-3 md:space-y-4 shadow-sm">
+        <div className="flex items-center gap-3 border-b border-slate-50 pb-3">
           <div className="h-10 w-10 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><FileText size={20} /></div>
-          <div><h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Document Terms & Document-wide Rates</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Apply to all sections</p></div>
+          <div><h3 className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-widest">Document Terms & Document-wide Rates</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Apply to all sections</p></div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><PoundSterling size={12} className="text-amber-500" /> Default Hourly Rate</label><input type="number" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-slate-950 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.labourRate || ''} onChange={e => setFormData({...formData, labourRate: parseFloat(e.target.value) || 0})} placeholder="65.00" /></div>
-          <div className="space-y-2"><label className="text-[10px] font-black text-amber-600 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Percent size={12} className="text-amber-500" /> Global Markup %</label><input type="number" className="w-full bg-amber-50 border-2 border-amber-100 rounded-2xl p-4 text-amber-900 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.markupPercent || ''} onChange={e => setFormData({...formData, markupPercent: parseFloat(e.target.value) || 0})} placeholder="15" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><PoundSterling size={12} className="text-amber-500" /> Default Hourly Rate</label><input type="number" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3 text-slate-950 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.labourRate || ''} onChange={e => setFormData({...formData, labourRate: parseFloat(e.target.value) || 0})} placeholder="65.00" /></div>
+          <div className="space-y-1"><label className="text-[10px] font-black text-amber-600 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Percent size={12} className="text-amber-500" /> Global Markup %</label><input type="number" className="w-full bg-amber-50 border-2 border-amber-100 rounded-xl p-3 text-amber-900 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.markupPercent || ''} onChange={e => setFormData({...formData, markupPercent: parseFloat(e.target.value) || 0})} placeholder="15" /></div>
         </div>
-        <div className="pt-4 space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><FileText size={14} className="text-amber-500" /> Document Footer / Terms</label><textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[28px] p-3 md:p-6 text-slate-900 font-medium text-sm outline-none focus:border-amber-400 transition-all min-h-[140px]" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Final notes, bank details etc..." /></div>
+        <div className="pt-2 space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><FileText size={14} className="text-amber-500" /> Document Footer / Terms</label><textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[20px] p-3 md:p-4 text-slate-900 font-medium text-sm outline-none focus:border-amber-400 transition-all min-h-[100px]" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Final notes, bank details etc..." /></div>
       </div>
 
-      <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={120} /></div>
-        <div className="flex flex-col md:flex-row justify-between items-end gap-10">
-          <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div></div><p className="text-6xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
-          <div className="text-right text-[11px] font-bold space-y-2 w-full md:w-auto">
+      <div className="bg-slate-900 text-white p-5 md:p-6 rounded-[32px] shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={100} /></div>
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+          <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div></div><p className="text-4xl md:text-5xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
+          <div className="text-right text-[11px] font-bold space-y-1.5 w-full md:w-auto">
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Materials Total</span><span className="text-slate-300 italic">£{totals.materialsTotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Net Sections</span><span className="text-slate-300 italic">£{totals.subtotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-amber-500 uppercase tracking-widest">Markup</span><span className="text-amber-500/80">£{totals.markup.toFixed(2)}</span></div>
@@ -831,20 +831,20 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       {/* Materials Library Modal */}
       {showMaterialsLibrary && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[40px] max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-200">
-            <div className="sticky top-0 bg-white border-b border-slate-100 p-3 md:p-6 flex justify-between items-center z-10">
+          <div className="bg-white rounded-[32px] max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-200">
+            <div className="sticky top-0 bg-white border-b border-slate-100 p-3 md:p-4 flex justify-between items-center z-10">
               <div>
-                <h3 className="text-xl font-black text-slate-900">Add from Materials Library</h3>
-                <p className="text-sm text-slate-500">Select a material to add to your quote</p>
+                <h3 className="text-lg font-black text-slate-900">Add from Materials Library</h3>
+                <p className="text-xs text-slate-500">Select a material to add to your quote</p>
               </div>
               <button
                 onClick={() => { setShowMaterialsLibrary(false); setLibrarySectionId(null); }}
-                className="p-3 hover:bg-slate-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
               >
-                <X size={24} className="text-slate-400" />
+                <X size={20} className="text-slate-400" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4">
               <MaterialsLibrary
                 selectionMode={true}
                 onSelectMaterial={handleAddFromLibrary}
