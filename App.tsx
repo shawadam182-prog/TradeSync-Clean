@@ -33,6 +33,10 @@ const PageLoader: React.FC = () => (
   </div>
 );
 
+// Valid main tabs that can be restored after page reload (e.g., returning from camera)
+const RESTORABLE_TABS = ['home', 'jobpacks', 'quotes', 'invoices', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'files', 'materials'] as const;
+type RestorableTab = typeof RESTORABLE_TABS[number];
+
 const App: React.FC = () => {
   const { signOut } = useAuth();
   const toast = useToast();
@@ -44,7 +48,29 @@ const App: React.FC = () => {
     addScheduleEntry, updateScheduleEntry, deleteScheduleEntry,
   } = useData();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files' | 'materials'>('home');
+  // Restore tab from sessionStorage (handles iOS PWA state loss when camera opens)
+  const getInitialTab = (): 'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files' | 'materials' => {
+    try {
+      const saved = sessionStorage.getItem('activeTab') as RestorableTab | null;
+      if (saved && RESTORABLE_TABS.includes(saved as RestorableTab)) {
+        return saved;
+      }
+    } catch (e) { /* sessionStorage not available */ }
+    return 'home';
+  };
+
+  const [activeTab, setActiveTabState] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files' | 'materials'>(getInitialTab);
+
+  // Wrapper to persist tab changes
+  const setActiveTab = (tab: typeof activeTab) => {
+    setActiveTabState(tab);
+    try {
+      if (RESTORABLE_TABS.includes(tab as RestorableTab)) {
+        sessionStorage.setItem('activeTab', tab);
+      }
+    } catch (e) { /* sessionStorage not available */ }
+  };
+
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const [viewingQuoteId, setViewingQuoteId] = useState<string | null>(null);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);

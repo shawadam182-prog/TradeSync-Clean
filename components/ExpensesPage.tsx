@@ -100,7 +100,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,6 +111,20 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
   const [topVendors, setTopVendors] = useState<Vendor[]>([]);
   const vendorInputRef = useRef<HTMLInputElement>(null);
+
+  // Persist modal state to handle iOS PWA state loss when camera opens
+  const [showAddModal, setShowAddModalState] = useState(() => {
+    try {
+      return sessionStorage.getItem('expenseModalOpen') === 'true';
+    } catch { return false; }
+  });
+  const setShowAddModal = (show: boolean) => {
+    setShowAddModalState(show);
+    try {
+      if (show) sessionStorage.setItem('expenseModalOpen', 'true');
+      else sessionStorage.removeItem('expenseModalOpen');
+    } catch { /* ignore */ }
+  };
 
   const [formData, setFormData] = useState({
     vendor: '',
