@@ -395,22 +395,28 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
         </div>
       </div>
 
-      <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar gap-1 md:gap-8 px-2">
-        {[
-          { id: 'log', label: 'Notepad', icon: StickyNote },
-          { id: 'photos', label: 'Photos', icon: ImageIcon },
-          { id: 'drawings', label: 'Drawings', icon: Ruler },
-          { id: 'materials', label: 'Materials', icon: PackageSearch },
-          { id: 'finance', label: 'Finances', icon: ReceiptText },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-1 md:gap-2 pb-4 px-2 md:px-0 text-[10px] md:text-xs font-black uppercase tracking-tight md:tracking-widest border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'border-amber-500 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
-          >
-            <tab.icon size={14} className="md:w-4 md:h-4" /> {tab.label}
-          </button>
-        ))}
+      <div className="px-2 pb-4 overflow-x-auto no-scrollbar">
+        <div className="flex bg-slate-100 p-1 rounded-xl w-max">
+          {[
+            { id: 'log', label: 'Log', icon: StickyNote },
+            { id: 'photos', label: 'Photos', icon: ImageIcon },
+            { id: 'drawings', label: 'Drawings', icon: Ruler },
+            { id: 'materials', label: 'Materials', icon: PackageSearch },
+            { id: 'finance', label: 'Finance', icon: ReceiptText },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <tab.icon size={14} /> {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === 'log' && (
@@ -465,21 +471,18 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
       )}
 
       {activeTab === 'photos' && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in">
-          <button onClick={handleAddPhoto} className="aspect-square border-4 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-white"><Plus size={40} /><span className="text-[10px] font-black uppercase mt-2">Add Photo</span></button>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4 animate-in fade-in">
+          <button onClick={handleAddPhoto} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-slate-50"><Plus size={24} /><span className="text-[9px] font-bold mt-1">Add</span></button>
           {project.photos.map(photo => (
             <div 
               key={photo.id} 
               onClick={() => openImageViewer(photo, 'photo')}
-              className="aspect-square relative group overflow-hidden rounded-3xl border-2 border-slate-100 cursor-pointer"
+              className="aspect-square relative group overflow-hidden rounded-xl border border-slate-100 cursor-pointer"
             >
-              <img src={photo.url} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" alt="Site" />
-              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                 <Plus className="text-white" size={32} />
-              </div>
+              <img src={photo.url} className="w-full h-full object-cover" alt="Site" />
               <button 
                 onClick={(e) => { e.stopPropagation(); onSaveProject({...project, photos: project.photos.filter(p => p.id !== photo.id)}); }} 
-                className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
               >
                 <Trash2 size={12} />
               </button>

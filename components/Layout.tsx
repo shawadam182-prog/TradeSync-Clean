@@ -162,32 +162,36 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
         </div>
       </aside>
 
-      {/* Mobile Nav - Grid Layout */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[100] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] safe-area-bottom">
-        <div className="grid grid-cols-6 gap-0.5 px-1 py-1">
-          {primaryNavItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (item.id === 'more') {
-                  handleMoreClick();
-                } else {
-                  hapticTap();
-                  setActiveTab(item.id);
-                }
-              }}
-              className={`flex flex-col items-center justify-center gap-0 min-h-[44px] px-1 py-1 rounded-lg active:scale-95 transition-all ${
-                activeTab === item.id
-                  ? 'text-amber-600 bg-amber-50'
-                  : 'text-slate-400 active:bg-slate-100'
-              }`}
-            >
-              <item.icon size={18} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-              <span className={`text-[7px] font-black uppercase tracking-tight text-center leading-tight mt-0.5 ${activeTab === item.id ? 'opacity-100' : 'opacity-60'}`}>
-                {item.label}
-              </span>
-            </button>
-          ))}
+      {/* Mobile Nav - Modern Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 z-[100] safe-area-bottom pb-1">
+        <div className="flex justify-around items-end h-[50px] px-1">
+          {primaryNavItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === 'more') {
+                    handleMoreClick();
+                  } else {
+                    hapticTap();
+                    setActiveTab(item.id);
+                  }
+                }}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 h-full active:scale-95 transition-all relative ${
+                  isActive ? 'text-amber-500' : 'text-slate-400'
+                }`}
+              >
+                {isActive && (
+                  <div className="absolute top-0 w-8 h-0.5 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+                )}
+                <item.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+                <span className={`text-[9px] font-medium tracking-tight leading-none ${isActive ? 'opacity-100 font-bold' : 'opacity-70'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 

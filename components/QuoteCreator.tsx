@@ -451,75 +451,61 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-2 md:space-y-4 pb-24">
-      {/* Header with actions */}
-      <div className="flex items-center justify-between gap-2">
+    <div className="max-w-4xl mx-auto space-y-4 pb-32">
+      {/* iOS Style Sticky Header / Action Bar */}
+      <div className="sticky-action-bar flex justify-between items-center shadow-sm">
         <button
           onClick={() => { hapticTap(); onCancel(); }}
-          className="flex items-center gap-2 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-slate-900 transition-colors min-h-[44px] px-2"
+          className="text-slate-500 font-bold text-sm px-2"
         >
-          <ArrowLeft size={18} />
-          <span className="hidden sm:inline">Cancel</span>
+          Cancel
         </button>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => { hapticTap(); onSave(formData as Quote); }}
-            className="bg-white border-2 border-slate-100 text-slate-700 px-4 py-2.5 min-h-[44px] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+            className="text-slate-900 font-bold text-sm bg-slate-100 px-4 py-2 rounded-xl"
           >
-            <span className="hidden sm:inline">Save Draft</span>
-            <span className="sm:hidden">Save</span>
+            Save Draft
           </button>
           <button
             onClick={() => { hapticSuccess(); onSave({...formData as Quote, status: 'sent'}); }}
-            className="bg-amber-500 text-white px-4 sm:px-7 py-2.5 min-h-[44px] rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-600 transition-all active:scale-95"
+            className="bg-amber-500 text-white font-bold text-sm px-6 py-2 rounded-xl shadow-amber-200 shadow-md"
           >
-            <span className="hidden sm:inline">Finalize & Send</span>
-            <span className="sm:hidden">Send</span>
+            Save & Send
           </button>
         </div>
       </div>
 
-      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-slate-200 shadow-sm grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <div className="space-y-1 col-span-2 md:col-span-1">
-          <div className="flex justify-between items-center px-1">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Document Title</label>
-            <button type="button" onClick={() => isListeningTitle ? titleRecognitionRef.current?.stop() : titleRecognitionRef.current?.start()} className={`p-1 rounded-md border ${isListeningTitle ? 'bg-red-500 text-white animate-pulse' : 'text-slate-400 bg-white shadow-sm'}`}><Mic size={10} /></button>
-          </div>
-          <input type="text" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-amber-400 focus:bg-white transition-all text-slate-950" value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Full House Refurbishment" />
+      <div className="ios-form-group mx-2 shadow-sm">
+        <div className="ios-form-item">
+          <label className="ios-label">Title</label>
+          <input type="text" className="ios-input" value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Project Title" />
+          <button type="button" onClick={() => isListeningTitle ? titleRecognitionRef.current?.stop() : titleRecognitionRef.current?.start()} className={`p-2 ${isListeningTitle ? 'text-red-500' : 'text-slate-400'}`}><Mic size={18} /></button>
         </div>
-        
-        <div className="space-y-1 relative col-span-2 md:col-span-1" ref={dropdownRef}>
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Assign Client</label>
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <input type="text" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm font-bold outline-none text-slate-950 focus:border-amber-400 focus:bg-white transition-all" value={customerSearch} onFocus={() => setShowCustomerDropdown(true)} onChange={e => setCustomerSearch(e.target.value)} placeholder="Search clients..." />
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-            </div>
-            <button onClick={() => setIsAddingCustomer(true)} className="px-3 bg-slate-900 text-amber-500 rounded-xl hover:bg-black transition-all shadow-sm" title="Add New Client"><UserPlus size={16} /></button>
+        <div className="ios-form-item relative" ref={dropdownRef}>
+          <label className="ios-label">Client</label>
+          <div className="flex-1 flex items-center">
+             <input type="text" className="ios-input flex-1" value={customerSearch} onFocus={() => setShowCustomerDropdown(true)} onChange={e => setCustomerSearch(e.target.value)} placeholder="Search..." />
+             <button onClick={() => setIsAddingCustomer(true)} className="p-1.5 bg-slate-100 text-amber-600 rounded-lg ml-2"><UserPlus size={16} /></button>
           </div>
           {showCustomerDropdown && (
-            <div className="absolute z-50 left-0 right-0 mt-2 bg-white border-2 border-slate-100 rounded-[24px] shadow-2xl max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
               {customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase())).map(c => (
-                <button key={c.id} onClick={() => { setFormData({ ...formData, customerId: c.id }); setCustomerSearch(c.name); setShowCustomerDropdown(false); }} className="w-full text-left p-4 hover:bg-slate-50 border-b border-slate-50 last:border-0 flex flex-col">
-                  <span className="text-sm font-black text-slate-900">{c.name}</span>
-                  {c.company && <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic">{c.company}</span>}
+                <button key={c.id} onClick={() => { setFormData({ ...formData, customerId: c.id }); setCustomerSearch(c.name); setShowCustomerDropdown(false); }} className="w-full text-left p-3 hover:bg-slate-50 border-b border-slate-50 flex flex-col">
+                  <span className="font-bold text-slate-900">{c.name}</span>
+                  {c.company && <span className="text-xs text-slate-500">{c.company}</span>}
                 </button>
               ))}
             </div>
           )}
         </div>
-
-        <div className="space-y-1">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Issue Date</label>
-          <div className="relative">
-            <input type="date" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm font-bold outline-none text-slate-950 focus:border-amber-400 focus:bg-white transition-all cursor-pointer" value={formData.date || ''} onChange={e => setFormData({...formData, date: e.target.value})} />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={14} />
-          </div>
+        <div className="ios-form-item">
+          <label className="ios-label">Date</label>
+          <input type="date" className="ios-input" value={formData.date || ''} onChange={e => setFormData({...formData, date: e.target.value})} />
         </div>
-
-        <div className="space-y-1">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Category</label>
-          <select className="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm font-bold outline-none text-slate-950 focus:border-amber-400 focus:bg-white transition-all cursor-pointer" value={formData.type} onChange={e => handleTypeChange(e.target.value as any)}>
+        <div className="ios-form-item">
+          <label className="ios-label">Type</label>
+          <select className="ios-input appearance-none bg-transparent" value={formData.type} onChange={e => handleTypeChange(e.target.value as any)}>
             <option value="estimate">Estimate</option>
             <option value="quotation">Quotation</option>
             <option value="invoice">Invoice</option>
@@ -733,41 +719,31 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 </div>
               </div>
 
-              {/* Material Items inside Section */}
-              <div className="space-y-3">
-                <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] italic">
-                  <div className="col-span-6">Material / Description</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-right">Unit Price (£)</div>
-                  <div className="col-span-2 text-right pr-6">Total</div>
-                </div>
-                <div className="space-y-1.5">
+              {/* Material Items - Clean List Style */}
+              <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+                <div className="divide-y divide-slate-50">
                   {section.items.map((item) => (
-                    <div key={item.id} className="group grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-2 items-center p-3 md:p-2.5 rounded-xl border-2 border-slate-50 bg-white transition-all hover:border-slate-200">
-                      <div className="md:col-span-6 flex items-start gap-3">
-                        <div className="flex flex-col gap-0.5 flex-1">
-                          <input type="text" className="w-full font-black text-sm bg-transparent text-slate-950 outline-none focus:text-amber-600 transition-colors" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item name..." />
-                          <input type="text" className="w-full text-[10px] bg-transparent text-slate-400 italic outline-none" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Details..." />
+                    <div key={item.id} className="p-3">
+                        <div className="flex items-start gap-3 mb-2">
+                           <div className="flex-1">
+                              <input type="text" className="w-full font-bold text-sm text-slate-900 outline-none placeholder:text-slate-300" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item description" />
+                              <input type="text" className="w-full text-xs text-slate-400 outline-none placeholder:text-slate-200" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Optional details" />
+                           </div>
+                           <button onClick={() => removeItem(section.id, item.id)} className="text-slate-300 hover:text-red-500 p-1"><Trash2 size={16}/></button>
                         </div>
-                      </div>
-                      <div className="md:col-span-2 flex items-center justify-between md:justify-center w-full">
-                         <span className="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Quantity</span>
-                        <div className="flex items-center bg-slate-50 rounded-xl px-2 py-1 gap-1 border border-slate-100 w-24 md:w-full md:max-w-[100px]">
-                          <input type="number" className="w-full text-center text-xs font-black bg-transparent text-slate-950 outline-none" value={item.quantity || ''} onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })} />
-                          <input type="text" className="w-8 text-center text-[9px] font-black text-slate-400 uppercase bg-transparent outline-none" value={item.unit} onChange={e => updateItem(section.id, item.id, { unit: e.target.value })} placeholder="unit" />
+                        <div className="flex items-center gap-3">
+                           <div className="flex-1 flex items-center bg-slate-50 rounded-lg px-2">
+                              <input type="number" className="w-full bg-transparent text-sm font-semibold p-2 outline-none text-center" value={item.quantity || ''} onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })} placeholder="0" />
+                              <span className="text-xs text-slate-400">Qty</span>
+                           </div>
+                           <div className="flex-1 flex items-center bg-slate-50 rounded-lg px-2">
+                              <span className="text-xs text-slate-400">£</span>
+                              <input type="number" className="w-full bg-transparent text-sm font-semibold p-2 outline-none text-right" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                           </div>
+                           <div className="w-20 text-right font-bold text-slate-900 text-sm">
+                              £{item.totalPrice.toFixed(2)}
+                           </div>
                         </div>
-                      </div>
-                      <div className="md:col-span-2 flex items-center justify-between md:justify-end w-full">
-                         <span className="md:hidden text-[10px] font-black text-slate-400 uppercase tracking-widest">Unit Price</span>
-                        <div className="flex items-center gap-1 bg-slate-50 rounded-xl px-2 py-1.5 border border-slate-100 w-24 md:w-full md:max-w-[100px]">
-                          <span className="text-[10px] font-black text-slate-400 italic">£</span>
-                          <input type="number" className="w-full text-right text-xs font-black bg-transparent text-slate-950 outline-none" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} />
-                        </div>
-                      </div>
-                      <div className="md:col-span-2 flex items-center justify-between md:pl-4 w-full pt-2 md:pt-0 border-t md:border-t-0 border-slate-50 md:border-none mt-1 md:mt-0">
-                        <span className="text-sm font-black text-slate-900">£{item.totalPrice.toFixed(2)}</span>
-                        <button onClick={() => removeItem(section.id, item.id)} className="p-1.5 text-slate-200 hover:text-red-500 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"><Trash2 size={16}/></button>
-                      </div>
                     </div>
                   ))}
                 </div>

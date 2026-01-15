@@ -309,45 +309,21 @@ ${activeQuote.type === 'invoice' ? 'Payment due within 14 days.' : 'Let me know 
       </div>
 
       <div ref={documentRef} className="bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden print:border-none print:shadow-none">
-        <div className="bg-slate-900 text-white px-8 py-3 flex justify-end items-center">
-          <h2 className="text-sm md:text-xl font-black uppercase tracking-[0.2em]">{activeQuote.type || 'estimate'}</h2>
-        </div>
-
-        <div className="flex flex-col md:grid md:grid-cols-2 gap-0 border-b border-slate-100">
-          <div className="p-4 md:p-8 bg-slate-50/50 border-r border-slate-100">
-            <div className="flex items-center gap-4 mb-4">
-              {displayOptions.showLogo && (
-                settings.companyLogo ? (
-                  <img src={settings.companyLogo} className="h-12 w-12 object-contain rounded-lg bg-white p-1 border border-slate-100" alt="Logo" />
-                ) : (
-                  <div className="h-12 w-12 bg-amber-500 rounded-lg flex items-center justify-center text-white"><Hammer size={24} /></div>
-                )
-              )}
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-none">Service Provider</p>
-                <h1 className="text-lg font-black text-slate-900 mt-1">{settings?.companyName || 'TradeMate'}</h1>
-              </div>
-            </div>
-            <p className="text-xs text-slate-500 font-medium max-w-[240px] leading-relaxed whitespace-pre-line">{settings?.companyAddress}</p>
-          </div>
-          <div className="p-4 md:p-8 text-right">
-            <div className="flex items-center gap-2 mb-4 justify-end"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Client Details</p><User className="text-slate-400" size={18} /></div>
-            <h2 className="text-lg font-black text-slate-900 mb-1">{customer?.name || 'Unassigned Client'}</h2>
-            {customer?.address && <p className="text-xs text-slate-500 font-bold ml-auto max-w-[240px] whitespace-pre-line leading-relaxed">{customer.address}</p>}
-          </div>
-        </div>
-
-        <div className="px-8 py-5 bg-white flex items-center justify-between border-b border-slate-50">
-          <div className="flex items-center gap-4">
-            <div className="p-2.5 bg-amber-50 text-amber-600 rounded-2xl"><FileText size={20} /></div>
-            <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Project Reference</p>
-              <h3 className="text-base font-black text-slate-900 uppercase tracking-tight">{activeQuote?.title || 'Proposed Works'}</h3>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5 italic">Document ID</p>
-            <p className="text-xs font-mono font-black text-slate-900">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString() : '—'} • REF: {reference}</p>
+        {/* Modern Hero Header */}
+        <div className="bg-slate-900 text-white p-6 relative overflow-hidden">
+          <div className="relative z-10 flex justify-between items-start">
+             <div>
+                <p className="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">{activeQuote.type || 'estimate'}</p>
+                <h1 className="text-2xl font-bold text-white mb-2">{activeQuote?.title || 'Proposed Works'}</h1>
+                <div className="flex items-center gap-3 text-sm text-slate-300">
+                   <span>{customer?.name}</span>
+                   <span>•</span>
+                   <span>{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString() : ''}</span>
+                </div>
+             </div>
+             <div className="text-right">
+                <div className="bg-white/10 px-3 py-1 rounded-lg text-xs font-mono text-amber-400">{reference}</div>
+             </div>
           </div>
         </div>
 
@@ -395,20 +371,19 @@ ${activeQuote.type === 'invoice' ? 'Payment due within 14 days.' : 'Let me know 
                         </tbody>
                       </table>
 
-                      {/* Mobile Cards - Compact */}
-                      <div className="md:hidden space-y-2">
+                      {/* Mobile List View - Ultra Clean */}
+                      <div className="md:hidden">
                         {(section.items || []).map(item => (
-                          <div key={item.id} className="bg-white p-2.5 rounded-lg border border-slate-100 shadow-sm flex justify-between items-center gap-2">
+                          <div key={item.id} className="py-3 border-b border-slate-50 last:border-0 flex justify-between items-start gap-3">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-slate-900 text-xs truncate">{item.name}</span>
-                                {displayOptions.showMaterialQty && <span className="text-[10px] px-1.5 py-0.5 bg-slate-50 rounded text-slate-600 font-medium whitespace-nowrap">{item.quantity} {item.unit}</span>}
+                              <div className="flex items-center gap-2 mb-0.5">
+                                {displayOptions.showMaterialQty && <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 rounded">{item.quantity}{item.unit}</span>}
+                                <span className="font-medium text-slate-900 text-sm truncate">{item.name}</span>
                               </div>
-                              {item.description && <p className="text-[9px] text-slate-400 italic truncate leading-tight">{item.description}</p>}
+                              {item.description && <p className="text-xs text-slate-400 truncate">{item.description}</p>}
                             </div>
-                            <div className="text-right">
-                              {displayOptions.showMaterialLineTotals && <p className="text-xs font-black text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
-                              {displayOptions.showMaterialUnitPrice && <p className="text-[9px] text-slate-400">@ £{(item.unitPrice * markupMultiplier).toFixed(2)}</p>}
+                            <div className="text-right whitespace-nowrap">
+                              {displayOptions.showMaterialLineTotals && <p className="text-sm font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
                             </div>
                           </div>
                         ))}
@@ -474,36 +449,30 @@ ${activeQuote.type === 'invoice' ? 'Payment due within 14 days.' : 'Let me know 
           );
         })}
 
-        <div className={`${currentThemeClass} p-6 md:p-10 avoid-break relative overflow-hidden`}>
-          <div className="absolute top-0 right-0 p-4 md:p-8 opacity-5"><PoundSterling size={120} /></div>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
-            <div className="flex-1 max-w-lg">
-              {displayOptions.showNotes && activeQuote?.notes && (
-                <div className="mb-4 md:mb-8">
-                  <div className="flex items-center gap-2 mb-3 opacity-60"><Info size={14}/><span className="text-[9px] font-black uppercase tracking-widest italic">Terms & Important Information</span></div>
-                  <p className="text-[10px] opacity-70 italic leading-relaxed whitespace-pre-line">{activeQuote.notes}</p>
-                </div>
-              )}
-            </div>
-            <div className="space-y-3 text-right w-full md:max-w-[280px]">
+        <div className="bg-slate-50 p-6 md:p-10 border-t border-slate-100">
+          <div className="flex flex-col gap-6">
+            <div className="space-y-2">
               {displayOptions.showTotalsBreakdown && (
                 <>
-                  <div className="flex justify-between items-center text-[10px] font-black opacity-50 uppercase tracking-widest"><span>Net Project Value</span><span>£{totals.clientSubtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-sm text-slate-500"><span>Subtotal</span><span>£{totals.clientSubtotal.toFixed(2)}</span></div>
                   {settings.enableVat && displayOptions.showVat && (
-                    <div className="flex justify-between items-center text-[10px] font-black opacity-80 uppercase tracking-widest italic"><span>VAT ({activeQuote.taxPercent}%)</span><span>£{totals.taxAmount.toFixed(2)}</span></div>
-                  )}
-                  {settings.enableCis && displayOptions.showCis && (
-                    <div className="flex justify-between items-center text-[10px] font-black opacity-80 uppercase tracking-widest italic text-red-300"><span>CIS Deduction</span><span>-£{totals.cisAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-sm text-slate-500"><span>VAT ({activeQuote.taxPercent}%)</span><span>£{totals.taxAmount.toFixed(2)}</span></div>
                   )}
                 </>
               )}
-              <div className="pt-5 border-t border-white/20 flex justify-between items-center">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Document Total</span>
-                <span className="text-4xl font-black">£{totals.grandTotal.toFixed(2)}</span>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-200">
+                <span className="font-bold text-slate-900">Total Due</span>
+                <span className="text-2xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</span>
               </div>
             </div>
+
+            {displayOptions.showNotes && activeQuote?.notes && (
+                <div className="text-xs text-slate-400 leading-relaxed bg-white p-4 rounded-xl border border-slate-100">
+                  <p className="font-bold mb-1">Notes</p>
+                  {activeQuote.notes}
+                </div>
+            )}
           </div>
-          <div className="mt-6 text-center"><p className="text-[9px] opacity-30 font-bold uppercase tracking-widest">Generated by TradeMate • {settings?.companyName}</p></div>
         </div>
       </div>
       <div className="flex justify-center pt-4 print:hidden">

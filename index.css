@@ -15,23 +15,38 @@
 }
 
 /* ================================================
-   MOBILE OPTIMIZATION STYLES
+   MOBILE OPTIMIZATION STYLES - PRO UI
    ================================================ */
 
-/* Touch target minimum size - 44x44px for accessibility */
+:root {
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+/* Base Typography overrides for mobile */
 @media (max-width: 768px) {
-  /* All buttons get minimum touch target */
-  button,
-  [role="button"],
-  a[href],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"] {
-    min-height: 44px;
-    min-width: 44px;
+  body {
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Form inputs - compact but accessible */
+  /* Less aggressive uppercase on mobile */
+  .mobile-label {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important; /* slate-500 */
+  }
+}
+
+/* Touch target minimum size */
+@media (max-width: 768px) {
+  button, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Compact Pro Inputs */
   input[type="text"],
   input[type="email"],
   input[type="tel"],
@@ -43,37 +58,72 @@
   input[type="datetime-local"],
   select,
   textarea {
-    min-height: 38px;
-    font-size: 16px !important; /* Prevents iOS auto-zoom */
-    -webkit-appearance: none;
-    border-radius: 8px;
-  }
-
-  /* Larger tap area for checkboxes and radios */
-  input[type="checkbox"],
-  input[type="radio"] {
-    min-width: 24px;
-    min-height: 24px;
+    min-height: 42px; /* Standard iOS height */
+    font-size: 16px !important;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
   }
 }
 
-/* Sticky action buttons container for mobile forms */
-.mobile-sticky-actions {
+/* iOS Style Form Group */
+.ios-form-group {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid #e2e8f0; /* slate-200 */
+}
+
+.ios-form-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid #f1f5f9; /* slate-100 */
+}
+
+.ios-form-item:last-child {
+  border-bottom: none;
+}
+
+.ios-label {
+  flex: 0 0 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a; /* slate-900 */
+}
+
+.ios-input {
+  flex: 1;
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 0 !important;
+  text-align: right;
+  font-weight: 400;
+  color: #334155; /* slate-700 */
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  min-height: 44px !important;
+}
+
+.ios-input:focus {
+  background: transparent !important;
+}
+
+/* Sticky Action Bar */
+.sticky-action-bar {
   position: fixed;
-  bottom: 60px; /* Above bottom nav */
+  bottom: 50px; /* Above nav */
   left: 0;
   right: 0;
-  padding: 8px 12px;
-  background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 70%, rgba(255,255,255,0) 100%);
-  z-index: 90;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  z-index: 40;
   display: flex;
-  gap: 8px;
-}
-
-@media (min-width: 769px) {
-  .mobile-sticky-actions {
-    display: none;
-  }
+  gap: 12px;
 }
 
 /* Hide scrollbar but allow scrolling */
@@ -115,67 +165,10 @@
   to { transform: translateX(-50%) translateY(70px) rotate(360deg); }
 }
 
-/* Faster transitions on mobile for snappier feel */
+/* Faster transitions on mobile */
 @media (max-width: 768px) {
   * {
-    transition-duration: 0.15s !important;
-  }
-
-  /* Exceptions for specific animations */
-  .animate-pulse,
-  .animate-spin,
-  .animate-bounce {
-    transition-duration: unset !important;
-  }
-}
-
-/* Full width buttons on mobile */
-@media (max-width: 640px) {
-  .mobile-full-width {
-    width: 100% !important;
-  }
-}
-
-/* Better spacing for mobile cards */
-@media (max-width: 768px) {
-  .mobile-card {
-    padding: 16px !important;
-    border-radius: 20px !important;
-  }
-}
-
-/* Floating Action Button styles */
-.fab {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: #f59e0b;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
-  z-index: 95;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.fab:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
-}
-
-.fab:active {
-  transform: scale(0.95);
-}
-
-@media (min-width: 769px) {
-  .fab {
-    display: none;
+    transition-duration: 0.2s !important;
   }
 }
 
@@ -189,34 +182,33 @@
   animation: swipe-hint 1.5s ease-in-out 2;
 }
 
-/* Better focus states for mobile */
+/* Focus states */
 @media (max-width: 768px) {
   input:focus,
   textarea:focus,
   select:focus,
   button:focus {
-    outline: 2px solid #f59e0b;
-    outline-offset: 2px;
+    outline: none;
   }
 }
 
 /* Haptic feedback visual cue */
-.haptic-tap {
-  transform: scale(0.97);
+.haptic-tap:active {
+  transform: scale(0.96);
+  opacity: 0.8;
 }
 
-/* Safe area padding for notched phones */
+/* Safe area padding */
 @supports (padding: max(0px)) {
   .safe-area-bottom {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
-
   .safe-area-top {
     padding-top: max(16px, env(safe-area-inset-top));
   }
 }
 
-/* Skeleton shimmer animation */
+/* Skeleton shimmer */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -230,44 +222,15 @@
 
 /* Print styles */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-
-  #printable-document,
-  #printable-document * {
-    visibility: visible;
-  }
-
-  #printable-document {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-
-  .print-clean {
-    box-shadow: none !important;
-    border: none !important;
-  }
-
-  .print-page-break {
-    page-break-before: always;
-  }
-
-  .print-hide {
-    display: none !important;
-  }
-}
-
-/* Offline mode styles */
-.offline-mode main {
-  opacity: 0.8;
+  body * { visibility: hidden; }
+  #printable-document, #printable-document * { visibility: visible; }
+  #printable-document { position: absolute; left: 0; top: 0; width: 100%; }
+  .print-clean { box-shadow: none !important; border: none !important; }
+  .print-page-break { page-break-before: always; }
+  .print-hide { display: none !important; }
 }
 
 /* Install prompt for iOS */
 @supports (-webkit-touch-callout: none) {
-  .ios-install-hint {
-    display: block;
-  }
+  .ios-install-hint { display: block; }
 }
