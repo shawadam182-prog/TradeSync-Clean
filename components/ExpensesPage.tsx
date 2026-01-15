@@ -247,13 +247,18 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       if (response.ok) {
         const result = await response.json();
         if (result.vendor || result.amount) {
+          // Map AI category to user's actual category (case-insensitive match)
+          const matchedCategory = result.category
+            ? categories.find(c => c.name.toLowerCase() === result.category.toLowerCase())?.name
+            : null;
+
           setFormData(prev => ({
             ...prev,
             vendor: result.vendor || prev.vendor,
             description: result.description || prev.description,
             amount: result.amount?.toString() || prev.amount,
             vat_amount: result.vatAmount?.toString() || prev.vat_amount,
-            category: result.category || prev.category,
+            category: matchedCategory || prev.category,
             expense_date: result.date || prev.expense_date,
             payment_method: result.paymentMethod || prev.payment_method,
           }));
@@ -593,11 +598,17 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
                     {scanning && (<div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center"><div className="text-center text-white"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /><p className="text-sm font-bold">Scanning receipt...</p></div></div>)}
                   </div>
                 ) : (
-                  <button type="button" onClick={triggerFileSelect} className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors">
+                  <label className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors cursor-pointer block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
                     <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-600">Tap to scan receipt</p>
                     <p className="text-xs text-slate-400">AI will auto-fill the details</p>
-                  </button>
+                  </label>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-3 md:gap-4">
