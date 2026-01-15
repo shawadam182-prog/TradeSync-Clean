@@ -111,6 +111,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
   const [topVendors, setTopVendors] = useState<Vendor[]>([]);
   const vendorInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Persist modal state to handle iOS PWA state loss when camera opens
   const [showAddModal, setShowAddModalState] = useState(() => {
@@ -276,31 +277,9 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     await processFile(file);
   };
 
-  // Mobile-compatible file picker - creates input dynamically for better browser support
+  // Trigger the hidden file input
   const triggerFileSelect = () => {
-    try {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
-      input.onchange = async (e: Event) => {
-        try {
-          const target = e.target as HTMLInputElement;
-          const file = target.files?.[0];
-          if (file) {
-            await processFile(file);
-          }
-        } catch (error) {
-          console.error('File selection handler error:', error);
-          toast.error('Upload Failed', 'Could not process the image');
-          setScanning(false);
-        }
-      };
-      input.click();
-    } catch (error) {
-      console.error('File picker error:', error);
-      toast.error('Upload Failed', 'Could not open file picker');
-    }
+    fileInputRef.current?.click();
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -454,6 +433,16 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Hidden file input for receipt capture */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
@@ -586,7 +575,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
                     {scanning && (<div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center"><div className="text-center text-white"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /><p className="text-sm font-bold">Scanning receipt...</p></div></div>)}
                   </div>
                 ) : (
-                  <button onClick={triggerFileSelect} className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors">
+                  <button type="button" onClick={triggerFileSelect} className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors">
                     <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-600">Tap to scan receipt</p>
                     <p className="text-xs text-slate-400">AI will auto-fill the details</p>
