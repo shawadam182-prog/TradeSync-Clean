@@ -111,7 +111,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const [vendorSuggestions, setVendorSuggestions] = useState<Vendor[]>([]);
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
   const [topVendors, setTopVendors] = useState<Vendor[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const vendorInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
@@ -203,10 +202,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     setSuggestedCategory(null);
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     setReceiptFile(file); // Store file for later upload
     const reader = new FileReader();
     reader.onload = (ev) => { setReceiptPreview(ev.target?.result as string); };
@@ -247,6 +243,28 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     } finally {
       setScanning(false);
     }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  // Mobile-compatible file picker - creates input dynamically for better browser support
+  const triggerFileSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        await processFile(file);
+      }
+    };
+    input.click();
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -517,15 +535,14 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Scan Receipt (Optional)</label>
-                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileSelect} className="hidden" />
                 {receiptPreview ? (
                   <div className="relative">
                     <img src={receiptPreview} className="w-full h-48 object-cover rounded-2xl" alt="Receipt" />
-                    <button onClick={() => { setReceiptPreview(null); setReceiptFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="absolute top-2 right-2 p-2 bg-white rounded-full shadow"><X size={16} /></button>
+                    <button onClick={() => { setReceiptPreview(null); setReceiptFile(null); }} className="absolute top-2 right-2 p-2 bg-white rounded-full shadow"><X size={16} /></button>
                     {scanning && (<div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center"><div className="text-center text-white"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /><p className="text-sm font-bold">Scanning receipt...</p></div></div>)}
                   </div>
                 ) : (
-                  <button onClick={() => fileInputRef.current?.click()} className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors">
+                  <button onClick={triggerFileSelect} className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors">
                     <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-600">Tap to scan receipt</p>
                     <p className="text-xs text-slate-400">AI will auto-fill the details</p>
