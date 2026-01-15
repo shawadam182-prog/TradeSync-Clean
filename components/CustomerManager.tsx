@@ -14,9 +14,10 @@ import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 interface CustomerManagerProps {
   customers: Customer[];
   setCustomers: (customers: Customer[]) => void;
+  deleteCustomer: (id: string) => Promise<void>;
 }
 
-export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, setCustomers }) => {
+export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, setCustomers, deleteCustomer: deleteCustomerProp }) => {
   const toast = useToast();
   // Explicitly type searchTerm as string to avoid unknown inference issues
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -248,10 +249,15 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, set
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const deleteCustomer = (id: string, name: string) => {
+  const deleteCustomer = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-      setCustomers(customers.filter(c => c.id !== id));
-      toast.success('Contact Deleted', `${name} removed from directory`);
+      try {
+        await deleteCustomerProp(id);
+        toast.success('Contact Deleted', `${name} removed from directory`);
+      } catch (error) {
+        console.error('Failed to delete customer:', error);
+        toast.error('Delete Failed', `Could not remove ${name}`);
+      }
     }
   };
 
