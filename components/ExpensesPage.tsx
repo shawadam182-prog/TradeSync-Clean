@@ -501,7 +501,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
-          <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v15-DEBUG]</span></p>
+          <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v16-DEBUG]</span></p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowCategoryManager(true)} className="flex items-center gap-2 bg-white text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm border border-slate-200 hover:bg-slate-50 transition-colors">
@@ -621,18 +621,15 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
               <button onClick={() => { setShowAddModal(false); resetForm(); }} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl"><X size={20} /></button>
             </div>
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              {/* DEBUG LOG PANEL - visible on screen */}
-              {debugLog.length > 0 && (
-                <div className="p-3 bg-yellow-50 border border-yellow-300 rounded-xl text-xs font-mono max-h-40 overflow-y-auto">
-                  <div className="font-bold text-yellow-800 mb-1">DEBUG LOG:</div>
-                  {debugLog.map((log, i) => (
-                    <div key={i} className="text-yellow-700">{log}</div>
-                  ))}
-                  <div className="mt-2 font-bold text-blue-800">
-                    Current formData.vendor: "{formData.vendor}" | amount: "{formData.amount}"
+              {/* DEBUG LOG PANEL - ALWAYS visible */}
+              <div className="p-3 bg-red-500 text-white rounded-xl text-sm font-bold">
+                DEBUG v16: vendor="{formData.vendor}" | amount="{formData.amount}"
+                {debugLog.length > 0 && (
+                  <div className="mt-2 text-xs font-mono bg-white text-black p-2 rounded max-h-32 overflow-y-auto">
+                    {debugLog.map((log, i) => <div key={i}>{log}</div>)}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Scan Receipt (Optional)</label>
