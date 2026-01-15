@@ -214,7 +214,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({ action: 'parseReceipt', imageBase64: base64 }),
+        body: JSON.stringify({ action: 'parseReceipt', data: { imageBase64: base64 } }),
       });
 
       if (response.ok) {
@@ -277,7 +277,15 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   };
 
   const handleSave = async () => {
-    if (!formData.vendor || !formData.amount) return;
+    if (!formData.vendor?.trim()) {
+      toast.error('Missing Vendor', 'Please enter a vendor name');
+      return;
+    }
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.error('Missing Amount', 'Please enter a valid amount');
+      return;
+    }
+
     setSaving(true);
     try {
       // Step 1: Create the expense
@@ -471,7 +479,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
           <input type="text" placeholder="Search vendors..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
           <button onClick={() => setFilterCategory(null)}
             className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-colors ${!filterCategory ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>All</button>
           {categories.map(cat => (
@@ -622,7 +630,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
                 </div>
                 <div className="col-span-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Category</label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {categories.slice(0, 8).map(cat => {
                       const Icon = getIconComponent(cat.icon);
                       return (
