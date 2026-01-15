@@ -265,11 +265,9 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
           };
 
           console.log('Setting form data to:', newFormData);
-          // Use setTimeout to ensure state update happens in a clean context on mobile
-          setTimeout(() => {
-            setFormData(newFormData);
-          }, 0);
-          toast.success('Receipt scanned successfully!');
+          // Update form data directly - setTimeout was causing updates to be lost on mobile
+          setFormData(newFormData);
+          toast.success('Receipt Scanned', `${result.vendor} - £${result.amount}`);
         } else {
           toast.info('Receipt uploaded', 'Unable to read details. Please fill in manually.');
         }
