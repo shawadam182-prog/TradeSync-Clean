@@ -217,6 +217,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   };
 
   const processFile = async (file: File) => {
+    console.log('processFile started:', file.name, file.type, file.size);
     try {
       setReceiptFile(file);
       setScanning(true);
@@ -224,14 +225,16 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       // Set preview image
       const reader = new FileReader();
       reader.onload = (ev) => {
+        console.log('FileReader onload - setting preview');
         try {
           setReceiptPreview(ev.target?.result as string);
         } catch (e) {
           console.error('Failed to set preview:', e);
         }
       };
-      reader.onerror = () => console.error('FileReader error');
+      reader.onerror = (err) => console.error('FileReader error:', err);
       reader.readAsDataURL(file);
+      console.log('Started reading file for preview');
 
       // Convert to base64 and send to AI
       const base64 = await fileToBase64(file);
@@ -272,14 +275,30 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleFileSelect triggered');
     const file = e.target.files?.[0];
-    if (!file) return;
+    console.log('File selected:', file?.name, file?.size);
+
+    // Reset input value so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
     await processFile(file);
   };
 
   // Trigger the hidden file input
   const triggerFileSelect = () => {
-    fileInputRef.current?.click();
+    console.log('triggerFileSelect called');
+    // Reset value before clicking to ensure onChange fires
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -433,12 +452,11 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Hidden file input for receipt capture */}
+      {/* Hidden file input for receipt capture - removed capture attr for Android compatibility */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleFileSelect}
         className="hidden"
       />
