@@ -246,11 +246,20 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('AI response:', result);
         if (result.vendor || result.amount) {
           // Map AI category to user's actual category (case-insensitive match)
-          const matchedCategory = result.category
-            ? categories.find(c => c.name.toLowerCase() === result.category.toLowerCase())?.name
-            : null;
+          let matchedCategory: string | null = null;
+          if (result.category) {
+            const found = categories.find(c =>
+              c.name.toLowerCase() === result.category.toLowerCase()
+            );
+            matchedCategory = found?.name || null;
+            console.log('Category mapping:', result.category, '->', matchedCategory);
+          }
+
+          // Get a valid fallback category
+          const fallbackCategory = categories[0]?.name || 'Materials';
 
           setFormData(prev => ({
             ...prev,
@@ -258,7 +267,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
             description: result.description || prev.description,
             amount: result.amount?.toString() || prev.amount,
             vat_amount: result.vatAmount?.toString() || prev.vat_amount,
-            category: matchedCategory || prev.category,
+            category: matchedCategory || prev.category || fallbackCategory,
             expense_date: result.date || prev.expense_date,
             payment_method: result.paymentMethod || prev.payment_method,
           }));
@@ -325,6 +334,11 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       return;
     }
 
+    // Ensure we have a valid category - must match one from the list
+    const validCategory = categories.find(c => c.name === formData.category)?.name
+      || categories[0]?.name
+      || 'Materials';
+
     setSaving(true);
     try {
       // Step 1: Create the expense
@@ -333,7 +347,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
         description: formData.description || null,
         amount: parseFloat(formData.amount),
         vat_amount: parseFloat(formData.vat_amount) || 0,
-        category: formData.category,
+        category: validCategory,
         expense_date: formData.expense_date,
         payment_method: formData.payment_method,
         job_pack_id: formData.job_pack_id || null,
