@@ -642,6 +642,8 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
               <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div className="col-span-2 relative">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Vendor *</label>
+                  {/* DEBUG: Show actual state value */}
+                  {formData.vendor && <div className="text-xs text-green-600 mb-1">Value: "{formData.vendor}"</div>}
                   <input
                     ref={vendorInputRef}
                     type="text"
@@ -684,6 +686,8 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Amount (exc. VAT) *</label>
+                  {/* DEBUG */}
+                  {formData.amount && <div className="text-xs text-green-600 mb-1">Value: "£{formData.amount}"</div>}
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">£</span>
                     <input ref={amountInputRef} type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
