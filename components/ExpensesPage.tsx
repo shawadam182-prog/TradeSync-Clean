@@ -452,12 +452,11 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Hidden file input for receipt capture */}
+      {/* Hidden file input for receipt capture - removed capture attr for Android compatibility */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleFileSelect}
         className="hidden"
       />
