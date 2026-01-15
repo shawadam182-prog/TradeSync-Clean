@@ -214,7 +214,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
-        body: JSON.stringify({ action: 'parseReceipt', imageBase64: base64 }),
+        body: JSON.stringify({ action: 'parseReceipt', data: { imageBase64: base64 } }),
       });
 
       if (response.ok) {
