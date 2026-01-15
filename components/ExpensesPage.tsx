@@ -219,22 +219,13 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const processFile = async (file: File) => {
     console.log('processFile started:', file.name, file.type, file.size);
     try {
+      // Set preview immediately using object URL (synchronous, more reliable on mobile)
+      const previewUrl = URL.createObjectURL(file);
+      console.log('Created preview URL:', previewUrl);
+      setReceiptPreview(previewUrl);
       setReceiptFile(file);
       setScanning(true);
-
-      // Set preview image
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        console.log('FileReader onload - setting preview');
-        try {
-          setReceiptPreview(ev.target?.result as string);
-        } catch (e) {
-          console.error('Failed to set preview:', e);
-        }
-      };
-      reader.onerror = (err) => console.error('FileReader error:', err);
-      reader.readAsDataURL(file);
-      console.log('Started reading file for preview');
+      console.log('Set preview, file, and scanning state');
 
       // Convert to base64 and send to AI
       const base64 = await fileToBase64(file);
