@@ -334,11 +334,9 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       return;
     }
 
-    // Database constraint requires lowercase category names
-    // Valid values: materials, tools, fuel, subcontractor, office, insurance, other
-    const categoryLower = (formData.category || 'materials').toLowerCase();
-    const validDbCategories = ['materials', 'tools', 'fuel', 'subcontractor', 'office', 'insurance', 'other'];
-    const validCategory = validDbCategories.includes(categoryLower) ? categoryLower : 'other';
+    // Use category as-is (constraint has been removed from database)
+    // Fall back to first available category or 'Other' if none selected
+    const validCategory = formData.category || categories[0]?.name || 'Other';
 
     setSaving(true);
     try {
