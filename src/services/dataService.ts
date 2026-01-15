@@ -569,7 +569,7 @@ export const expensesService = {
   async getAll() {
     const { data, error } = await supabase
       .from('expenses')
-      .select()
+      .select('*, job_pack:job_packs(id, title)')
       .order('expense_date', { ascending: false });
     if (error) throw error;
     return data;

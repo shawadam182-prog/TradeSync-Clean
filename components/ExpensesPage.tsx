@@ -275,9 +275,14 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
             : `${year - 1}/${year}`;
 
           // Upload to filing cabinet with expense link
+          const receiptDate = new Date(formData.expense_date).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          });
           const filedDoc = await filingService.upload(receiptFile, {
-            name: `Receipt - ${formData.vendor} - £${formData.amount}`,
-            description: formData.description || `Receipt from ${formData.vendor}`,
+            name: `${formData.vendor} - £${formData.amount.toFixed(2)} (${receiptDate})`,
+            description: formData.description || `Receipt from ${formData.vendor} dated ${receiptDate}`,
             category: 'receipt',
             vendor_name: formData.vendor,
             document_date: formData.expense_date,
