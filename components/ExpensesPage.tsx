@@ -219,16 +219,16 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.data) {
+        if (result.vendor || result.amount) {
           setFormData(prev => ({
             ...prev,
-            vendor: result.data.vendor || prev.vendor,
-            description: result.data.description || prev.description,
-            amount: result.data.amount?.toString() || prev.amount,
-            vat_amount: result.data.vatAmount?.toString() || prev.vat_amount,
-            category: result.data.category || prev.category,
-            expense_date: result.data.date || prev.expense_date,
-            payment_method: result.data.paymentMethod || prev.payment_method,
+            vendor: result.vendor || prev.vendor,
+            description: result.description || prev.description,
+            amount: result.amount?.toString() || prev.amount,
+            vat_amount: result.vatAmount?.toString() || prev.vat_amount,
+            category: result.category || prev.category,
+            expense_date: result.date || prev.expense_date,
+            payment_method: result.paymentMethod || prev.payment_method,
           }));
           toast.success('Receipt scanned successfully!');
         } else {
