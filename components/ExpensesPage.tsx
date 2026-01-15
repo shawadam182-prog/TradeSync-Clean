@@ -261,16 +261,23 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
           // Get a valid fallback category
           const fallbackCategory = categories[0]?.name || 'Materials';
 
-          setFormData(prev => ({
-            ...prev,
-            vendor: result.vendor || prev.vendor,
-            description: result.description || prev.description,
-            amount: result.amount?.toString() || prev.amount,
-            vat_amount: result.vatAmount?.toString() || prev.vat_amount,
-            category: matchedCategory || prev.category || fallbackCategory,
-            expense_date: result.date || prev.expense_date,
-            payment_method: result.paymentMethod || prev.payment_method,
-          }));
+          // Build the new form data
+          const newFormData = {
+            vendor: result.vendor || formData.vendor || '',
+            description: result.description || formData.description || '',
+            amount: result.amount?.toString() || formData.amount || '',
+            vat_amount: result.vatAmount?.toString() || formData.vat_amount || '',
+            category: matchedCategory || formData.category || fallbackCategory,
+            expense_date: result.date || formData.expense_date || new Date().toISOString().split('T')[0],
+            payment_method: result.paymentMethod || formData.payment_method || 'card',
+            job_pack_id: formData.job_pack_id || '',
+          };
+
+          console.log('Setting form data to:', newFormData);
+          // Use setTimeout to ensure state update happens in a clean context on mobile
+          setTimeout(() => {
+            setFormData(newFormData);
+          }, 0);
           toast.success('Receipt scanned successfully!');
         } else {
           toast.info('Receipt uploaded', 'Unable to read details. Please fill in manually.');
