@@ -206,10 +206,12 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     setReceiptFile(file); // Store file for later upload
     const reader = new FileReader();
     reader.onload = (ev) => { setReceiptPreview(ev.target?.result as string); };
     reader.readAsDataURL(file);
+
     setScanning(true);
     try {
       const base64 = await fileToBase64(file);
@@ -218,6 +220,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
         body: JSON.stringify({ action: 'parseReceipt', imageBase64: base64 }),
       });
+
       if (response.ok) {
         const result = await response.json();
         if (result.data) {
@@ -231,10 +234,19 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
             expense_date: result.data.date || prev.expense_date,
             payment_method: result.data.paymentMethod || prev.payment_method,
           }));
+          showToast('Receipt scanned successfully!', 'success');
+        } else {
+          showToast('Receipt uploaded, but unable to read details. Please fill in manually.', 'info');
         }
+      } else {
+        showToast('Receipt uploaded, but AI scanning failed. Please fill in manually.', 'info');
       }
-    } catch (error) { console.error('OCR failed:', error); }
-    finally { setScanning(false); }
+    } catch (error) {
+      console.error('OCR failed:', error);
+      showToast('Receipt uploaded. Please fill in the details manually.', 'info');
+    } finally {
+      setScanning(false);
+    }
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -598,9 +610,9 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
                       const Icon = getIconComponent(cat.icon);
                       return (
                         <button key={cat.id || cat.name} type="button" onClick={() => setFormData(prev => ({ ...prev, category: cat.name }))}
-                          className={`p-3 rounded-xl border-2 transition-all ${formData.category === cat.name ? 'border-amber-500 bg-amber-50' : 'border-slate-100 hover:border-slate-200'}`}>
-                          <Icon size={18} className="mx-auto mb-1" style={{ color: formData.category === cat.name ? cat.color : '#94a3b8' }} />
-                          <p className="text-[9px] font-black uppercase truncate" style={{ color: formData.category === cat.name ? cat.color : '#94a3b8' }}>{cat.name}</p>
+                          className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center ${formData.category === cat.name ? 'border-amber-500 bg-amber-50' : 'border-slate-100 hover:border-slate-200'}`}>
+                          <Icon size={20} className="mb-1 flex-shrink-0" style={{ color: formData.category === cat.name ? cat.color : '#94a3b8' }} />
+                          <p className="text-[10px] font-bold uppercase text-center leading-tight break-words w-full" style={{ color: formData.category === cat.name ? cat.color : '#94a3b8' }}>{cat.name}</p>
                         </button>
                       );
                     })}
