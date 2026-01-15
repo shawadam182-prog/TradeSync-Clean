@@ -697,83 +697,144 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-3xl z-[500] flex items-center justify-center p-4">
           <div className="bg-white rounded-[72px] p-10 md:p-20 max-w-2xl w-full shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-400 overflow-y-auto max-h-[95vh] no-scrollbar">
             {isAddingCustomer ? (
-              <div className="space-y-12 animate-in slide-in-from-right-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-8">
-                    <div className="h-20 w-20 bg-amber-500 text-slate-900 rounded-[36px] flex items-center justify-center shadow-2xl">
-                      <UserPlus size={40} />
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">Register Client</h3>
-                      <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em] italic mt-2.5 leading-none">Site Logistics Profile</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setIsAddingCustomer(false)} className="p-4 hover:bg-slate-100 rounded-full text-slate-300 transition-all hover:text-slate-900"><X size={40}/></button>
+              <div className="space-y-2 md:space-y-6 animate-in slide-in-from-right-4">
+                <div className="flex justify-between items-center mb-2 md:mb-4">
+                  <h3 className="font-black text-sm md:text-xl text-slate-900 uppercase tracking-tight">Register Client</h3>
+                  <button
+                    type="button"
+                    onClick={() => isListeningCustomer ? customerRecognitionRef.current?.stop() : customerRecognitionRef.current?.start()}
+                    disabled={isProcessingCustomer}
+                    className={`flex items-center gap-1 px-3 py-1.5 md:px-6 md:py-3 rounded-xl font-black text-[9px] md:text-[10px] uppercase transition-all border ${
+                      isListeningCustomer
+                        ? 'bg-red-500 text-white border-red-600 animate-pulse'
+                        : isProcessingCustomer
+                        ? 'bg-amber-500 text-white border-amber-600'
+                        : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
+                    }`}
+                  >
+                    {isProcessingCustomer ? <Loader2 size={10} className="md:w-3 md:h-3 animate-spin" /> : isListeningCustomer ? <MicOff size={10} className="md:w-3 md:h-3" /> : <Sparkles size={10} className="md:w-3 md:h-3" />}
+                    <span className="hidden sm:inline">{isProcessingCustomer ? 'Analyzing...' : isListeningCustomer ? 'Stop' : 'Voice'}</span>
+                  </button>
                 </div>
 
-                <button 
-                  onClick={() => isListeningCustomer ? customerRecognitionRef.current?.stop() : customerRecognitionRef.current?.start()}
-                  disabled={isProcessingCustomer}
-                  className={`w-full flex items-center justify-center gap-6 p-10 rounded-[48px] border-4 font-black uppercase text-sm tracking-[0.2em] transition-all ${
-                    isListeningCustomer ? 'bg-red-500 text-white border-red-600 animate-pulse' : isProcessingCustomer ? 'bg-amber-500 text-white border-amber-600' : 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100'
-                  }`}
-                >
-                  {isProcessingCustomer ? <Loader2 size={32} className="animate-spin" /> : <Sparkles size={32} />}
-                  {isProcessingCustomer ? 'Analysing' : isListeningCustomer ? 'Listening' : 'Magic Fill (Voice)'}
-                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+                  {/* Name Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <User size={10} className="md:w-3 md:h-3" /> Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      autoComplete="name"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                      value={newCustomer.name || ''}
+                      placeholder="e.g. John Smith"
+                      onChange={e => setNewCustomer({...newCustomer, name: e.target.value})}
+                    />
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><User size={14}/> Full Name *</label>
-                    <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.name || ''} onChange={e => setNewCustomer({...newCustomer, name: e.target.value})} placeholder="e.g. John Smith" />
+                  {/* Company Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Hammer size={10} className="md:w-3 md:h-3" /> Company Name
+                    </label>
+                    <input
+                      type="text"
+                      autoComplete="organization"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                      value={newCustomer.company || ''}
+                      placeholder="e.g. Smith & Co Roofing"
+                      onChange={e => setNewCustomer({...newCustomer, company: e.target.value})}
+                    />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Hammer size={14}/> Company</label>
-                    <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.company || ''} onChange={e => setNewCustomer({...newCustomer, company: e.target.value})} placeholder="Optional" />
+
+                  {/* Email Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Mail size={10} className="md:w-3 md:h-3" /> Email Address
+                    </label>
+                    <input
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                      value={newCustomer.email || ''}
+                      placeholder="john@example.com"
+                      onChange={e => setNewCustomer({...newCustomer, email: e.target.value})}
+                    />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Mail size={14}/> Email</label>
-                    <input type="email" className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.email || ''} onChange={e => setNewCustomer({...newCustomer, email: e.target.value})} placeholder="Optional" />
+
+                  {/* Phone Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Phone size={10} className="md:w-3 md:h-3" /> Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                      value={newCustomer.phone || ''}
+                      placeholder="07123 456789"
+                      onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})}
+                    />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic flex items-center gap-2"><Phone size={14}/> Phone</label>
-                    <input type="tel" className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-7 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={newCustomer.phone || ''} onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})} placeholder="Optional" />
-                  </div>
-                  <div className="md:col-span-2 space-y-3">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 italic"><MapPin size={14}/> Site Address</label>
-                      <div className="flex gap-4">
-                        <button onClick={handleUseCurrentLocation} disabled={isLocating} className="text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 flex items-center gap-2 disabled:opacity-30">
-                          {isLocating ? <Loader2 size={12} className="animate-spin" /> : <LocateFixed size={14} />} Locate
+
+                  {/* Address Field */}
+                  <div className="md:col-span-2 space-y-0.5 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
+                      <MapPin size={10} className="md:w-3 md:h-3" /> Main Site Address
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
+                        placeholder="Street, Town, Postcode..."
+                        value={newCustomer.address || ''}
+                        onChange={e => setNewCustomer({...newCustomer, address: e.target.value})}
+                      />
+                      <div className="absolute right-1 top-1 flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={handleUseCurrentLocation}
+                          disabled={isLocating}
+                          className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
+                          title="Use current location"
+                        >
+                          {isLocating ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />}
                         </button>
-                        <button onClick={handleVerifyAddress} disabled={!newCustomer.address || isVerifyingAddress} className="text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-2 disabled:opacity-30">
-                          {isVerifyingAddress ? <Loader2 size={12} className="animate-spin" /> : <MapPinned size={14} />} AI Verify
+                        <button
+                          type="button"
+                          onClick={handleVerifyAddress}
+                          disabled={!newCustomer.address || isVerifyingAddress}
+                          className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
+                          title="AI verify address"
+                        >
+                          {isVerifyingAddress ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />}
                         </button>
                       </div>
                     </div>
-                    <textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[36px] p-8 font-bold text-xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all min-h-[140px] shadow-inner" value={newCustomer.address || ''} onChange={e => setNewCustomer({...newCustomer, address: e.target.value})} placeholder="Location..." />
                   </div>
                 </div>
 
                 {customerError && (
-                  <div className="bg-red-50 text-red-600 p-8 rounded-[36px] text-xs font-black uppercase tracking-widest flex items-center gap-4">
-                    <AlertCircle size={24}/> {customerError}
+                  <div className="flex items-center gap-2 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100">
+                    <AlertCircle size={18} />
+                    <p className="text-xs font-bold uppercase tracking-widest">{customerError}</p>
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row gap-6 pt-6">
+                <div className="flex gap-4 pt-4">
                   <button
                     onClick={() => {
                       hapticTap();
                       saveQuickCustomer();
                     }}
                     disabled={!newCustomer.name?.trim()}
-                    className="flex-1 bg-amber-500 text-slate-900 font-black py-8 rounded-[40px] flex items-center justify-center gap-6 uppercase text-sm tracking-[0.2em] shadow-2xl hover:bg-amber-400 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    <CheckCircle2 size={32} />
-                    Save & Assign Client
+                    Register Contact
                   </button>
-                  <button onClick={() => setIsAddingCustomer(false)} className="px-14 bg-slate-50 text-slate-500 font-black py-8 rounded-[40px] hover:bg-slate-100 transition-all uppercase text-[12px] tracking-widest">Cancel</button>
+                  <button onClick={() => setIsAddingCustomer(false)} className="px-12 bg-slate-50 text-slate-500 font-black py-5 rounded-[24px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Cancel</button>
                 </div>
               </div>
             ) : (

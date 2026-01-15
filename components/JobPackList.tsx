@@ -229,76 +229,177 @@ export const JobPackList: React.FC<JobPackListProps> = ({
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4 pb-28 md:pb-4 overflow-y-auto">
           <div className="bg-white rounded-[48px] p-4 md:p-8 md:p-12 max-w-2xl w-full shadow-2xl border border-slate-200 my-auto animate-in zoom-in-95 duration-300">
             {isAddingCustomer ? (
-              <div className="space-y-8 animate-in slide-in-from-right-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><UserPlus size={24}/></div>
-                    <h3 className="text-sm md:text-xl font-black text-slate-900 uppercase tracking-tight">Register Client</h3>
-                  </div>
-                  <button onClick={() => { setIsAddingCustomer(false); setCustomerError(null); }} className="text-slate-400 hover:text-slate-900 transition-colors"><X size={24}/></button>
+              <div className="space-y-2 md:space-y-6 animate-in slide-in-from-right-4">
+                <div className="flex justify-between items-center mb-2 md:mb-4">
+                  <h3 className="font-black text-sm md:text-xl text-slate-900 uppercase tracking-tight">Register Client</h3>
+                  <button
+                    type="button"
+                    onClick={() => startListening()}
+                    disabled={isProcessing}
+                    className={`flex items-center gap-1 px-3 py-1.5 md:px-6 md:py-3 rounded-xl font-black text-[9px] md:text-[10px] uppercase transition-all border ${
+                      isListening && !activeFieldVoiceRef.current
+                        ? 'bg-red-500 text-white border-red-600 animate-pulse'
+                        : isProcessing
+                        ? 'bg-amber-500 text-white border-amber-600'
+                        : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
+                    }`}
+                  >
+                    {isProcessing ? <Loader2 size={10} className="md:w-3 md:h-3 animate-spin" /> : isListening && !activeFieldVoiceRef.current ? <MicOff size={10} className="md:w-3 md:h-3" /> : <Sparkles size={10} className="md:w-3 md:h-3" />}
+                    <span className="hidden sm:inline">{isProcessing ? 'Analyzing...' : isListening && !activeFieldVoiceRef.current ? 'Stop' : 'Voice'}</span>
+                  </button>
                 </div>
 
-                <button 
-                  type="button"
-                  onClick={() => startListening()}
-                  disabled={isProcessing}
-                  className={`w-full flex items-center justify-center gap-3 p-5 rounded-3xl border-2 font-black uppercase text-xs tracking-widest transition-all ${
-                    isListening && !activeFieldVoiceRef.current ? 'bg-red-500 text-white border-red-600 animate-pulse' : isProcessing ? 'bg-amber-500 text-white border-amber-600' : 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100'
-                  }`}
-                >
-                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                  {isProcessing ? 'Analyzing...' : isListening && !activeFieldVoiceRef.current ? 'Listening...' : 'Magic Fill (Voice)'}
-                </button>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-                  {[
-                    { id: 'name', label: 'Full Name *', icon: User, placeholder: 'e.g. John Smith' },
-                    { id: 'company', label: 'Company', icon: Hammer, placeholder: 'Optional' },
-                    { id: 'email', label: 'Email Address', icon: Mail, placeholder: 'john@example.com' },
-                    { id: 'phone', label: 'Phone Number', icon: Phone, placeholder: '07123 456789' }
-                  ].map(field => (
-                    <div key={field.id} className="space-y-1">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic"><field.icon size={12}/> {field.label}</label>
-                        <button type="button" onClick={() => startListening(field.id)} className={`p-1 rounded-md border transition-colors ${isListeningField === field.id ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500'}`}><Mic size={10}/></button>
-                      </div>
-                      <input className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-sm text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={(newCustomer as any)[field.id] || ''} onChange={e => setNewCustomer({...newCustomer, [field.id]: e.target.value})} placeholder={field.placeholder} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
+                  {/* Name Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <User size={10} className="md:w-3 md:h-3" /> Full Name *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        autoComplete="name"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        value={newCustomer.name || ''}
+                        placeholder="e.g. John Smith"
+                        onChange={e => setNewCustomer({...newCustomer, name: e.target.value})}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => startListening('name')}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                      >
+                        <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                      </button>
                     </div>
-                  ))}
-                  <div className="md:col-span-2 space-y-1 relative">
-                    <div className="flex justify-between items-center px-1">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 italic"><MapPin size={12}/> Site Address</label>
-                      <div className="flex gap-2">
-                        <button 
-                          type="button" 
+                  </div>
+
+                  {/* Company Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Hammer size={10} className="md:w-3 md:h-3" /> Company Name
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        autoComplete="organization"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        value={newCustomer.company || ''}
+                        placeholder="e.g. Smith & Co Roofing"
+                        onChange={e => setNewCustomer({...newCustomer, company: e.target.value})}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => startListening('company')}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                      >
+                        <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Mail size={10} className="md:w-3 md:h-3" /> Email Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        value={newCustomer.email || ''}
+                        placeholder="john@example.com"
+                        onChange={e => setNewCustomer({...newCustomer, email: e.target.value})}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => startListening('email')}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                      >
+                        <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Phone Field */}
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                      <Phone size={10} className="md:w-3 md:h-3" /> Phone Number
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        value={newCustomer.phone || ''}
+                        placeholder="07123 456789"
+                        onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => startListening('phone')}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                      >
+                        <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Address Field */}
+                  <div className="md:col-span-2 space-y-0.5 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
+                      <MapPin size={10} className="md:w-3 md:h-3" /> Main Site Address
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
+                        placeholder="Street, Town, Postcode..."
+                        value={newCustomer.address || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setNewCustomer({...newCustomer, address: val});
+                          setAddressSearchTerm(val);
+                          setShowAddressSuggestions(true);
+                        }}
+                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                      />
+                      <div className="absolute right-1 top-1 flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => startListening('address')}
+                          className={`p-1 md:p-2 rounded-lg transition-all ${isListeningField === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                          title="Voice input"
+                        >
+                          <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={handleUseCurrentLocation}
                           disabled={isLocating}
-                          className="text-[10px] font-black uppercase text-blue-600 hover:text-blue-700 flex items-center gap-1 disabled:opacity-30"
+                          className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
+                          title="Use current location"
                         >
-                          {isLocating ? <Loader2 size={10} className="animate-spin" /> : <LocateFixed size={12} />} Use Location
+                          {isLocating ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />}
                         </button>
-                        <button type="button" onClick={handleVerifyAddress} disabled={!newCustomer.address || isVerifyingAddress} className="text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-1 disabled:opacity-30">
-                          {isVerifyingAddress ? <Loader2 size={10} className="animate-spin" /> : <MapPinned size={12} />} AI Verify
+                        <button
+                          type="button"
+                          onClick={handleVerifyAddress}
+                          disabled={!newCustomer.address || isVerifyingAddress}
+                          className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
+                          title="AI verify address"
+                        >
+                          {isVerifyingAddress ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />}
                         </button>
                       </div>
                     </div>
-                    <textarea 
-                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold text-sm text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all min-h-[100px] shadow-inner" 
-                      value={newCustomer.address || ''} 
-                      onChange={e => {
-                        const val = e.target.value;
-                        setNewCustomer({...newCustomer, address: val});
-                        setAddressSearchTerm(val);
-                        setShowAddressSuggestions(true);
-                      }} 
-                      onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
-                      placeholder="Project location address..." 
-                    />
                     {showAddressSuggestions && filteredAddresses.length > 0 && (
                       <div className="absolute z-50 left-0 right-0 mt-2 bg-white border-2 border-slate-100 rounded-[24px] shadow-2xl animate-in slide-in-from-top-2 overflow-hidden">
                         {filteredAddresses.map((addr, i) => (
-                          <button 
-                            key={i} 
+                          <button
+                            key={i}
                             type="button"
                             onClick={() => {
                               setNewCustomer(prev => ({ ...prev, address: addr }));
@@ -317,15 +418,15 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                 </div>
 
                 {customerError && (
-                  <div className="flex items-center gap-3 p-5 bg-red-50 text-red-600 rounded-3xl border border-red-100 animate-in slide-in-from-top-2">
-                    <AlertCircle size={20} />
-                    <p className="text-xs font-black uppercase tracking-widest italic">{customerError}</p>
+                  <div className="flex items-center gap-2 p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100">
+                    <AlertCircle size={18} />
+                    <p className="text-xs font-bold uppercase tracking-widest">{customerError}</p>
                   </div>
                 )}
 
-                <div className="flex gap-4">
-                  <button onClick={(e) => handleQuickAddCustomer(e)} className="flex-1 bg-slate-900 text-white font-black py-6 rounded-[32px] shadow-xl hover:bg-black transition-all uppercase tracking-widest text-xs">Register Client</button>
-                  <button onClick={() => { setIsAddingCustomer(false); setCustomerError(null); }} className="px-10 bg-slate-50 text-slate-500 font-black py-6 rounded-[32px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Back</button>
+                <div className="flex gap-4 pt-4">
+                  <button onClick={(e) => handleQuickAddCustomer(e)} className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs">Register Contact</button>
+                  <button onClick={() => { setIsAddingCustomer(false); setCustomerError(null); }} className="px-12 bg-slate-50 text-slate-500 font-black py-5 rounded-[24px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Cancel</button>
                 </div>
               </div>
             ) : (
