@@ -277,7 +277,15 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   };
 
   const handleSave = async () => {
-    if (!formData.vendor || !formData.amount) return;
+    if (!formData.vendor?.trim()) {
+      toast.error('Missing Vendor', 'Please enter a vendor name');
+      return;
+    }
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.error('Missing Amount', 'Please enter a valid amount');
+      return;
+    }
+
     setSaving(true);
     try {
       // Step 1: Create the expense
