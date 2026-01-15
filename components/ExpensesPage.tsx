@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { flushSync } from 'react-dom';
 import {
   Receipt, Camera, Plus, Filter, Search, Trash2,
   Calendar, Tag, Building2, X, Check, Loader2,
@@ -105,8 +104,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [debugLog, setDebugLog] = useState<string[]>([]); // Visible debug log
-  const addDebug = (msg: string) => setDebugLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [suggestedCategory, setSuggestedCategory] = useState<{ id: string; name: string } | null>(null);
@@ -156,6 +153,37 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     };
   });
   const [saving, setSaving] = useState(false);
+
+  // Poll for scanned expense data while modal is open
+  // This handles the PWA camera recreation timing issue:
+  // - Camera opens -> app recreated -> new component mounts
+  // - processFile is still running in OLD component context
+  // - By the time processFile finishes and saves to sessionStorage, the new component already checked
+  // - Solution: Poll every 500ms while modal is open
+  useEffect(() => {
+    if (!showAddModal) return;
+
+    const checkForScannedData = () => {
+      try {
+        const scanned = sessionStorage.getItem('scannedExpenseData');
+        if (scanned) {
+          const data = JSON.parse(scanned);
+          sessionStorage.removeItem('scannedExpenseData');
+          setFormData(data);
+          setScanning(false);
+          toast.success('Receipt Data Loaded', `${data.vendor} - £${data.amount}`);
+        }
+      } catch (e) { console.error('Error reading scanned data:', e); }
+    };
+
+    // Check immediately
+    checkForScannedData();
+
+    // Then poll every 500ms while modal is open
+    const interval = setInterval(checkForScannedData, 500);
+
+    return () => clearInterval(interval);
+  }, [showAddModal]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -235,31 +263,21 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
   };
 
   const processFile = async (file: File) => {
-    setDebugLog([]); // Clear previous logs
-    addDebug(`1. File selected: ${file.name} (${file.size} bytes)`);
-
     try {
-      const previewUrl = URL.createObjectURL(file);
-      setReceiptPreview(previewUrl);
+      setReceiptPreview(URL.createObjectURL(file));
       setReceiptFile(file);
       setScanning(true);
-      addDebug('2. Preview set, starting scan...');
 
       const base64 = await fileToBase64(file);
-      addDebug(`3. Converted to base64 (${base64.length} chars)`);
 
-      addDebug('4. Calling AI API...');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
         body: JSON.stringify({ action: 'parseReceipt', data: { imageBase64: base64 } }),
       });
 
-      addDebug(`5. API responded: ${response.status}`);
-
       if (response.ok) {
         const result = await response.json();
-        addDebug(`6. Parsed result: vendor=${result.vendor}, amount=${result.amount}`);
 
         if (result.vendor || result.amount) {
           let matchedCategory: string | null = null;
@@ -279,27 +297,24 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
             job_pack_id: '',
           };
 
-          addDebug(`7. Built newFormData: ${JSON.stringify(newFormData).slice(0, 100)}...`);
-          addDebug('8. Calling setFormData...');
+          // SAVE TO SESSION STORAGE - this persists across component recreation
+          // The useEffect will pick this up when the component regains focus
+          sessionStorage.setItem('scannedExpenseData', JSON.stringify(newFormData));
 
+          // Also try direct state update (works if component wasn't recreated)
           setFormData(newFormData);
-
-          addDebug('9. setFormData called, setting scanning=false');
           setScanning(false);
 
-          addDebug('10. DONE - Check if fields updated!');
           toast.success('Receipt Scanned', `${result.vendor} - £${result.amount}`);
           return;
         } else {
-          addDebug('6b. No vendor/amount in result');
           toast.info('Receipt uploaded', 'Unable to read details. Please fill in manually.');
         }
       } else {
-        addDebug(`5b. API error: ${response.status}`);
         toast.info('Receipt uploaded', 'AI scanning failed. Please fill in manually.');
       }
     } catch (error) {
-      addDebug(`ERROR: ${error}`);
+      console.error('Receipt processing failed:', error);
       toast.info('Receipt uploaded', 'Please fill in the details manually.');
     } finally {
       setScanning(false);
@@ -501,7 +516,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
-          <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v16-DEBUG]</span></p>
+          <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v17-POLL]</span></p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowCategoryManager(true)} className="flex items-center gap-2 bg-white text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm border border-slate-200 hover:bg-slate-50 transition-colors">
@@ -621,13 +636,12 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
               <button onClick={() => { setShowAddModal(false); resetForm(); }} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl"><X size={20} /></button>
             </div>
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              {/* DEBUG LOG PANEL - ALWAYS visible */}
-              <div className="p-3 bg-red-500 text-white rounded-xl text-sm font-bold">
-                DEBUG v16: vendor="{formData.vendor}" | amount="{formData.amount}"
-                {debugLog.length > 0 && (
-                  <div className="mt-2 text-xs font-mono bg-white text-black p-2 rounded max-h-32 overflow-y-auto">
-                    {debugLog.map((log, i) => <div key={i}>{log}</div>)}
-                  </div>
+              {/* DEBUG PANEL - Shows current form state */}
+              <div className={`p-3 rounded-xl text-sm font-bold ${formData.vendor ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                {formData.vendor ? (
+                  <>✓ DATA LOADED: {formData.vendor} - £{formData.amount}</>
+                ) : (
+                  <>v17: Waiting for receipt data... (polling every 500ms)</>
                 )}
               </div>
 
