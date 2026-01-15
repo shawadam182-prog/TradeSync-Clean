@@ -133,15 +133,25 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     } catch { /* ignore */ }
   };
 
-  const [formData, setFormData] = useState({
-    vendor: '',
-    description: '',
-    amount: '',
-    vat_amount: '',
-    category: '',
-    expense_date: new Date().toISOString().split('T')[0],
-    payment_method: 'card',
-    job_pack_id: '',
+  const [formData, setFormData] = useState(() => {
+    // Check for scanned data in sessionStorage (persists across PWA camera resumption)
+    try {
+      const scanned = sessionStorage.getItem('scannedExpense');
+      if (scanned) {
+        sessionStorage.removeItem('scannedExpense');
+        return JSON.parse(scanned);
+      }
+    } catch { /* ignore */ }
+    return {
+      vendor: '',
+      description: '',
+      amount: '',
+      vat_amount: '',
+      category: '',
+      expense_date: new Date().toISOString().split('T')[0],
+      payment_method: 'card',
+      job_pack_id: '',
+    };
   });
   const [saving, setSaving] = useState(false);
 
@@ -269,18 +279,15 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
 
           console.log('About to update form with:', newFormData);
 
-          // Update React state
-          setFormData(newFormData);
-          setScanning(false);
+          // Store in sessionStorage and reload page to force fresh state
+          try {
+            sessionStorage.setItem('scannedExpense', JSON.stringify(newFormData));
+            sessionStorage.setItem('expenseModalOpen', 'true');
+          } catch { /* ignore */ }
 
-          // NUCLEAR OPTION: Close and reopen modal to force complete remount
-          setShowAddModal(false);
-          setTimeout(() => {
-            setShowAddModal(true);
-          }, 100);
-
-          toast.success('Receipt Scanned', `${result.vendor} - £${result.amount}`);
-          return; // Exit early since we've already set scanning to false
+          // Force page reload to pick up the sessionStorage data
+          window.location.reload();
+          return;
         } else {
           toast.info('Receipt uploaded', 'Unable to read details. Please fill in manually.');
         }
