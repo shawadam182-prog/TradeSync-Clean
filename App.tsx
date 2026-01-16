@@ -34,8 +34,29 @@ const PageLoader: React.FC = () => (
   </div>
 );
 
+// Tab type definition - matches navigation structure
+type TabType =
+  | 'home'
+  | 'jobpacks'
+  | 'quotes'
+  | 'invoices'
+  | 'customers'
+  | 'schedule'
+  | 'expenses'
+  | 'materials'
+  | 'files'
+  | 'bank'
+  | 'reconcile'
+  | 'vat'
+  | 'payables'
+  | 'settings'
+  | 'wholesalers'
+  | 'view'
+  | 'jobpack_detail'
+  | 'quote_edit';
+
 // Valid main tabs that can be restored after page reload (e.g., returning from camera)
-const RESTORABLE_TABS = ['home', 'jobpacks', 'quotes', 'invoices', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'files', 'materials', 'wholesalers'] as const;
+const RESTORABLE_TABS: readonly TabType[] = ['home', 'jobpacks', 'quotes', 'invoices', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'files', 'materials', 'wholesalers'];
 type RestorableTab = typeof RESTORABLE_TABS[number];
 
 const App: React.FC = () => {
@@ -50,20 +71,20 @@ const App: React.FC = () => {
   } = useData();
 
   // Restore tab from sessionStorage (handles iOS PWA state loss when camera opens)
-  const getInitialTab = (): 'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files' | 'materials' | 'wholesalers' => {
+  const getInitialTab = (): TabType => {
     try {
-      const saved = sessionStorage.getItem('activeTab') as RestorableTab | null;
-      if (saved && RESTORABLE_TABS.includes(saved as RestorableTab)) {
+      const saved = sessionStorage.getItem('activeTab') as TabType | null;
+      if (saved && RESTORABLE_TABS.includes(saved)) {
         return saved;
       }
     } catch (e) { /* sessionStorage not available */ }
     return 'home';
   };
 
-  const [activeTab, setActiveTabState] = useState<'home' | 'jobpacks' | 'quotes' | 'invoices' | 'customers' | 'settings' | 'view' | 'jobpack_detail' | 'quote_edit' | 'schedule' | 'expenses' | 'bank' | 'reconcile' | 'vat' | 'payables' | 'files' | 'materials' | 'wholesalers'>(getInitialTab);
+  const [activeTab, setActiveTabState] = useState<TabType>(getInitialTab);
 
   // Wrapper to persist tab changes
-  const setActiveTab = (tab: typeof activeTab) => {
+  const setActiveTab = (tab: TabType) => {
     setActiveTabState(tab);
     try {
       if (RESTORABLE_TABS.includes(tab as RestorableTab)) {

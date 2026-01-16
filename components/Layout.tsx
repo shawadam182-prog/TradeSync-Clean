@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Users, FileText, Settings, Hammer, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Wallet, Building2, Cog, Package, MoreHorizontal, X, QrCode, Shield } from 'lucide-react';
+import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useAuth } from '../src/contexts/AuthContext';
 import { isAdminUser } from '../src/lib/constants';
@@ -16,12 +16,19 @@ interface NavGroup {
   id: string;
   label: string;
   icon: any;
-  items: { id: string; label: string; icon: any }[];
+  tier?: 'starter' | 'professional' | 'business' | 'enterprise';
+  badge?: string;
+  items: {
+    id: string;
+    label: string;
+    icon: any;
+    tier?: 'starter' | 'professional' | 'business' | 'enterprise';
+  }[];
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, onSignOut }) => {
   const { user } = useAuth();
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['work', 'money']));
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['work', 'expenses', 'accounting']));
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [moreMenuGroup, setMoreMenuGroup] = useState<string | null>(null);
 
@@ -32,42 +39,48 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
       id: 'work',
       label: 'Work',
       icon: Briefcase,
+      tier: 'starter',
       items: [
-        { id: 'home', label: 'Home', icon: Home },
-        { id: 'jobpacks', label: 'Job Packs', icon: Briefcase },
-        { id: 'schedule', label: 'Schedule', icon: CalendarDays },
+        { id: 'home', label: 'Home', icon: Home, tier: 'starter' },
+        { id: 'jobpacks', label: 'Jobs', icon: Briefcase, tier: 'starter' },
+        { id: 'schedule', label: 'Schedule', icon: CalendarDays, tier: 'starter' },
+        { id: 'quotes', label: 'Quotes', icon: FileText, tier: 'starter' },
+        { id: 'invoices', label: 'Invoices', icon: ReceiptText, tier: 'starter' },
+        { id: 'customers', label: 'Customers', icon: Users, tier: 'starter' },
       ]
     },
     {
-      id: 'money',
-      label: 'Money',
-      icon: Wallet,
+      id: 'expenses',
+      label: 'Expenses',
+      icon: Receipt,
+      tier: 'professional',
+      badge: 'PRO',
       items: [
-        { id: 'quotes', label: 'Quotes', icon: FileText },
-        { id: 'invoices', label: 'Invoices', icon: ReceiptText },
-        { id: 'expenses', label: 'Expenses', icon: Receipt },
-        { id: 'payables', label: 'Payables', icon: CreditCard },
+        { id: 'expenses', label: 'Log Expense', icon: Receipt, tier: 'professional' },
+        { id: 'materials', label: 'Materials', icon: Package, tier: 'professional' },
+        { id: 'files', label: 'Files', icon: FolderOpen, tier: 'professional' },
       ]
     },
     {
-      id: 'accounts',
-      label: 'Accounts',
-      icon: Building2,
+      id: 'accounting',
+      label: 'Accounting',
+      icon: Calculator,
+      tier: 'business',
+      badge: 'BIZ',
       items: [
-        { id: 'bank', label: 'Bank', icon: Landmark },
-        { id: 'reconcile', label: 'Reconcile', icon: Link2 },
-        { id: 'vat', label: 'VAT', icon: Calculator },
-        { id: 'files', label: 'Files', icon: FolderOpen },
+        { id: 'bank', label: 'Bank Import', icon: Landmark, tier: 'business' },
+        { id: 'reconcile', label: 'Reconcile', icon: Link2, tier: 'business' },
+        { id: 'vat', label: 'VAT Summary', icon: Calculator, tier: 'business' },
+        { id: 'payables', label: 'Payables', icon: CreditCard, tier: 'business' },
       ]
     },
     {
-      id: 'setup',
-      label: 'Setup',
-      icon: Cog,
+      id: 'settings',
+      label: 'Settings',
+      icon: Settings,
+      tier: 'starter',
       items: [
-        { id: 'customers', label: 'Customers', icon: Users },
-        { id: 'materials', label: 'Materials', icon: Package },
-        { id: 'settings', label: 'Settings', icon: Settings },
+        { id: 'settings', label: 'Settings', icon: Settings, tier: 'starter' },
       ]
     },
     // Admin section - only visible to admin users
@@ -84,13 +97,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
   // Flat list for mobile nav
   const navItems = navGroups.flatMap(g => g.items);
 
-  // Primary navigation items for grid (most commonly used)
+  // Primary navigation items for mobile bottom bar
   const primaryNavItems = [
     { id: 'home', label: 'Home', icon: Home },
-    { id: 'jobpacks', label: 'Job Packs', icon: Briefcase },
+    { id: 'jobpacks', label: 'Jobs', icon: Briefcase },
     { id: 'schedule', label: 'Schedule', icon: CalendarDays },
     { id: 'quotes', label: 'Quotes', icon: FileText },
-    { id: 'invoices', label: 'Invoices', icon: ReceiptText },
     { id: 'more', label: 'More', icon: MoreHorizontal },
   ];
 
@@ -145,6 +157,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                 <div className="flex items-center gap-2">
                   <group.icon size={16} />
                   <span className="font-bold text-xs uppercase tracking-wider">{group.label}</span>
+                  {group.badge && (
+                    <span className={`text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold ${
+                      group.tier === 'professional' ? 'bg-amber-500' :
+                      group.tier === 'business' ? 'bg-purple-500' : 'bg-slate-500'
+                    }`}>{group.badge}</span>
+                  )}
                 </div>
                 {expandedGroups.has(group.id) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
@@ -229,6 +247,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                   <div className="flex items-center gap-2 px-2 py-1.5 bg-slate-50 rounded-lg mb-1">
                     <group.icon size={14} className="text-slate-600" />
                     <span className="font-black text-[10px] uppercase tracking-wider text-slate-700">{group.label}</span>
+                    {group.badge && (
+                      <span className={`text-[9px] text-white px-1.5 py-0.5 rounded-full font-bold ${
+                        group.tier === 'professional' ? 'bg-amber-500' :
+                        group.tier === 'business' ? 'bg-purple-500' : 'bg-slate-500'
+                      }`}>{group.badge}</span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
                     {group.items.map((item) => {

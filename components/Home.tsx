@@ -8,20 +8,26 @@ import {
   Timer, Loader2, MicOff, StickyNote, Eraser,
   Briefcase, FileText, Receipt, UserPlus,
   PoundSterling, FileWarning, AlertTriangle,
-  LogIn, LogOut, ChevronDown, ChevronUp, BarChart3
+  LogIn, LogOut, ChevronDown, ChevronUp, BarChart3,
+  Lock, Zap, TrendingUp
 } from 'lucide-react';
 import { parseReminderVoiceInput } from '../src/services/geminiService';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 import { BusinessDashboard } from './BusinessDashboard';
+
+type SubscriptionTier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 interface HomeProps {
   schedule: ScheduleEntry[];
   customers: Customer[];
   projects: JobPack[];
   quotes: Quote[];
+  userTier?: SubscriptionTier;
   onNavigateToSchedule: () => void;
   onNavigateToInvoices?: () => void;
   onNavigateToQuotes?: () => void;
+  onNavigateToAccounting?: () => void;
+  onUpgrade?: () => void;
   onCreateJob?: () => void;
   onCreateQuote?: () => void;
   onLogExpense?: () => void;
@@ -55,14 +61,18 @@ export const Home: React.FC<HomeProps> = ({
   customers,
   projects,
   quotes,
+  userTier = 'starter', // Default to starter for now
   onNavigateToSchedule,
   onNavigateToInvoices,
   onNavigateToQuotes,
+  onNavigateToAccounting,
+  onUpgrade,
   onCreateJob,
   onCreateQuote,
   onLogExpense,
   onAddCustomer
 }) => {
+  const hasBusinessTier = userTier === 'business' || userTier === 'enterprise';
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [quickNotes, setQuickNotes] = useState<string>('');
   const [isListeningReminder, setIsListeningReminder] = useState(false);
@@ -445,40 +455,9 @@ export const Home: React.FC<HomeProps> = ({
         </div>
       </div>
 
-      {/* Business Dashboard - Collapsible */}
-      <div className="bg-white rounded-2xl md:rounded-[32px] border-2 border-slate-100 shadow-sm overflow-hidden">
-        <button
-          onClick={() => { hapticTap(); setShowDashboard(!showDashboard); }}
-          className="w-full p-3 md:p-5 flex items-center justify-between hover:bg-slate-50 transition-colors"
-        >
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl md:rounded-2xl">
-              <BarChart3 size={18} className="md:w-6 md:h-6" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-black text-slate-900 text-sm md:text-lg uppercase tracking-tight">Business Dashboard</h3>
-              <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">Revenue, invoices & pipeline</p>
-            </div>
-          </div>
-          <div className={`p-2 rounded-lg bg-slate-100 text-slate-600 transition-transform ${showDashboard ? 'rotate-180' : ''}`}>
-            <ChevronDown size={16} className="md:w-5 md:h-5" />
-          </div>
-        </button>
-        {showDashboard && (
-          <div className="p-3 md:p-6 pt-0 md:pt-0 border-t border-slate-100">
-            <BusinessDashboard
-              quotes={quotes}
-              customers={customers}
-              schedule={schedule}
-              onNavigateToInvoices={onNavigateToInvoices}
-              onNavigateToQuotes={onNavigateToQuotes}
-              onNavigateToSchedule={onNavigateToSchedule}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Quick Actions Grid - No Scrolling */}
+      {/* QUICK ACTIONS Section */}
+      <div>
+        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Quick Actions</h3>
       <div className="grid grid-cols-2 gap-2 md:gap-3">
         <button
           onClick={() => { hapticTap(); onCreateJob?.(); }}
@@ -517,9 +496,14 @@ export const Home: React.FC<HomeProps> = ({
           <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Customer</span>
         </button>
       </div>
+      </div>
+
+      {/* TODAY'S SCHEDULE Section Header */}
+      <div>
+        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Today's Schedule</h3>
 
       {/* Today's Stats Card */}
-      <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-3 md:p-6 shadow-sm">
+      <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-3 md:p-6 shadow-sm mb-3 md:mb-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           <div className="flex flex-col items-center justify-center gap-1.5 md:gap-3 p-2 md:p-4 bg-blue-50 rounded-xl md:rounded-2xl text-center">
             <div className="p-1.5 md:p-3 bg-blue-500 text-white rounded-lg md:rounded-xl">
@@ -636,6 +620,7 @@ export const Home: React.FC<HomeProps> = ({
           </div>
         )}
       </div>
+      </div>
 
       {/* On Site Clock + Week Preview Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
@@ -695,6 +680,117 @@ export const Home: React.FC<HomeProps> = ({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* FINANCIAL SNAPSHOT Section */}
+      <div>
+        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Financial Snapshot</h3>
+
+        {hasBusinessTier ? (
+          /* Business Tier - Full Financial Overview */
+          <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl md:rounded-2xl">
+                  <PoundSterling size={18} className="md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <h4 className="font-black text-slate-900 text-sm md:text-lg">Financial Overview</h4>
+                  <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">This month's summary</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { hapticTap(); onNavigateToAccounting?.(); }}
+                className="flex items-center gap-1 text-teal-600 hover:text-teal-700 font-bold text-xs md:text-sm"
+              >
+                View Full Accounting
+                <ArrowRight size={14} className="md:w-4 md:h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
+              <div className="bg-emerald-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <TrendingUp size={12} className="md:w-4 md:h-4 text-emerald-600" />
+                  <span className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase">Income</span>
+                </div>
+                <p className="text-lg md:text-2xl font-black text-slate-900">
+                  {todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Paid invoices</p>
+              </div>
+              <div className="bg-red-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <Receipt size={12} className="md:w-4 md:h-4 text-red-600" />
+                  <span className="text-[9px] md:text-[10px] font-black text-red-600 uppercase">Expenses</span>
+                </div>
+                <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
+                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">This month</p>
+              </div>
+              <div className="bg-amber-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <FileWarning size={12} className="md:w-4 md:h-4 text-amber-600" />
+                  <span className="text-[9px] md:text-[10px] font-black text-amber-600 uppercase">VAT Due</span>
+                </div>
+                <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
+                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Estimated</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Starter/Professional Tier - Upgrade Teaser */
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-xl text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5 scale-150 rotate-12 pointer-events-none">
+              <PoundSterling size={150} />
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-2 md:p-3 bg-white/10 rounded-xl md:rounded-2xl">
+                    <PoundSterling size={18} className="md:w-6 md:h-6" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-sm md:text-lg">Financial Overview</h4>
+                    <p className="text-[9px] md:text-xs text-slate-400 font-medium italic">Unlock powerful accounting</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 bg-purple-500 px-2 py-1 rounded-full">
+                  <Lock size={10} className="md:w-3 md:h-3" />
+                  <span className="text-[9px] md:text-[10px] font-black uppercase">Business</span>
+                </div>
+              </div>
+
+              <p className="text-slate-300 text-xs md:text-sm mb-4">Upgrade to Business to unlock:</p>
+
+              <div className="grid grid-cols-2 gap-2 md:gap-3 mb-4">
+                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
+                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
+                  <span className="text-[10px] md:text-xs font-medium">AI receipt scanning</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
+                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
+                  <span className="text-[10px] md:text-xs font-medium">Bank statement import</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
+                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
+                  <span className="text-[10px] md:text-xs font-medium">Auto reconciliation</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
+                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
+                  <span className="text-[10px] md:text-xs font-medium">VAT quarterly reports</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { hapticTap(); onUpgrade?.(); }}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 font-black text-xs md:text-sm uppercase tracking-wider py-3 md:py-4 rounded-xl md:rounded-2xl active:scale-[0.98] transition-all shadow-lg shadow-amber-500/20"
+              >
+                Upgrade to Business — £29/mo
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Alerts Section */}
