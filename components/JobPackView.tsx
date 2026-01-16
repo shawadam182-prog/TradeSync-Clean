@@ -443,7 +443,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
       {activeTab === 'photos' && (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4 animate-in fade-in">
           <button onClick={handleAddPhoto} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-slate-50"><Plus size={24} /><span className="text-[9px] font-bold mt-1">Add</span></button>
-          {project.photos.map(photo => (
+          {(project.photos || []).map(photo => (
             <div 
               key={photo.id} 
               onClick={() => openImageViewer(photo, 'photo')}
