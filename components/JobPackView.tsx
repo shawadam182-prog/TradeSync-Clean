@@ -11,6 +11,7 @@ import {
 import { MaterialsTracker } from './MaterialsTracker';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
+import { sitePhotosService } from '../src/services/dataService';
 
 interface JobPackViewProps {
   project: JobPack;
@@ -28,6 +29,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'log' | 'photos' | 'drawings' | 'materials' | 'finance'>('log');
   const [isRecording, setIsRecording] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const recognitionInstance = useRef<any>(null);
   const toast = useToast();
 
@@ -126,63 +128,105 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
     recognition.start();
   };
 
-  const handleAddPhoto = () => {
+  const handleAddPhoto = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e: any) => {
+    input.onchange = async (e: any) => {
       const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
+      if (!file) return;
+
+      setIsUploadingPhoto(true);
+      try {
+        // Upload to Supabase Storage
+        const dbPhoto = await sitePhotosService.upload(
+          project.id,
+          file,
+          'New Site Photo',
+          ['site'],
+          false
+        );
+
+        // Get signed URL for display
+        const signedUrl = await sitePhotosService.getUrl(dbPhoto.storage_path);
+
+        if (signedUrl) {
+          // Add photo to local state
           const photo: SitePhoto = {
-            id: Math.random().toString(36).substr(2, 9),
-            url: ev.target?.result as string,
-            caption: 'New Site Photo',
-            timestamp: new Date().toISOString(),
-            tags: ['site']
+            id: dbPhoto.id,
+            url: signedUrl,
+            caption: dbPhoto.caption || 'New Site Photo',
+            timestamp: dbPhoto.created_at,
+            tags: dbPhoto.tags || ['site']
           };
+
           onSaveProject({
             ...project,
             photos: [photo, ...(project.photos || [])],
             updatedAt: new Date().toISOString()
           });
-        };
-        reader.onerror = () => {
-          console.error('Failed to read photo file');
-        };
-        reader.readAsDataURL(file);
+
+          toast.success('Photo Added', 'Site photo uploaded successfully');
+        } else {
+          throw new Error('Failed to get photo URL');
+        }
+      } catch (err: any) {
+        console.error('Photo upload failed:', err);
+        toast.error('Upload Failed', err.message || 'Could not upload photo');
+      } finally {
+        setIsUploadingPhoto(false);
       }
     };
     input.click();
   };
 
-  const handleAddDrawing = () => {
+  const handleAddDrawing = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e: any) => {
+    input.onchange = async (e: any) => {
       const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
+      if (!file) return;
+
+      setIsUploadingPhoto(true);
+      try {
+        // Upload to Supabase Storage as drawing
+        const dbPhoto = await sitePhotosService.upload(
+          project.id,
+          file,
+          'Technical Drawing',
+          ['drawing'],
+          true  // isDrawing = true
+        );
+
+        // Get signed URL for display
+        const signedUrl = await sitePhotosService.getUrl(dbPhoto.storage_path);
+
+        if (signedUrl) {
+          // Add drawing to local state
           const drawing: SitePhoto = {
-            id: Math.random().toString(36).substr(2, 9),
-            url: ev.target?.result as string,
-            caption: 'Technical Drawing',
-            timestamp: new Date().toISOString(),
-            tags: ['drawing']
+            id: dbPhoto.id,
+            url: signedUrl,
+            caption: dbPhoto.caption || 'Technical Drawing',
+            timestamp: dbPhoto.created_at,
+            tags: dbPhoto.tags || ['drawing']
           };
+
           onSaveProject({
             ...project,
             drawings: [drawing, ...(project.drawings || [])],
             updatedAt: new Date().toISOString()
           });
-        };
-        reader.onerror = () => {
-          console.error('Failed to read drawing file');
-        };
-        reader.readAsDataURL(file);
+
+          toast.success('Drawing Added', 'Technical drawing uploaded successfully');
+        } else {
+          throw new Error('Failed to get drawing URL');
+        }
+      } catch (err: any) {
+        console.error('Drawing upload failed:', err);
+        toast.error('Upload Failed', err.message || 'Could not upload drawing');
+      } finally {
+        setIsUploadingPhoto(false);
       }
     };
     input.click();
@@ -442,7 +486,10 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
 
       {activeTab === 'photos' && (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4 animate-in fade-in">
-          <button onClick={handleAddPhoto} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-slate-50"><Plus size={24} /><span className="text-[9px] font-bold mt-1">Add</span></button>
+          <button onClick={handleAddPhoto} disabled={isUploadingPhoto} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isUploadingPhoto ? <Loader2 size={24} className="animate-spin" /> : <Plus size={24} />}
+            <span className="text-[9px] font-bold mt-1">{isUploadingPhoto ? 'Uploading...' : 'Add'}</span>
+          </button>
           {(project.photos || []).map(photo => (
             <div 
               key={photo.id} 
@@ -463,7 +510,10 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
 
       {activeTab === 'drawings' && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in">
-          <button onClick={handleAddDrawing} className="aspect-square border-4 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-white"><Plus size={40} /><span className="text-[10px] font-black uppercase mt-2">Add Drawing</span></button>
+          <button onClick={handleAddDrawing} disabled={isUploadingPhoto} className="aspect-square border-4 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-slate-400 hover:border-amber-300 hover:text-amber-500 transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed">
+            {isUploadingPhoto ? <Loader2 size={40} className="animate-spin" /> : <Plus size={40} />}
+            <span className="text-[10px] font-black uppercase mt-2">{isUploadingPhoto ? 'Uploading...' : 'Add Drawing'}</span>
+          </button>
           {(project.drawings || []).map(drawing => (
             <div 
               key={drawing.id} 
