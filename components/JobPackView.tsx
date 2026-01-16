@@ -129,15 +129,28 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
   };
 
   const handleAddPhoto = async () => {
+    console.log('[Photo Upload] Button clicked');
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = async (e: any) => {
+      console.log('[Photo Upload] File input changed');
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) {
+        console.log('[Photo Upload] No file selected');
+        return;
+      }
+
+      console.log('[Photo Upload] File selected:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
 
       setIsUploadingPhoto(true);
       try {
+        console.log('[Photo Upload] Starting upload for job pack:', project.id);
+
         // Upload to Supabase Storage
         const dbPhoto = await sitePhotosService.upload(
           project.id,
@@ -147,8 +160,11 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
           false
         );
 
+        console.log('[Photo Upload] Upload successful, DB record:', dbPhoto);
+
         // Get signed URL for display
         const signedUrl = await sitePhotosService.getUrl(dbPhoto.storage_path);
+        console.log('[Photo Upload] Signed URL generated:', signedUrl ? 'Success' : 'Failed');
 
         if (signedUrl) {
           // Add photo to local state
@@ -160,24 +176,33 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             tags: dbPhoto.tags || ['site']
           };
 
+          console.log('[Photo Upload] Adding photo to state:', photo);
+
           onSaveProject({
             ...project,
             photos: [photo, ...(project.photos || [])],
             updatedAt: new Date().toISOString()
           });
 
+          console.log('[Photo Upload] Project saved successfully');
           toast.success('Photo Added', 'Site photo uploaded successfully');
         } else {
           throw new Error('Failed to get photo URL');
         }
       } catch (err: any) {
-        console.error('Photo upload failed:', err);
+        console.error('[Photo Upload] ERROR:', {
+          message: err.message,
+          error: err,
+          stack: err.stack
+        });
         toast.error('Upload Failed', err.message || 'Could not upload photo');
       } finally {
         setIsUploadingPhoto(false);
+        console.log('[Photo Upload] Upload process complete');
       }
     };
     input.click();
+    console.log('[Photo Upload] File picker opened');
   };
 
   const handleAddDrawing = async () => {
