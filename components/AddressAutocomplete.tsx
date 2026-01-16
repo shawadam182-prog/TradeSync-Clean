@@ -1,17 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  MapPin, Mic, Loader2, MapPinned, LocateFixed, Navigation, ExternalLink
+  MapPin, Mic, Loader2, MapPinned, LocateFixed, Navigation
 } from 'lucide-react';
 import { formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { hapticTap } from '../src/hooks/useHaptic';
-
-// Google Places types
-declare global {
-  interface Window {
-    google: typeof google;
-    initGooglePlaces: () => void;
-  }
-}
 
 interface AddressAutocompleteProps {
   value: string;
@@ -31,7 +23,8 @@ const loadCallbacks: (() => void)[] = [];
 
 const loadGooglePlaces = (apiKey: string): Promise<void> => {
   return new Promise((resolve) => {
-    if (googlePlacesLoaded) {
+    // Check if already fully loaded
+    if (googlePlacesLoaded && window.google?.maps?.places?.AutocompleteService) {
       resolve();
       return;
     }
@@ -44,8 +37,8 @@ const loadGooglePlaces = (apiKey: string): Promise<void> => {
 
     googlePlacesLoading = true;
 
-    // Define callback before loading script
-    window.initGooglePlaces = () => {
+    // Define the callback that Google will call when ready
+    (window as any).initGooglePlacesCallback = () => {
       googlePlacesLoaded = true;
       googlePlacesLoading = false;
       loadCallbacks.forEach(cb => cb());
@@ -53,9 +46,12 @@ const loadGooglePlaces = (apiKey: string): Promise<void> => {
     };
 
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGooglePlaces`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGooglePlacesCallback`;
     script.async = true;
-    script.defer = true;
+    script.onerror = () => {
+      googlePlacesLoading = false;
+      console.error('Failed to load Google Places API');
+    };
     document.head.appendChild(script);
   });
 };
@@ -73,11 +69,15 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [placesReady, setPlacesReady] = useState(false);
-  const [showFallbackSuggestions, setShowFallbackSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<Array<{description: string, placeId: string}>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load Google Places API
   useEffect(() => {
@@ -93,36 +93,75 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     });
   }, []);
 
-  // Initialize autocomplete when ready
+  // Initialize services when ready
   useEffect(() => {
-    if (!placesReady || !inputRef.current || autocompleteRef.current) return;
+    if (!placesReady) return;
 
     try {
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        componentRestrictions: { country: 'gb' }, // UK only
-        fields: ['formatted_address', 'address_components', 'geometry'],
-        types: ['address'],
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place.formatted_address) {
-          onChange(place.formatted_address);
-          hapticTap();
-        }
-      });
-
-      autocompleteRef.current = autocomplete;
+      autocompleteServiceRef.current = new google.maps.places.AutocompleteService();
+      // Create a dummy div for PlacesService (required but not displayed)
+      const dummyDiv = document.createElement('div');
+      placesServiceRef.current = new google.maps.places.PlacesService(dummyDiv);
     } catch (err) {
-      console.error('Failed to initialize Google Places:', err);
+      console.error('Failed to initialize Google Places services:', err);
+    }
+  }, [placesReady]);
+
+  // Handle search with debounce
+  const searchPlaces = useCallback((query: string) => {
+    if (!autocompleteServiceRef.current || query.length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
     }
 
-    return () => {
-      if (autocompleteRef.current) {
-        window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current);
+    setIsSearching(true);
+
+    autocompleteServiceRef.current.getPlacePredictions(
+      {
+        input: query,
+        componentRestrictions: { country: 'gb' },
+        types: ['address'],
+      },
+      (predictions, status) => {
+        setIsSearching(false);
+        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSuggestions(
+            predictions.map(p => ({
+              description: p.description,
+              placeId: p.place_id,
+            }))
+          );
+          setShowSuggestions(true);
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
       }
-    };
-  }, [placesReady, onChange]);
+    );
+  }, []);
+
+  // Handle selecting a suggestion
+  const handleSelectSuggestion = useCallback((placeId: string, description: string) => {
+    hapticTap();
+    onChange(description);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }, [onChange]);
+
+  // Handle input change with debounce
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    onChange(newValue);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      searchPlaces(newValue);
+    }, 300);
+  }, [onChange, searchPlaces]);
 
   // Handle GPS location
   const handleUseCurrentLocation = useCallback(async () => {
@@ -186,10 +225,17 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     );
   }, [value]);
 
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
-  };
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div ref={containerRef} className="space-y-0.5 relative">
@@ -205,6 +251,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           placeholder={placeholder}
           value={value}
           onChange={handleInputChange}
+          onFocus={() => value.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
           disabled={disabled}
           autoComplete="off"
         />
@@ -275,14 +322,35 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             <Navigation size={14} className="md:w-[18px] md:h-[18px]" />
           </button>
         </div>
-      </div>
 
-      {/* Powered by Google indicator when Places is active */}
-      {placesReady && (
-        <div className="flex items-center justify-end px-1 pt-0.5">
-          <span className="text-[8px] text-slate-300 italic">Powered by Google</span>
-        </div>
-      )}
+        {/* Suggestions dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute z-50 left-0 right-0 mt-1 bg-white border-2 border-slate-100 rounded-2xl shadow-2xl overflow-hidden">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={suggestion.placeId}
+                type="button"
+                onClick={() => handleSelectSuggestion(suggestion.placeId, suggestion.description)}
+                className="w-full text-left px-4 py-3 hover:bg-amber-50 text-sm font-bold text-slate-900 border-b border-slate-50 last:border-0 flex items-center gap-3 transition-colors"
+              >
+                <MapPin size={14} className="text-amber-500 shrink-0" />
+                <span className="truncate">{suggestion.description}</span>
+              </button>
+            ))}
+            <div className="px-4 py-2 bg-slate-50 text-[9px] text-slate-400 text-right">
+              Powered by Google
+            </div>
+          </div>
+        )}
+
+        {/* Loading indicator */}
+        {isSearching && (
+          <div className="absolute z-50 left-0 right-0 mt-1 bg-white border-2 border-slate-100 rounded-2xl shadow-lg p-4 flex items-center justify-center">
+            <Loader2 size={16} className="animate-spin text-amber-500 mr-2" />
+            <span className="text-sm text-slate-500">Searching...</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
