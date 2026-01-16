@@ -29,13 +29,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // MOCK LOGIN FOR VERIFICATION
-    const mockUser = { id: 'mock-user', email: 'mock@example.com', aud: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '' } as User;
-    setUser(mockUser);
-    setSession({ user: mockUser, access_token: '', token_type: '', expires_in: 0, refresh_token: '' } as Session);
-    setLoading(false);
-
-    /*
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -53,7 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     return () => subscription.unsubscribe();
-    */
   }, []);
 
   const signUp = async (email: string, password: string) => {
