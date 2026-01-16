@@ -22,10 +22,11 @@ interface JobPackViewProps {
   onCreateQuote: () => void;
   onBack: () => void;
   onDeleteProject?: (id: string) => Promise<void>;
+  onRefresh?: () => Promise<void>;
 }
 
 export const JobPackView: React.FC<JobPackViewProps> = ({
-  project, customers, quotes, onSaveProject, onViewQuote, onCreateQuote, onBack, onDeleteProject
+  project, customers, quotes, onSaveProject, onViewQuote, onCreateQuote, onBack, onDeleteProject, onRefresh
 }) => {
   const [activeTab, setActiveTab] = useState<'log' | 'photos' | 'drawings' | 'materials' | 'finance'>('log');
   const [isRecording, setIsRecording] = useState(false);
@@ -167,24 +168,15 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
         console.log('[Photo Upload] Signed URL generated:', signedUrl ? 'Success' : 'Failed');
 
         if (signedUrl) {
-          // Add photo to local state
-          const photo: SitePhoto = {
-            id: dbPhoto.id,
-            url: signedUrl,
-            caption: dbPhoto.caption || 'New Site Photo',
-            timestamp: dbPhoto.created_at,
-            tags: dbPhoto.tags || ['site']
-          };
+          console.log('[Photo Upload] Photo uploaded to storage successfully');
 
-          console.log('[Photo Upload] Adding photo to state:', photo);
+          // Refresh data from database to get the updated photo list
+          if (onRefresh) {
+            console.log('[Photo Upload] Refreshing data from database...');
+            await onRefresh();
+            console.log('[Photo Upload] Data refreshed successfully');
+          }
 
-          onSaveProject({
-            ...project,
-            photos: [photo, ...(project.photos || [])],
-            updatedAt: new Date().toISOString()
-          });
-
-          console.log('[Photo Upload] Project saved successfully');
           toast.success('Photo Added', 'Site photo uploaded successfully');
         } else {
           throw new Error('Failed to get photo URL');
@@ -228,20 +220,10 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
         const signedUrl = await sitePhotosService.getUrl(dbPhoto.storage_path);
 
         if (signedUrl) {
-          // Add drawing to local state
-          const drawing: SitePhoto = {
-            id: dbPhoto.id,
-            url: signedUrl,
-            caption: dbPhoto.caption || 'Technical Drawing',
-            timestamp: dbPhoto.created_at,
-            tags: dbPhoto.tags || ['drawing']
-          };
-
-          onSaveProject({
-            ...project,
-            drawings: [drawing, ...(project.drawings || [])],
-            updatedAt: new Date().toISOString()
-          });
+          // Refresh data from database to get the updated drawings list
+          if (onRefresh) {
+            await onRefresh();
+          }
 
           toast.success('Drawing Added', 'Technical drawing uploaded successfully');
         } else {
