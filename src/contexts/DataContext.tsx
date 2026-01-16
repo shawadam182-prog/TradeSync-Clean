@@ -16,6 +16,7 @@ import {
   vendorKeywordsService,
   materialsLibraryService,
   materialsImportHistoryService,
+  sitePhotosService,
 } from '../services/dataService';
 import { offlineService } from '../services/offlineStorage';
 import { syncManager } from '../services/syncManager';
@@ -131,7 +132,38 @@ export const useData = () => {
 };
 
 // Helper to convert DB format to app format for JobPack
-function dbJobPackToApp(dbPack: any): JobPack {
+async function dbJobPackToApp(dbPack: any): Promise<JobPack> {
+  // Generate signed URLs for all photos and drawings
+  const photosWithUrls = await Promise.all(
+    (dbPack.site_photos || [])
+      .filter((p: any) => !p.is_drawing)
+      .map(async (p: any) => {
+        const signedUrl = await sitePhotosService.getUrl(p.storage_path);
+        return {
+          id: p.id,
+          url: signedUrl || p.storage_path, // Fallback to storage_path if signing fails
+          caption: p.caption || '',
+          timestamp: p.created_at,
+          tags: p.tags || [],
+        };
+      })
+  );
+
+  const drawingsWithUrls = await Promise.all(
+    (dbPack.site_photos || [])
+      .filter((p: any) => p.is_drawing)
+      .map(async (p: any) => {
+        const signedUrl = await sitePhotosService.getUrl(p.storage_path);
+        return {
+          id: p.id,
+          url: signedUrl || p.storage_path,
+          caption: p.caption || '',
+          timestamp: p.created_at,
+          tags: p.tags || [],
+        };
+      })
+  );
+
   return {
     id: dbPack.id,
     title: dbPack.title,
@@ -146,20 +178,8 @@ function dbJobPackToApp(dbPack: any): JobPack {
       timestamp: n.created_at,
       isVoice: n.is_voice,
     })),
-    photos: (dbPack.site_photos || []).filter((p: any) => !p.is_drawing).map((p: any) => ({
-      id: p.id,
-      url: p.storage_path, // Will need signed URL
-      caption: p.caption || '',
-      timestamp: p.created_at,
-      tags: p.tags || [],
-    })),
-    drawings: (dbPack.site_photos || []).filter((p: any) => p.is_drawing).map((p: any) => ({
-      id: p.id,
-      url: p.storage_path,
-      caption: p.caption || '',
-      timestamp: p.created_at,
-      tags: p.tags || [],
-    })),
+    photos: photosWithUrls,
+    drawings: drawingsWithUrls,
     documents: (dbPack.site_documents || []).map((d: any) => ({
       id: d.id,
       name: d.name,
@@ -357,7 +377,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (jobPacksResult.status === 'fulfilled') {
-        const mapped = jobPacksResult.value.map(dbJobPackToApp);
+        const mapped = await Promise.all(jobPacksResult.value.map(dbJobPackToApp));
         loadedProjects.push(...mapped);
         setProjects(mapped);
       }
