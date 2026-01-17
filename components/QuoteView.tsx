@@ -332,10 +332,31 @@ Please find attached ${docType} as discussed.
 Thanks,
 ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${settings?.email ? `\n${settings.email}` : ''}`;
 
-      // Download PDF using jsPDF's native save (most reliable across all devices)
-      pdf.save(filename);
+      // Create PDF blob for sharing
+      const pdfBlob = pdf.output('blob');
+      const file = new File([pdfBlob], filename, { type: 'application/pdf' });
 
-      // Show email helper modal with pre-filled content
+      // Try Web Share API on mobile (attaches PDF directly to email)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: subject,
+            text: body
+          });
+          return; // Success - exit early
+        } catch (shareErr: any) {
+          // User cancelled - just exit
+          if (shareErr?.name === 'AbortError') {
+            return;
+          }
+          // Share failed - fall through to fallback
+          console.warn('Web Share failed, using fallback:', shareErr);
+        }
+      }
+
+      // Fallback: Download PDF and show helper modal
+      pdf.save(filename);
       setEmailHelper({
         show: true,
         subject,
