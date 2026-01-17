@@ -914,7 +914,7 @@ export const Home: React.FC<HomeProps> = ({
             </div>
           ) : (
             <div className="space-y-1.5">
-              {futureJobs.filter(j => !j.isCompleted).slice(0, 4).map(job => (
+              {futureJobs.filter(j => !j.isCompleted).slice(0, 3).map(job => (
                 <div
                   key={job.id}
                   className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 hover:border-amber-200 transition-all"
@@ -934,12 +934,12 @@ export const Home: React.FC<HomeProps> = ({
                   </button>
                 </div>
               ))}
-              {futureJobs.filter(j => !j.isCompleted).length > 4 && (
+              {futureJobs.filter(j => !j.isCompleted).length > 3 && (
                 <button
                   onClick={() => { hapticTap(); onNavigateToFutureJobs?.(); }}
                   className="w-full py-2 text-xs font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
                 >
-                  +{futureJobs.filter(j => !j.isCompleted).length - 4} more
+                  +{futureJobs.filter(j => !j.isCompleted).length - 3} more
                 </button>
               )}
             </div>
