@@ -12,6 +12,11 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { PaymentRecorder } from './PaymentRecorder';
 import { hapticSuccess } from '../src/hooks/useHaptic';
+import {
+  calculateSectionLabour,
+  calculateQuoteTotals,
+  calculatePartPayment,
+} from '../src/utils/quoteCalculations';
 
 interface QuoteViewProps {
   quote: Quote;
@@ -77,74 +82,29 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     onUpdateQuote({ ...activeQuote, displayOptions: updatedOptions });
   };
 
-  // Helper: Calculate labour for a section (supports itemized labour)
-  const calculateSectionLabour = (section: QuoteSection) => {
-    const defaultRate = section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
-    if (section.labourItems && section.labourItems.length > 0) {
-      return section.labourItems.reduce((sum, item) => {
-        const rate = item.rate || defaultRate;
-        return sum + (item.hours * rate);
-      }, 0);
-    }
-    // Fallback to labourCost or hours-based calculation
-    if (section.labourCost !== undefined) return section.labourCost;
-    return (section.labourHours || 0) * defaultRate;
+  // Use extracted calculation functions for testability
+  const getSectionLabour = (section: QuoteSection) => {
+    return calculateSectionLabour(section, activeQuote.labourRate, settings.defaultLabourRate);
   };
 
-  const calculateTotals = () => {
-    try {
-      const sections = activeQuote.sections || [];
-      const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
+  const totals = calculateQuoteTotals(
+    activeQuote,
+    {
+      enableVat: settings.enableVat,
+      enableCis: settings.enableCis,
+      showVat: displayOptions.showVat,
+      showCis: displayOptions.showCis,
+      defaultLabourRate: settings.defaultLabourRate,
+    },
+    displayOptions
+  );
 
-      let materialsTotal = 0;
-      let labourTotal = 0;
-      let sectionsTotal = 0;
-
-      sections.forEach(s => {
-        // Filter out heading items from materials total
-        const sectionMaterials = (s.items || []).filter(i => !i.isHeading).reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
-        // Use labourItems if present, otherwise fall back
-        const sectionLabour = calculateSectionLabour(s);
-        // Use subsectionPrice override if set, otherwise calculate from materials + labour
-        const sectionPrice = s.subsectionPrice !== undefined ? s.subsectionPrice : (sectionMaterials + sectionLabour);
-
-        materialsTotal += sectionMaterials;
-        labourTotal += sectionLabour;
-        sectionsTotal += sectionPrice;
-      });
-
-      const clientSubtotal = sectionsTotal * markupMultiplier;
-
-      // Calculate discount
-      let discountAmount = 0;
-      if (activeQuote.discountValue) {
-        if (activeQuote.discountType === 'percentage') {
-          discountAmount = clientSubtotal * (activeQuote.discountValue / 100);
-        } else {
-          discountAmount = activeQuote.discountValue;
-        }
-      }
-
-      const afterDiscount = clientSubtotal - discountAmount;
-      const taxAmount = (settings.enableVat && displayOptions.showVat) ? afterDiscount * ((activeQuote.taxPercent || 0) / 100) : 0;
-      const cisAmount = (settings.enableCis && displayOptions.showCis) ? labourTotal * ((activeQuote.cisPercent || 0) / 100) : 0;
-
-      const grandTotal = (afterDiscount + taxAmount) - cisAmount;
-
-      return { materialsTotal, labourTotal, clientSubtotal, discountAmount, taxAmount, cisAmount, grandTotal };
-    } catch (e) {
-      return { materialsTotal: 0, labourTotal: 0, clientSubtotal: 0, discountAmount: 0, taxAmount: 0, cisAmount: 0, grandTotal: 0 };
-    }
-  };
-
-  const totals = calculateTotals();
-
-  // Calculate part payment amount
-  const partPaymentAmount = activeQuote.partPaymentEnabled && activeQuote.partPaymentValue
-    ? (activeQuote.partPaymentType === 'percentage'
-        ? totals.grandTotal * (activeQuote.partPaymentValue / 100)
-        : activeQuote.partPaymentValue)
-    : 0;
+  const partPaymentAmount = calculatePartPayment(
+    totals.grandTotal,
+    activeQuote.partPaymentEnabled,
+    activeQuote.partPaymentType,
+    activeQuote.partPaymentValue
+  );
 
   const handleRecordPayment = (payment: {
     amount: number;
@@ -627,7 +587,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           // Filter out heading items from materials total
           const rawMaterialsTotal = (section.items || []).filter(i => !i.isHeading).reduce((s, i) => s + (i.totalPrice || 0), 0);
           // Use labourItems if present, otherwise fall back
-          const rawLabourTotal = calculateSectionLabour(section);
+          const rawLabourTotal = getSectionLabour(section);
           // Use subsectionPrice override if set
           const sectionTotal = section.subsectionPrice !== undefined ? section.subsectionPrice : (rawMaterialsTotal + rawLabourTotal);
           // Get total labour hours
