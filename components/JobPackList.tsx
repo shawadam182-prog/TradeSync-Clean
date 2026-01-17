@@ -1,12 +1,14 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { JobPack, Customer } from '../types';
-import { 
-  FolderPlus, Search, Calendar, User, ArrowRight, Clock, 
-  CheckCircle2, AlertCircle, Loader2, UserPlus, X, Mic, 
+import { JobPack, Customer, TIER_LIMITS } from '../types';
+import {
+  FolderPlus, Search, Calendar, User, ArrowRight, Clock,
+  CheckCircle2, AlertCircle, Loader2, UserPlus, X, Mic,
   MicOff, Sparkles, MapPinned, Mail, Phone, MapPin, Hammer, LocateFixed
 } from 'lucide-react';
 import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
+import { useSubscription } from '../src/hooks/useFeatureAccess';
+import { UpgradePrompt } from './UpgradePrompt';
 
 interface JobPackListProps {
   projects: JobPack[];
@@ -16,14 +18,22 @@ interface JobPackListProps {
   onAddCustomer: (customer: Customer) => Promise<Customer>;
 }
 
-export const JobPackList: React.FC<JobPackListProps> = ({ 
-  projects, customers, onOpenProject, onAddProject, onAddCustomer 
+export const JobPackList: React.FC<JobPackListProps> = ({
+  projects, customers, onOpenProject, onAddProject, onAddCustomer
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [newTitle, setNewTitle] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+
+  // Get subscription info for limit checking
+  const subscription = useSubscription();
+  const limits = subscription.usageLimits || TIER_LIMITS[subscription.tier];
+  const jobPackLimit = limits.jobPacks;
+  const currentJobPackCount = projects.length;
+  const canCreateJobPack = jobPackLimit === null || currentJobPackCount < jobPackLimit;
 
   // Quick Customer State
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
@@ -222,7 +232,23 @@ export const JobPackList: React.FC<JobPackListProps> = ({
           <h2 className="text-base md:text-2xl font-black text-slate-900 tracking-tight">Job Packs</h2>
           <p className="text-slate-500 font-medium text-sm italic">Organize site documentation by project.</p>
         </div>
-        <button onClick={() => setIsAdding(true)} className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-amber-600 transition-all flex items-center gap-2"><FolderPlus size={18} /> New Job Pack</button>
+        <button
+          onClick={() => {
+            if (canCreateJobPack) {
+              setIsAdding(true);
+            } else {
+              setShowUpgradePrompt(true);
+            }
+          }}
+          className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-amber-600 transition-all flex items-center gap-2"
+        >
+          <FolderPlus size={18} /> New Job Pack
+          {jobPackLimit !== null && (
+            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+              {currentJobPackCount}/{jobPackLimit}
+            </span>
+          )}
+        </button>
       </div>
 
       {isAdding && (
@@ -474,6 +500,16 @@ export const JobPackList: React.FC<JobPackListProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Upgrade Prompt for Free Tier Limit */}
+      {showUpgradePrompt && jobPackLimit !== null && (
+        <UpgradePrompt
+          resourceName="job packs"
+          currentCount={currentJobPackCount}
+          limit={jobPackLimit}
+          onClose={() => setShowUpgradePrompt(false)}
+        />
+      )}
     </div>
   );
 };

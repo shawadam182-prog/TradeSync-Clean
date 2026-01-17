@@ -1,9 +1,12 @@
 
 import React from 'react';
-import { Quote, Customer, AppSettings } from '../types';
+import { Quote, Customer, AppSettings, TIER_LIMITS } from '../types';
 import { ReceiptText, Eye, Search, CheckCircle2, AlertCircle, Plus, Hash, User, ChevronRight, Trash2, Clock, AlertTriangle } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
+import { useSubscription } from '../src/hooks/useFeatureAccess';
+import { UpgradePrompt } from './UpgradePrompt';
+import { useData } from '../src/contexts/DataContext';
 
 // Helper functions for overdue detection
 const isOverdue = (invoice: Quote): boolean => {
@@ -37,7 +40,16 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
   quotes, customers, settings, onViewQuote, onCreateInvoice, onDeleteInvoice
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
   const toast = useToast();
+
+  // Get all invoices for limit checking
+  const { quotes: allQuotes } = useData();
+  const subscription = useSubscription();
+  const limits = subscription.usageLimits || TIER_LIMITS[subscription.tier];
+  const invoiceLimit = limits.invoices;
+  const currentInvoiceCount = allQuotes.filter(q => q.type === 'invoice').length;
+  const canCreateInvoice = invoiceLimit === null || currentInvoiceCount < invoiceLimit;
 
   const handleDelete = async (e: React.MouseEvent, invoice: Quote) => {
     e.stopPropagation();
@@ -86,11 +98,22 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
           <p className="text-slate-500 font-medium text-sm italic tracking-tight">Billed jobs and financial history.</p>
         </div>
         <button
-          onClick={onCreateInvoice}
+          onClick={() => {
+            if (canCreateInvoice) {
+              onCreateInvoice();
+            } else {
+              setShowUpgradePrompt(true);
+            }
+          }}
           className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/20"
         >
           <Plus size={18} />
           <span>New Invoice</span>
+          {invoiceLimit !== null && (
+            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+              {currentInvoiceCount}/{invoiceLimit}
+            </span>
+          )}
         </button>
       </div>
 
@@ -209,6 +232,16 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
           })
         )}
       </div>
+
+      {/* Upgrade Prompt for Free Tier Limit */}
+      {showUpgradePrompt && invoiceLimit !== null && (
+        <UpgradePrompt
+          resourceName="invoices"
+          currentCount={currentInvoiceCount}
+          limit={invoiceLimit}
+          onClose={() => setShowUpgradePrompt(false)}
+        />
+      )}
     </div>
   );
 };
