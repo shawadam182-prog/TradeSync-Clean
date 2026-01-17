@@ -518,90 +518,76 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         )}
       </div>
 
-      <div ref={documentRef} className="bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden print:border-none print:shadow-none">
+      <div ref={documentRef} className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden print:border-none print:shadow-none print:rounded-none">
         {/* Company Header */}
-        <div className="p-6 flex justify-between items-start">
+        <div className="p-4 flex justify-between items-start">
           {/* Logo & Company Info */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3">
             {displayOptions.showLogo && settings.companyLogo && (
               <img
                 src={settings.companyLogo}
                 alt={settings.companyName || 'Company Logo'}
-                className="h-16 w-auto object-contain"
-                style={{ maxWidth: '150px' }}
+                className="h-12 w-auto object-contain"
+                style={{ maxWidth: '120px' }}
               />
             )}
             <div>
-              <h2 className="text-xl font-black text-slate-900">{settings.companyName}</h2>
+              <h2 className="text-lg font-bold text-slate-900">{settings.companyName}</h2>
               {settings.companyAddress && (
-                <p className="text-xs text-slate-500 mt-1 whitespace-pre-line">{settings.companyAddress}</p>
+                <p className="text-[11px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
               )}
-              <div className="flex gap-4 mt-2 text-xs text-slate-400">
+              <div className="flex gap-3 mt-1 text-[11px] text-slate-400">
                 {settings.phone && <span>{settings.phone}</span>}
                 {settings.email && <span>{settings.email}</span>}
               </div>
               {settings.vatNumber && (
-                <p className="text-[10px] text-slate-400 mt-1">VAT: {settings.vatNumber}</p>
+                <p className="text-[10px] text-slate-400">VAT: {settings.vatNumber}</p>
               )}
             </div>
           </div>
 
           {/* Document Type Badge */}
           <div className="text-right">
-            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
               {activeQuote.type === 'invoice' ? 'Invoice' : activeQuote.type === 'quotation' ? 'Quotation' : 'Estimate'}
             </span>
-            <p className="text-lg font-mono font-bold text-slate-900 mt-1">{reference}</p>
-            <p className="text-xs text-slate-500">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</p>
+            <p className="text-base font-mono font-bold text-slate-900">{reference}</p>
+            <p className="text-[11px] text-slate-500">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</p>
             {activeQuote.type === 'invoice' && activeQuote.dueDate && (
-              <p className="text-xs text-amber-600 font-bold mt-1">
+              <p className="text-[11px] text-amber-600 font-bold">
                 Due: {new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}
               </p>
             )}
           </div>
         </div>
 
-        {/* Modern Hero Header */}
-        <div className="bg-slate-900 text-white p-6 relative overflow-hidden">
-          <div className="relative z-10 flex justify-between items-start">
-             <div>
-                <p className="text-slate-400 text-xs font-medium mb-1 uppercase tracking-wider">{activeQuote.type || 'estimate'}</p>
-                <h1 className="text-2xl font-bold text-white mb-2">{activeQuote?.title || 'Proposed Works'}</h1>
-                <div className="flex items-center gap-3 text-sm text-slate-300">
-                   <span>{customer?.name}</span>
-                   <span>•</span>
-                   <span>{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString() : ''}</span>
-                </div>
-             </div>
-             <div className="text-right">
-                <div className="bg-white/10 px-3 py-1 rounded-lg text-xs font-mono text-amber-400">{reference}</div>
-             </div>
-          </div>
+        {/* Project Title Bar */}
+        <div className="bg-slate-900 text-white px-4 py-2">
+          <h1 className="text-sm font-bold">{activeQuote?.title || 'Proposed Works'}</h1>
         </div>
 
         {/* Client and Job Address Section */}
-        <div className="px-6 py-5 bg-slate-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="px-4 py-3 bg-slate-50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* To: Client Address */}
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                <User size={10} /> To
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+                <User size={9} /> To
               </p>
               <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
-              {customer?.company && <p className="text-xs text-slate-600">{customer.company}</p>}
+              {customer?.company && <p className="text-[11px] text-slate-600">{customer.company}</p>}
               {customer?.address && (
-                <p className="text-xs text-slate-500 leading-relaxed">{customer.address}</p>
+                <p className="text-[11px] text-slate-500 leading-snug">{customer.address}</p>
               )}
             </div>
 
             {/* For: Job Address (only show if different from client) */}
             {activeQuote.jobAddress && activeQuote.jobAddress !== customer?.address && (
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1">
-                  <MapPin size={10} /> For (Job Site)
+              <div>
+                <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+                  <MapPin size={9} /> Job Site
                 </p>
-                <p className="text-sm font-bold text-slate-900">{activeQuote.title}</p>
-                <p className="text-xs text-slate-500 leading-relaxed">{activeQuote.jobAddress}</p>
+                <p className="text-[11px] text-slate-500 leading-snug">{activeQuote.jobAddress}</p>
               </div>
             )}
           </div>
@@ -621,18 +607,18 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             : section.labourHours || 0;
 
           return (
-            <div key={section.id} className={`p-4 md:p-8 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} space-y-8`}>
-              <div className="flex items-center gap-3">
-                 <div className="h-8 w-8 bg-slate-900 text-amber-500 rounded-lg flex items-center justify-center font-black text-xs">{idx + 1}</div>
-                 <h4 className="text-lg font-black text-slate-900 uppercase tracking-widest">{section.title}</h4>
+            <div key={section.id} className={`px-4 py-3 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} space-y-3`}>
+              <div className="flex items-center gap-2">
+                 <div className="h-6 w-6 bg-slate-900 text-amber-500 rounded flex items-center justify-center font-bold text-[10px]">{idx + 1}</div>
+                 <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{section.title}</h4>
               </div>
 
               {/* Materials Block */}
               {displayOptions.showMaterials && (rawMaterialsTotal > 0 || (section.items || []).length > 0) && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                    <Package size={14} className="text-amber-500" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Project Materials</span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1">
+                    <Package size={12} className="text-amber-500" />
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials</span>
                   </div>
 
                   {displayOptions.showMaterialItems && (section.items || []).length > 0 && (
@@ -641,10 +627,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                       <table className="hidden md:table w-full text-left border-collapse">
                         <thead>
                           <tr className="border-b border-slate-100">
-                            <th className="py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Item Description</th>
-                            {displayOptions.showMaterialQty && <th className="py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center w-20">Qty</th>}
-                            {displayOptions.showMaterialUnitPrice && <th className="py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right w-24">Unit (£)</th>}
-                            {displayOptions.showMaterialLineTotals && <th className="py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right w-24">Total</th>}
+                            <th className="py-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider">Item</th>
+                            {displayOptions.showMaterialQty && <th className="py-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider text-center w-16">Qty</th>}
+                            {displayOptions.showMaterialUnitPrice && <th className="py-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider text-right w-20">Unit</th>}
+                            {displayOptions.showMaterialLineTotals && <th className="py-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider text-right w-20">Total</th>}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -652,19 +638,19 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                             item.isHeading ? (
                               // Heading row
                               <tr key={item.id} className="bg-slate-50">
-                                <td colSpan={4} className="py-2 px-3">
-                                  <div className="flex items-center gap-2">
-                                    <Type size={12} className="text-slate-400" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.name || 'Section'}</span>
+                                <td colSpan={4} className="py-1 px-2">
+                                  <div className="flex items-center gap-1">
+                                    <Type size={10} className="text-slate-400" />
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.name || 'Section'}</span>
                                   </div>
                                 </td>
                               </tr>
                             ) : (
                               <tr key={item.id}>
-                                <td className="py-3 pr-4"><p className="text-sm font-bold text-slate-900">{item.name}</p>{item.description && <p className="text-[10px] text-slate-500 italic leading-tight">{item.description}</p>}</td>
-                                {displayOptions.showMaterialQty && <td className="py-3 text-center"><span className="text-xs font-black text-slate-700">{item.quantity} {item.unit}</span></td>}
-                                {displayOptions.showMaterialUnitPrice && <td className="py-3 text-right text-xs font-black text-slate-700">£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
-                                {displayOptions.showMaterialLineTotals && <td className="py-3 text-right text-sm font-black text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
+                                <td className="py-1.5 pr-2"><p className="text-[11px] font-medium text-slate-900">{item.name}</p>{item.description && <p className="text-[9px] text-slate-400 italic leading-tight">{item.description}</p>}</td>
+                                {displayOptions.showMaterialQty && <td className="py-1.5 text-center"><span className="text-[10px] font-medium text-slate-600">{item.quantity} {item.unit}</span></td>}
+                                {displayOptions.showMaterialUnitPrice && <td className="py-1.5 text-right text-[10px] font-medium text-slate-600">£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
+                                {displayOptions.showMaterialLineTotals && <td className="py-1.5 text-right text-[11px] font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
                               </tr>
                             )
                           ))}
@@ -676,21 +662,21 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                         {(section.items || []).map(item => (
                           item.isHeading ? (
                             // Heading row for mobile
-                            <div key={item.id} className="py-2 px-3 bg-slate-50 rounded-lg my-1 flex items-center gap-2">
-                              <Type size={12} className="text-slate-400" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.name || 'Section'}</span>
+                            <div key={item.id} className="py-1 px-2 bg-slate-50 rounded my-0.5 flex items-center gap-1">
+                              <Type size={10} className="text-slate-400" />
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.name || 'Section'}</span>
                             </div>
                           ) : (
-                            <div key={item.id} className="py-3 border-b border-slate-50 last:border-0 flex justify-between items-start gap-3">
+                            <div key={item.id} className="py-1.5 border-b border-slate-50 last:border-0 flex justify-between items-start gap-2">
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5">
-                                  {displayOptions.showMaterialQty && <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 rounded">{item.quantity}{item.unit}</span>}
-                                  <span className="font-medium text-slate-900 text-sm truncate">{item.name}</span>
+                                <div className="flex items-center gap-1.5">
+                                  {displayOptions.showMaterialQty && <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1 rounded">{item.quantity}{item.unit}</span>}
+                                  <span className="font-medium text-slate-900 text-[11px] truncate">{item.name}</span>
                                 </div>
-                                {item.description && <p className="text-xs text-slate-400 truncate">{item.description}</p>}
+                                {item.description && <p className="text-[9px] text-slate-400 truncate">{item.description}</p>}
                               </div>
                               <div className="text-right whitespace-nowrap">
-                                {displayOptions.showMaterialLineTotals && <p className="text-sm font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
+                                {displayOptions.showMaterialLineTotals && <p className="text-[11px] font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
                               </div>
                             </div>
                           )
@@ -700,9 +686,9 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   )}
 
                   {displayOptions.showMaterialSectionTotal && (
-                    <div className="flex justify-between items-center py-3.5 bg-slate-50 px-6 rounded-2xl border border-slate-100/50">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Section Materials Total</span>
-                      <span className="font-black text-slate-900">£{(rawMaterialsTotal * markupMultiplier).toFixed(2)}</span>
+                    <div className="flex justify-between items-center py-2 bg-slate-50 px-4 rounded-lg border border-slate-100/50">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials Total</span>
+                      <span className="font-bold text-[11px] text-slate-900">£{(rawMaterialsTotal * markupMultiplier).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -710,14 +696,14 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
               {/* Labour Block - Now with itemized support */}
               {displayOptions.showLabour && rawLabourTotal > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                    <HardHat size={14} className="text-blue-500" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Labour & Site Support</span>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1">
+                    <HardHat size={12} className="text-blue-500" />
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Labour & Site Support</span>
                   </div>
 
                   {displayOptions.showLabourItems && (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {/* Itemized Labour List */}
                       {section.labourItems && section.labourItems.length > 0 ? (
                         <>
@@ -725,12 +711,12 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                             const rate = labourItem.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
                             const itemTotal = labourItem.hours * rate;
                             return (
-                              <div key={labourItem.id} className="p-4 bg-blue-50/40 rounded-xl border border-blue-100/30 flex justify-between items-center">
+                              <div key={labourItem.id} className="py-2 px-3 bg-blue-50/40 rounded-lg border border-blue-100/30 flex justify-between items-center">
                                 <div className="flex-1">
-                                  <p className="text-sm font-bold text-slate-900">{labourItem.description || 'Labour'}</p>
+                                  <p className="text-[11px] font-medium text-slate-900">{labourItem.description || 'Labour'}</p>
                                   {(displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
-                                    <p className="text-[10px] font-black text-slate-500 italic mt-1 flex items-center gap-1">
-                                      <Clock size={10} />
+                                    <p className="text-[9px] font-medium text-slate-500 flex items-center gap-1">
+                                      <Clock size={9} />
                                       {displayOptions.showLabourQty ? `${labourItem.hours} hrs` : ''}
                                       {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
                                       {displayOptions.showLabourUnitPrice ? `£${(rate * markupMultiplier).toFixed(2)}/hr` : ''}
@@ -738,7 +724,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                                   )}
                                 </div>
                                 {displayOptions.showLabourLineTotals && (
-                                  <p className="text-sm font-black text-blue-600">£{(itemTotal * markupMultiplier).toFixed(2)}</p>
+                                  <p className="text-[11px] font-bold text-blue-600">£{(itemTotal * markupMultiplier).toFixed(2)}</p>
                                 )}
                               </div>
                             );
@@ -746,22 +732,19 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                         </>
                       ) : (
                         // Fallback to old-style single labour block
-                        <div className="p-5 bg-blue-50/40 rounded-2xl border border-blue-100/30 flex justify-between items-center">
+                        <div className="py-2 px-3 bg-blue-50/40 rounded-lg border border-blue-100/30 flex justify-between items-center">
                           <div className="flex-1">
-                            <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">Technical Personnel & Site Resource</p>
+                            <p className="text-[11px] font-medium text-slate-900">Technical Personnel & Site Resource</p>
                             {totalLabourHours > 0 && (displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
-                              <p className="text-[10px] font-black text-slate-500 italic mt-1">
-                                {displayOptions.showLabourQty ? `${totalLabourHours} Hours Scheduled` : ''}
+                              <p className="text-[9px] font-medium text-slate-500">
+                                {displayOptions.showLabourQty ? `${totalLabourHours} hrs` : ''}
                                 {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
-                                {displayOptions.showLabourUnitPrice ? `£${((activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier).toFixed(2)} / Hour` : ''}
+                                {displayOptions.showLabourUnitPrice ? `£${((activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier).toFixed(2)}/hr` : ''}
                               </p>
                             )}
                           </div>
                           {displayOptions.showLabourSectionTotal && (
-                            <div className="text-right">
-                              <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Subtotal</p>
-                              <p className="text-lg font-black text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</p>
-                            </div>
+                            <p className="text-[11px] font-bold text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</p>
                           )}
                         </div>
                       )}
@@ -769,39 +752,35 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   )}
 
                   {displayOptions.showLabourSectionTotal && (
-                    <div className="flex justify-between items-center py-3.5 bg-blue-50/50 px-6 rounded-2xl border border-blue-100/50">
-                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
-                        Section Labour Total {totalLabourHours > 0 && `(${totalLabourHours} hrs)`}
+                    <div className="flex justify-between items-center py-2 bg-blue-50/50 px-4 rounded-lg border border-blue-100/50">
+                      <span className="text-[9px] font-bold text-blue-500 uppercase tracking-wider">
+                        Labour Total {totalLabourHours > 0 && `(${totalLabourHours} hrs)`}
                       </span>
-                      <span className="font-black text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</span>
+                      <span className="font-bold text-[11px] text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="h-px bg-slate-100 mt-4 mb-4"></div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2 opacity-30">
-                  <Circle size={8} fill="currentColor" className="text-slate-400" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Work Stream {idx + 1}</span>
-                </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Combined Section Total: <span className="text-slate-900 ml-2">£{(sectionTotal * markupMultiplier).toFixed(2)}</span></p>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                <span className="text-[8px] font-medium text-slate-400 uppercase tracking-wider">Section {idx + 1}</span>
+                <p className="text-[10px] font-bold text-slate-600">Section Total: <span className="text-slate-900 ml-1">£{(sectionTotal * markupMultiplier).toFixed(2)}</span></p>
               </div>
             </div>
           );
         })}
 
-        <div className="bg-slate-50 p-6 md:p-10">
-          <div className="flex flex-col gap-6">
-            <div className="space-y-2">
+        <div className="bg-slate-50 px-4 py-4">
+          <div className="flex flex-col gap-3">
+            <div className="space-y-1">
               {displayOptions.showTotalsBreakdown && (
                 <>
-                  <div className="flex justify-between text-sm text-slate-500"><span>Subtotal</span><span>£{totals.clientSubtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-[11px] text-slate-500"><span>Subtotal</span><span>£{totals.clientSubtotal.toFixed(2)}</span></div>
                   {/* Discount */}
                   {totals.discountAmount > 0 && (
-                    <div className="flex justify-between text-sm text-emerald-600">
+                    <div className="flex justify-between text-[11px] text-emerald-600">
                       <span className="flex items-center gap-1">
-                        <Tag size={12} />
+                        <Tag size={10} />
                         Discount
                         {activeQuote.discountDescription && <span className="text-slate-400 ml-1">({activeQuote.discountDescription})</span>}
                         {activeQuote.discountType === 'percentage' && <span className="text-slate-400 ml-1">({activeQuote.discountValue}%)</span>}
@@ -810,23 +789,23 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                     </div>
                   )}
                   {settings.enableVat && displayOptions.showVat && (
-                    <div className="flex justify-between text-sm text-slate-500"><span>VAT ({activeQuote.taxPercent}%)</span><span>£{totals.taxAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-[11px] text-slate-500"><span>VAT ({activeQuote.taxPercent}%)</span><span>£{totals.taxAmount.toFixed(2)}</span></div>
                   )}
                   {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
-                    <div className="flex justify-between text-sm text-red-500"><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span>-£{totals.cisAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-[11px] text-red-500"><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span>-£{totals.cisAmount.toFixed(2)}</span></div>
                   )}
                 </>
               )}
-              <div className="h-px bg-slate-200 my-4"></div>
+              <div className="h-px bg-slate-200 my-2"></div>
               <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-900">Total Due</span>
-                <span className="text-2xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</span>
+                <span className="font-bold text-sm text-slate-900">Total Due</span>
+                <span className="text-xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
             {displayOptions.showNotes && activeQuote?.notes && (
-                <div className="text-xs text-slate-400 leading-relaxed bg-white p-4 rounded-xl border border-slate-100">
-                  <p className="font-bold mb-1">Notes</p>
+                <div className="text-[10px] text-slate-500 leading-relaxed bg-white p-3 rounded-lg border border-slate-100">
+                  <p className="font-bold text-slate-600 mb-0.5">Notes</p>
                   {activeQuote.notes}
                 </div>
             )}

@@ -275,6 +275,27 @@
   .print-hide { display: none !important; }
 }
 
+/* PDF Document Optimizations - Compact Invoice/Quote Layout */
+.pdf-document {
+  /* Tighter line heights for PDF */
+  line-height: 1.3;
+}
+
+/* Ensure clean PDF rendering */
+.pdf-document * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent content breaking awkwardly in PDFs */
+.pdf-document table {
+  page-break-inside: avoid;
+}
+
+.pdf-document .section {
+  page-break-inside: avoid;
+}
+
 /* Install prompt for iOS */
 @supports (-webkit-touch-callout: none) {
   .ios-install-hint { display: block; }
