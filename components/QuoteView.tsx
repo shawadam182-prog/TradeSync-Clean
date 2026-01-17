@@ -519,6 +519,48 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
       </div>
 
       <div ref={documentRef} className="bg-white rounded-[32px] shadow-2xl border border-slate-200 overflow-hidden print:border-none print:shadow-none">
+        {/* Company Header */}
+        <div className="p-6 flex justify-between items-start border-b border-slate-100">
+          {/* Logo & Company Info */}
+          <div className="flex items-start gap-4">
+            {displayOptions.showLogo && settings.companyLogo && (
+              <img
+                src={settings.companyLogo}
+                alt={settings.companyName || 'Company Logo'}
+                className="h-16 w-auto object-contain"
+                style={{ maxWidth: '150px' }}
+              />
+            )}
+            <div>
+              <h2 className="text-xl font-black text-slate-900">{settings.companyName}</h2>
+              {settings.companyAddress && (
+                <p className="text-xs text-slate-500 mt-1 whitespace-pre-line">{settings.companyAddress}</p>
+              )}
+              <div className="flex gap-4 mt-2 text-xs text-slate-400">
+                {settings.phone && <span>{settings.phone}</span>}
+                {settings.email && <span>{settings.email}</span>}
+              </div>
+              {settings.vatNumber && (
+                <p className="text-[10px] text-slate-400 mt-1">VAT: {settings.vatNumber}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Document Type Badge */}
+          <div className="text-right">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+              {activeQuote.type === 'invoice' ? 'Invoice' : activeQuote.type === 'quotation' ? 'Quotation' : 'Estimate'}
+            </span>
+            <p className="text-lg font-mono font-bold text-slate-900 mt-1">{reference}</p>
+            <p className="text-xs text-slate-500">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</p>
+            {activeQuote.type === 'invoice' && activeQuote.dueDate && (
+              <p className="text-xs text-amber-600 font-bold mt-1">
+                Due: {new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Modern Hero Header */}
         <div className="bg-slate-900 text-white p-6 relative overflow-hidden">
           <div className="relative z-10 flex justify-between items-start">
