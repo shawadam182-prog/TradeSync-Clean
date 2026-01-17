@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy } from 'react';
+import React, { useState, useMemo, Suspense, lazy, useCallback } from 'react';
 import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { JobPackList } from './components/JobPackList';
@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { useData } from './src/contexts/DataContext';
 import { useAuth } from './src/contexts/AuthContext';
 import { useToast } from './src/contexts/ToastContext';
+import { useHistoryNavigation } from './src/hooks/useHistoryNavigation';
 import { Quote, JobPack, Customer } from './types';
 import { AlertCircle, FileWarning, Loader2 } from 'lucide-react';
 
@@ -100,6 +101,16 @@ const App: React.FC = () => {
   const [viewingQuoteId, setViewingQuoteId] = useState<string | null>(null);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [initialQuoteType, setInitialQuoteType] = useState<'estimate' | 'quotation' | 'invoice'>('estimate');
+
+  // Handle browser back button navigation
+  useHistoryNavigation({
+    activeTab,
+    activeProjectId,
+    viewingQuoteId,
+    setActiveTab: setActiveTab as (tab: string) => void,
+    setActiveProjectId,
+    setViewingQuoteId,
+  });
 
   const handleCreateQuote = (projectId?: string) => {
     setEditingQuoteId(null);
