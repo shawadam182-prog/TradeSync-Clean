@@ -12,7 +12,7 @@ import {
   UserPlus, ChevronDown, X, MicOff, AlertCircle,
   HardHat, PoundSterling, Percent, Package, FileText, ShieldCheck,
   Calendar, GripVertical, Copy, Layers, Clock, BookmarkPlus, Type, Tag,
-  User, Hammer, Mail, Phone, MapPin
+  User, Hammer, Mail, Phone, MapPin, Banknote
 } from 'lucide-react';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
@@ -58,6 +58,9 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
 
   // Discount modal
   const [showDiscountModal, setShowDiscountModal] = useState(false);
+
+  // Part Payment modal
+  const [showPartPaymentModal, setShowPartPaymentModal] = useState(false);
 
   // Migration logic for old flat quotes
   const getInitialData = (): Partial<Quote> => {
@@ -1231,6 +1234,52 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         </div>
       </div>
 
+      {/* Part Payment Section - Only for Invoices */}
+      {formData.type === 'invoice' && (
+        <div className="bg-white p-4 rounded-[24px] border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Banknote size={16} className="text-blue-500" />
+              <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Part Payment</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {formData.partPaymentEnabled && formData.partPaymentValue && (
+                <span className="text-sm text-blue-600 font-bold">
+                  {formData.partPaymentType === 'percentage'
+                    ? `${formData.partPaymentValue}%`
+                    : `£${formData.partPaymentValue.toFixed(2)}`}
+                  {formData.partPaymentLabel && <span className="text-slate-400 ml-1">({formData.partPaymentLabel})</span>}
+                </span>
+              )}
+              <button
+                onClick={() => {
+                  if (formData.partPaymentEnabled) {
+                    setFormData(prev => ({
+                      ...prev,
+                      partPaymentEnabled: false,
+                      partPaymentType: undefined,
+                      partPaymentValue: undefined,
+                      partPaymentLabel: undefined
+                    }));
+                  } else {
+                    setShowPartPaymentModal(true);
+                  }
+                }}
+                className={`w-14 h-8 rounded-full relative transition-all duration-300 ${
+                  formData.partPaymentEnabled
+                    ? 'bg-blue-500 shadow-lg shadow-blue-200'
+                    : 'bg-slate-300'
+                }`}
+              >
+                <div className={`absolute top-1 left-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300 ${
+                  formData.partPaymentEnabled ? 'translate-x-6' : 'translate-x-0'
+                }`} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Totals Summary */}
       <div className="bg-slate-900 text-white p-5 md:p-6 rounded-[32px] shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={100} /></div>
@@ -1386,6 +1435,134 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50"
               >
                 Apply Discount
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Part Payment Modal */}
+      {showPartPaymentModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 animate-in zoom-in-95">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-black text-lg text-slate-900">Request Part Payment</h3>
+              <button
+                onClick={() => setShowPartPaymentModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Payment Type */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payment Type</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, partPaymentType: 'percentage' }))}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                      formData.partPaymentType === 'percentage'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Percent size={16} className="inline mr-2" /> Percentage
+                  </button>
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, partPaymentType: 'fixed' }))}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                      formData.partPaymentType === 'fixed'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    <PoundSterling size={16} className="inline mr-2" /> Fixed Amount
+                  </button>
+                </div>
+              </div>
+
+              {/* Payment Value */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                  {formData.partPaymentType === 'percentage' ? 'Percentage Required' : 'Amount Required (£)'}
+                </label>
+                <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-xl px-4 focus-within:border-blue-400 transition-all">
+                  {formData.partPaymentType === 'fixed' && <span className="text-slate-400 font-bold mr-2">£</span>}
+                  <input
+                    type="number"
+                    className="w-full bg-transparent py-4 outline-none text-slate-900 font-bold text-lg"
+                    value={formData.partPaymentValue || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, partPaymentValue: parseFloat(e.target.value) || 0 }))}
+                    placeholder={formData.partPaymentType === 'percentage' ? '50' : '500.00'}
+                  />
+                  {formData.partPaymentType === 'percentage' && <span className="text-slate-400 font-bold">%</span>}
+                </div>
+              </div>
+
+              {/* Payment Label */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payment Label</label>
+                <select
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none text-slate-900 font-medium focus:border-blue-400 transition-all"
+                  value={formData.partPaymentLabel || ''}
+                  onChange={e => setFormData(prev => ({ ...prev, partPaymentLabel: e.target.value }))}
+                >
+                  <option value="">Select a label...</option>
+                  <option value="Deposit">Deposit</option>
+                  <option value="Stage 1 Payment">Stage 1 Payment</option>
+                  <option value="50% Upfront">50% Upfront</option>
+                  <option value="First Fix Payment">First Fix Payment</option>
+                </select>
+              </div>
+
+              {/* Custom Label Input */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Or Custom Label</label>
+                <input
+                  type="text"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none text-slate-900 font-medium focus:border-blue-400 transition-all"
+                  value={formData.partPaymentLabel && !['Deposit', 'Stage 1 Payment', '50% Upfront', 'First Fix Payment'].includes(formData.partPaymentLabel) ? formData.partPaymentLabel : ''}
+                  onChange={e => setFormData(prev => ({ ...prev, partPaymentLabel: e.target.value }))}
+                  placeholder="e.g. Materials Deposit"
+                />
+              </div>
+
+              {/* Preview */}
+              {formData.partPaymentValue && formData.partPaymentType && (
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <p className="text-sm text-blue-700">
+                    Amount Due Now: <span className="font-bold">
+                      £{(formData.partPaymentType === 'percentage'
+                        ? totals.total * (formData.partPaymentValue / 100)
+                        : formData.partPaymentValue
+                      ).toFixed(2)}
+                    </span>
+                    {formData.partPaymentLabel && (
+                      <span className="text-blue-500 ml-1">({formData.partPaymentLabel})</span>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowPartPaymentModal(false)}
+                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, partPaymentEnabled: true }));
+                  setShowPartPaymentModal(false);
+                }}
+                disabled={!formData.partPaymentValue || !formData.partPaymentType || !formData.partPaymentLabel}
+                className="flex-1 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors disabled:opacity-50"
+              >
+                Apply
               </button>
             </div>
           </div>

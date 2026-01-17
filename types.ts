@@ -93,6 +93,11 @@ export interface Quote {
   paymentMethod?: 'cash' | 'card' | 'bank_transfer' | 'cheque';
   amountPaid?: number;
   parentQuoteId?: string;
+  // Part Payment fields (for deposits/staged payments)
+  partPaymentEnabled?: boolean;
+  partPaymentType?: 'percentage' | 'fixed';
+  partPaymentValue?: number;
+  partPaymentLabel?: string;
 }
 
 export interface ScheduleEntry {

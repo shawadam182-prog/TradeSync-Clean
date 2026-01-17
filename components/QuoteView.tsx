@@ -139,6 +139,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
 
   const totals = calculateTotals();
 
+  // Calculate part payment amount
+  const partPaymentAmount = activeQuote.partPaymentEnabled && activeQuote.partPaymentValue
+    ? (activeQuote.partPaymentType === 'percentage'
+        ? totals.grandTotal * (activeQuote.partPaymentValue / 100)
+        : activeQuote.partPaymentValue)
+    : 0;
+
   const handleRecordPayment = (payment: {
     amount: number;
     method: 'cash' | 'card' | 'bank_transfer' | 'cheque';
@@ -262,6 +269,20 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     }
     totalsBreakdown += `\n\n*TOTAL DUE: £${totals.grandTotal.toFixed(2)}*`;
 
+    // Add part payment info if enabled
+    let partPaymentInfo = '';
+    if (activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue) {
+      const partAmount = activeQuote.partPaymentType === 'percentage'
+        ? totals.grandTotal * (activeQuote.partPaymentValue / 100)
+        : activeQuote.partPaymentValue;
+
+      partPaymentInfo = `\n\n💳 *${activeQuote.partPaymentLabel || 'Amount Due Now'}:* £${partAmount.toFixed(2)}`;
+      if (activeQuote.partPaymentType === 'percentage') {
+        partPaymentInfo += ` (${activeQuote.partPaymentValue}%)`;
+      }
+      partPaymentInfo += `\n*Balance Remaining:* £${(totals.grandTotal - partAmount).toFixed(2)}`;
+    }
+
     const message = `Hi ${customer?.name || 'there'},
 
 ${activeQuote.type === 'invoice' ? '📄' : '📝'} Your ${docType} is ready!
@@ -270,7 +291,7 @@ ${activeQuote.type === 'invoice' ? '📄' : '📝'} Your ${docType} is ready!
 *Project:* ${activeQuote.title}
 *Date:* ${activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : 'N/A'}
 ${breakdown}
-${totalsBreakdown}
+${totalsBreakdown}${partPaymentInfo}
 
 ${activeQuote.type === 'invoice'
   ? '⏰ *Payment Terms:* Due within 14 days\n\nPlease arrange payment at your earliest convenience.'
@@ -349,11 +370,19 @@ ${settings?.email ? `📧 ${settings.email}` : ''}`;
         pageNum++;
       }
 
-      // Build email content
+      // Build email content with part payment info
+      let partPaymentLine = '';
+      if (activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue) {
+        const partAmount = activeQuote.partPaymentType === 'percentage'
+          ? totals.grandTotal * (activeQuote.partPaymentValue / 100)
+          : activeQuote.partPaymentValue;
+        partPaymentLine = `\n\n${activeQuote.partPaymentLabel || 'Amount Due Now'}: £${partAmount.toFixed(2)}`;
+      }
+
       const subject = `${docType.charAt(0).toUpperCase() + docType.slice(1)} - ${activeQuote.title} (${prefix}${numStr})`;
       const body = `Dear ${customerName},
 
-Please find attached ${docType} as discussed.
+Please find attached ${docType} as discussed.${partPaymentLine}
 
 Thanks,
 ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${settings?.email ? `\n${settings.email}` : ''}`;
@@ -801,6 +830,33 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 <span className="font-bold text-sm text-slate-900">Total Due</span>
                 <span className="text-xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</span>
               </div>
+
+              {/* Part Payment Highlight Box */}
+              {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
+                <div className="bg-blue-500 text-white p-5 rounded-2xl mt-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">
+                        {activeQuote.partPaymentLabel || 'Amount Due Now'}
+                      </p>
+                      <p className="text-2xl font-black">
+                        £{partPaymentAmount.toFixed(2)}
+                      </p>
+                      {activeQuote.partPaymentType === 'percentage' && (
+                        <p className="text-xs text-blue-200 mt-1">
+                          ({activeQuote.partPaymentValue}% of £{totals.grandTotal.toFixed(2)})
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Balance Due</p>
+                      <p className="text-lg font-bold text-blue-100">
+                        £{(totals.grandTotal - partPaymentAmount).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {displayOptions.showNotes && activeQuote?.notes && (
