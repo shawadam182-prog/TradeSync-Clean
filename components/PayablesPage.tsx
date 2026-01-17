@@ -3,7 +3,7 @@ import {
   Plus, Search, Filter, AlertTriangle, Clock, Check,
   Calendar, PoundSterling, Loader2, X, Building2,
   FileText, ChevronDown, MoreVertical, Trash2, Edit2,
-  CheckCircle, AlertCircle, RefreshCw
+  CheckCircle, AlertCircle, RefreshCw, ArrowLeft
 } from 'lucide-react';
 import { payablesService, vendorsService, Payable } from '../src/services/dataService';
 import { ExpensesListSkeleton } from './Skeletons';
@@ -34,7 +34,11 @@ const CATEGORIES = [
   { id: 'other', label: 'Other' },
 ];
 
-export const PayablesPage: React.FC = () => {
+interface PayablesPageProps {
+  onBack?: () => void;
+}
+
+export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
   const toast = useToast();
   const [payables, setPayables] = useState<Payable[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -245,9 +249,20 @@ export const PayablesPage: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Bills to Pay</h1>
-          <p className="text-slate-500 text-sm font-medium">Track supplier invoices and payment deadlines</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Bills to Pay</h1>
+            <p className="text-slate-500 text-sm font-medium">Track supplier invoices and payment deadlines</p>
+          </div>
         </div>
         <div className="flex gap-3">
           <button

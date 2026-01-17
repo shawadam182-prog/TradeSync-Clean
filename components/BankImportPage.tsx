@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import {
   Upload, FileSpreadsheet, Check, X, AlertCircle,
   Loader2, ArrowRight, Building2, Calendar, PoundSterling,
-  ChevronDown, Trash2, RefreshCw
+  ChevronDown, Trash2, RefreshCw, ArrowLeft
 } from 'lucide-react';
 import { bankTransactionsService } from '../src/services/dataService';
 import { validateCsvFile } from '../src/utils/fileValidation';
@@ -71,7 +71,11 @@ const BANK_PRESETS: Record<string, { name: string; mapping: ColumnMapping; dateF
   },
 };
 
-export const BankImportPage: React.FC = () => {
+interface BankImportPageProps {
+  onBack?: () => void;
+}
+
+export const BankImportPage: React.FC<BankImportPageProps> = ({ onBack }) => {
   const [step, setStep] = useState<'upload' | 'preview' | 'importing' | 'complete'>('upload');
   const [rawData, setRawData] = useState<string[][]>([]);
   const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
@@ -243,8 +247,21 @@ export const BankImportPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Bank Import</h1>
-        <p className="text-slate-500 text-sm font-medium">Import transactions from your bank statement CSV</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Bank Import</h1>
+            <p className="text-slate-500 text-sm font-medium">Import transactions from your bank statement CSV</p>
+          </div>
+        </div>
       </div>
 
       {/* Progress Steps */}

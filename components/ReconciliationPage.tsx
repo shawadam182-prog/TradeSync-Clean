@@ -3,7 +3,7 @@ import {
   Link2, Check, X, AlertCircle, Loader2, Search,
   Calendar, PoundSterling, ArrowRight, Sparkles,
   CheckCircle, Building2, Filter, RefreshCw, Plus,
-  Unlink, ChevronDown, ChevronUp, Square, CheckSquare
+  Unlink, ChevronDown, ChevronUp, Square, CheckSquare, ArrowLeft
 } from 'lucide-react';
 import { bankTransactionsService, expensesService, quotesService, reconciliationService } from '../src/services/dataService';
 
@@ -45,7 +45,11 @@ interface SuggestedMatch {
   reason: string;
 }
 
-export const ReconciliationPage: React.FC = () => {
+interface ReconciliationPageProps {
+  onBack?: () => void;
+}
+
+export const ReconciliationPage: React.FC<ReconciliationPageProps> = ({ onBack }) => {
   const [transactions, setTransactions] = useState<BankTransaction[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -283,9 +287,20 @@ export const ReconciliationPage: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Reconciliation</h1>
-          <p className="text-slate-500 text-sm font-medium">Match bank transactions with expenses and invoices</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Reconciliation</h1>
+            <p className="text-slate-500 text-sm font-medium">Match bank transactions with expenses and invoices</p>
+          </div>
         </div>
         <button
           onClick={loadData}

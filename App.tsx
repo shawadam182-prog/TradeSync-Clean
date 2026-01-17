@@ -300,21 +300,21 @@ const App: React.FC = () => {
       {activeTab === 'jobpacks' && <JobPackList projects={[...projects].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} onOpenProject={openProject} onAddProject={handleAddProject} onAddCustomer={handleAddCustomer} />}
 
       <Suspense fallback={<PageLoader />}>
-        {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} onAddEntry={addScheduleEntry} onUpdateEntry={updateScheduleEntry} onDeleteEntry={deleteScheduleEntry} />}
+        {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} onAddEntry={addScheduleEntry} onUpdateEntry={updateScheduleEntry} onDeleteEntry={deleteScheduleEntry} onBack={() => setActiveTab('home')} />}
         {activeTab === 'jobpack_detail' && activeProjectId && (activeProject ? <JobPackView key={activeProjectId} project={activeProject} customers={customers} quotes={quotes.filter(q => q.projectId === activeProjectId)} onSaveProject={handleSaveProject} onViewQuote={handleViewQuote} onCreateQuote={() => handleCreateQuote(activeProjectId)} onBack={() => setActiveTab('jobpacks')} onDeleteProject={deleteProject} onRefresh={refresh} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><AlertCircle size={48} className="text-teal-500 mb-4" /><p>Job Pack Not Found</p><button onClick={() => setActiveTab('jobpacks')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
-        {activeTab === 'quotes' && <QuotesList quotes={[...quotes].filter(q => q.type === 'estimate' || q.type === 'quotation').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onEditQuote={handleEditQuote} onCreateQuote={() => handleCreateQuote()} onDeleteQuote={deleteQuote} />}
-        {activeTab === 'invoices' && <InvoicesList quotes={[...quotes].filter(q => q.type === 'invoice').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onCreateInvoice={handleCreateInvoice} onDeleteInvoice={deleteQuote} />}
-        {activeTab === 'expenses' && <ExpensesPage projects={projects} />}
-        {activeTab === 'bank' && <BankImportPage />}
-        {activeTab === 'reconcile' && <ReconciliationPage />}
-        {activeTab === 'vat' && <VATSummaryPage />}
-        {activeTab === 'payables' && <PayablesPage />}
-        {activeTab === 'files' && <FilingCabinetPage />}
+        {activeTab === 'quotes' && <QuotesList quotes={[...quotes].filter(q => q.type === 'estimate' || q.type === 'quotation').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onEditQuote={handleEditQuote} onCreateQuote={() => handleCreateQuote()} onDeleteQuote={deleteQuote} onBack={() => setActiveTab('home')} />}
+        {activeTab === 'invoices' && <InvoicesList quotes={[...quotes].filter(q => q.type === 'invoice').sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} settings={settings} onViewQuote={handleViewQuote} onCreateInvoice={handleCreateInvoice} onDeleteInvoice={deleteQuote} onBack={() => setActiveTab('home')} />}
+        {activeTab === 'expenses' && <ExpensesPage projects={projects} onBack={() => setActiveTab('home')} />}
+        {activeTab === 'bank' && <BankImportPage onBack={() => setActiveTab('home')} />}
+        {activeTab === 'reconcile' && <ReconciliationPage onBack={() => setActiveTab('home')} />}
+        {activeTab === 'vat' && <VATSummaryPage onBack={() => setActiveTab('home')} />}
+        {activeTab === 'payables' && <PayablesPage onBack={() => setActiveTab('home')} />}
+        {activeTab === 'files' && <FilingCabinetPage onBack={() => setActiveTab('home')} />}
         {activeTab === 'materials' && <MaterialsLibrary onBack={() => setActiveTab('home')} />}
         {activeTab === 'wholesalers' && <WholesalerAdmin onBack={() => setActiveTab('home')} />}
         {activeTab === 'future_jobs' && <FutureJobsPage onBack={() => setActiveTab('home')} onCreateJob={() => setActiveTab('jobpacks')} />}
-        {activeTab === 'customers' && <CustomerManager customers={customers} addCustomer={addCustomer} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} />}
-        {activeTab === 'settings' && <SettingsPage settings={settings} setSettings={setSettings} onSave={updateSettings} />}
+        {activeTab === 'customers' && <CustomerManager customers={customers} addCustomer={addCustomer} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} onBack={() => setActiveTab('home')} />}
+        {activeTab === 'settings' && <SettingsPage settings={settings} setSettings={setSettings} onSave={updateSettings} onBack={() => setActiveTab('home')} />}
         {activeTab === 'quote_edit' && <QuoteCreator existingQuote={quotes.find(q => q.id === editingQuoteId)} projectId={activeProjectId || undefined} initialType={initialQuoteType} customers={customers} settings={settings} onSave={handleSaveQuote} onAddCustomer={handleAddCustomer} onCancel={() => activeProjectId ? setActiveTab('jobpack_detail') : (initialQuoteType === 'invoice' ? setActiveTab('invoices') : setActiveTab('quotes'))} />}
         {activeTab === 'view' && viewingQuoteId && (activeViewQuote ? <QuoteView quote={activeViewQuote} customer={activeViewCustomer || { id: 'unknown', name: 'Unassigned Client', email: '', phone: '', address: 'N/A' }} settings={settings} onEdit={() => handleEditQuote(viewingQuoteId)} onBack={() => activeProjectId ? setActiveTab('jobpack_detail') : (activeViewQuote.type === 'invoice' ? setActiveTab('invoices') : setActiveTab('quotes'))} onUpdateStatus={(status) => handleUpdateQuoteStatus(viewingQuoteId, status)} onUpdateQuote={handleUpdateQuote} onConvertToInvoice={handleConvertToInvoice} onDuplicate={handleDuplicateQuote} /> : <div className="flex flex-col items-center justify-center py-20 text-slate-400"><FileWarning size={48} className="text-teal-500 mb-4" /><p>Document Not Found</p><button onClick={() => setActiveTab('quotes')} className="mt-4 bg-slate-900 text-white px-4 py-2 rounded">Back</button></div>)}
       </Suspense>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   FolderOpen, Search, Upload, FileText, Image, File,
   Calendar, Tag, Download, Trash2, Edit2, X, Loader2,
-  AlertTriangle, Filter, Plus, Eye, Clock, ChevronDown
+  AlertTriangle, Filter, Plus, Eye, Clock, ChevronDown, ArrowLeft
 } from 'lucide-react';
 import { filingService, DocumentCategory, FiledDocument } from '../src/services/dataService';
 
@@ -32,7 +32,11 @@ const formatFileSize = (bytes?: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-export const FilingCabinetPage: React.FC = () => {
+interface FilingCabinetPageProps {
+  onBack?: () => void;
+}
+
+export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) => {
   const [documents, setDocuments] = useState<FiledDocument[]>([]);
   const [expiringDocs, setExpiringDocs] = useState<FiledDocument[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,9 +186,20 @@ export const FilingCabinetPage: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Filing Cabinet</h1>
-          <p className="text-slate-500 text-sm font-medium">Store and organize all your business documents</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Filing Cabinet</h1>
+            <p className="text-slate-500 text-sm font-medium">Store and organize all your business documents</p>
+          </div>
         </div>
         <button
           onClick={() => setShowUploadModal(true)}

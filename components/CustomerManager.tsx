@@ -18,9 +18,10 @@ interface CustomerManagerProps {
   addCustomer: (customer: Omit<Customer, 'id'>) => Promise<Customer>;
   updateCustomer: (id: string, updates: Partial<Customer>) => Promise<void>;
   deleteCustomer: (id: string) => Promise<void>;
+  onBack?: () => void;
 }
 
-export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, addCustomer: addCustomerProp, updateCustomer: updateCustomerProp, deleteCustomer: deleteCustomerProp }) => {
+export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, addCustomer: addCustomerProp, updateCustomer: updateCustomerProp, deleteCustomer: deleteCustomerProp, onBack }) => {
   const toast = useToast();
   // Explicitly type searchTerm as string to avoid unknown inference issues
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -226,6 +227,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
         <PageHeader
           title="Customer Directory"
           subtitle="Manage your active site clients and project owners."
+          onBack={onBack}
           actions={
             <button
               onClick={() => { hapticTap(); setEditingId('new'); setCustomerForm({}); }}
