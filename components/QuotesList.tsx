@@ -1,9 +1,12 @@
 
 import React from 'react';
-import { Quote, Customer, AppSettings } from '../types';
+import { Quote, Customer, AppSettings, TIER_LIMITS } from '../types';
 import { FileText, Plus, Eye, Search, Hash, User, ChevronRight, Trash2 } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
+import { useSubscription } from '../src/hooks/useFeatureAccess';
+import { UpgradePrompt } from './UpgradePrompt';
+import { useData } from '../src/contexts/DataContext';
 
 interface QuotesListProps {
   quotes: Quote[];
@@ -19,7 +22,16 @@ export const QuotesList: React.FC<QuotesListProps> = ({
   quotes, customers, settings, onViewQuote, onEditQuote, onCreateQuote, onDeleteQuote
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
   const toast = useToast();
+
+  // Get all quotes (estimates + quotations) for limit checking
+  const { quotes: allQuotes } = useData();
+  const subscription = useSubscription();
+  const limits = subscription.usageLimits || TIER_LIMITS[subscription.tier];
+  const quoteLimit = limits.quotes;
+  const currentQuoteCount = allQuotes.filter(q => q.type === 'estimate' || q.type === 'quotation').length;
+  const canCreateQuote = quoteLimit === null || currentQuoteCount < quoteLimit;
 
   const handleDelete = async (e: React.MouseEvent, quote: Quote) => {
     e.stopPropagation(); // Don't trigger row click
@@ -68,11 +80,22 @@ export const QuotesList: React.FC<QuotesListProps> = ({
           <p className="text-slate-500 font-medium text-sm italic tracking-tight">Active project estimates and site proposals.</p>
         </div>
         <button
-          onClick={onCreateQuote}
+          onClick={() => {
+            if (canCreateQuote) {
+              onCreateQuote();
+            } else {
+              setShowUpgradePrompt(true);
+            }
+          }}
           className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-200"
         >
           <Plus size={18} />
           <span>New Estimate</span>
+          {quoteLimit !== null && (
+            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+              {currentQuoteCount}/{quoteLimit}
+            </span>
+          )}
         </button>
       </div>
 
@@ -157,6 +180,16 @@ export const QuotesList: React.FC<QuotesListProps> = ({
           })
         )}
       </div>
+
+      {/* Upgrade Prompt for Free Tier Limit */}
+      {showUpgradePrompt && quoteLimit !== null && (
+        <UpgradePrompt
+          resourceName="quotes"
+          currentCount={currentQuoteCount}
+          limit={quoteLimit}
+          onClose={() => setShowUpgradePrompt(false)}
+        />
+      )}
     </div>
   );
 };

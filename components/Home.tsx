@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ScheduleEntry, Customer, JobPack, Quote, AppSettings } from '../types';
+import { ScheduleEntry, Customer, JobPack, Quote, AppSettings, TIER_LIMITS } from '../types';
 import {
   Mic, Trash2, MapPin, Clock, Navigation,
   Bell, BellRing, Play, CheckCircle2,
@@ -19,6 +19,8 @@ import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
 import { BusinessDashboard } from './BusinessDashboard';
 import { FinancialOverview } from './FinancialOverview';
+import { useSubscription } from '../src/hooks/useFeatureAccess';
+import { UpgradePrompt } from './UpgradePrompt';
 
 interface HomeProps {
   schedule: ScheduleEntry[];
@@ -80,6 +82,23 @@ export const Home: React.FC<HomeProps> = ({
   onNavigateToFutureJobs
 }) => {
   const toast = useToast();
+
+  // Subscription and limit checking
+  const subscription = useSubscription();
+  const limits = subscription.usageLimits || TIER_LIMITS[subscription.tier];
+
+  // Calculate current counts
+  const currentJobCount = projects.length;
+  const currentQuoteCount = quotes.filter(q => q.type === 'estimate' || q.type === 'quotation').length;
+  const currentInvoiceCount = quotes.filter(q => q.type === 'invoice').length;
+
+  // Check if can create
+  const canCreateJob = limits.jobPacks === null || currentJobCount < limits.jobPacks;
+  const canCreateQuote = limits.quotes === null || currentQuoteCount < limits.quotes;
+  const canCreateInvoice = limits.invoices === null || currentInvoiceCount < limits.invoices;
+
+  // Upgrade prompt state
+  const [upgradePromptType, setUpgradePromptType] = useState<'jobs' | 'quotes' | 'invoices' | null>(null);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [quickNotes, setQuickNotes] = useState<string>('');
   const [futureJobs, setFutureJobs] = useState<FutureJob[]>([]);
@@ -597,31 +616,67 @@ export const Home: React.FC<HomeProps> = ({
         <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Quick Actions</h3>
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2 md:gap-3">
           <button
-            onClick={() => { hapticTap(); onCreateJob?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-blue-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/20 hover:shadow-2xl group"
+            onClick={() => {
+              hapticTap();
+              if (canCreateJob) {
+                onCreateJob?.();
+              } else {
+                setUpgradePromptType('jobs');
+              }
+            }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-blue-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Briefcase size={20} className="md:w-7 md:h-7" />
             </div>
             <span className="font-black text-[9px] sm:text-[10px] md:text-sm uppercase tracking-wide md:tracking-widest leading-none text-center">New Job</span>
+            {limits.jobPacks !== null && (
+              <span className="absolute top-1 right-1 text-[8px] bg-white/30 px-1.5 py-0.5 rounded-full font-bold">
+                {currentJobCount}/{limits.jobPacks}
+              </span>
+            )}
           </button>
           <button
-            onClick={() => { hapticTap(); onCreateQuote?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-amber-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/20 hover:shadow-2xl group"
+            onClick={() => {
+              hapticTap();
+              if (canCreateQuote) {
+                onCreateQuote?.();
+              } else {
+                setUpgradePromptType('quotes');
+              }
+            }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-amber-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <FileText size={20} className="md:w-7 md:h-7" />
             </div>
             <span className="font-black text-[9px] sm:text-[10px] md:text-sm uppercase tracking-wide md:tracking-widest leading-none text-center">Quote</span>
+            {limits.quotes !== null && (
+              <span className="absolute top-1 right-1 text-[8px] bg-white/30 px-1.5 py-0.5 rounded-full font-bold">
+                {currentQuoteCount}/{limits.quotes}
+              </span>
+            )}
           </button>
           <button
-            onClick={() => { hapticTap(); onCreateInvoice?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group"
+            onClick={() => {
+              hapticTap();
+              if (canCreateInvoice) {
+                onCreateInvoice?.();
+              } else {
+                setUpgradePromptType('invoices');
+              }
+            }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <PoundSterling size={20} className="md:w-7 md:h-7" />
             </div>
             <span className="font-black text-[9px] sm:text-[10px] md:text-sm uppercase tracking-wide md:tracking-widest leading-none text-center">Invoice</span>
+            {limits.invoices !== null && (
+              <span className="absolute top-1 right-1 text-[8px] bg-white/30 px-1.5 py-0.5 rounded-full font-bold">
+                {currentInvoiceCount}/{limits.invoices}
+              </span>
+            )}
           </button>
           <button
             onClick={() => { hapticTap(); handleOpenPhotoPicker(); }}
@@ -1184,6 +1239,32 @@ export const Home: React.FC<HomeProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Upgrade Prompt for Free Tier Limits */}
+      {upgradePromptType === 'jobs' && limits.jobPacks !== null && (
+        <UpgradePrompt
+          resourceName="job packs"
+          currentCount={currentJobCount}
+          limit={limits.jobPacks}
+          onClose={() => setUpgradePromptType(null)}
+        />
+      )}
+      {upgradePromptType === 'quotes' && limits.quotes !== null && (
+        <UpgradePrompt
+          resourceName="quotes"
+          currentCount={currentQuoteCount}
+          limit={limits.quotes}
+          onClose={() => setUpgradePromptType(null)}
+        />
+      )}
+      {upgradePromptType === 'invoices' && limits.invoices !== null && (
+        <UpgradePrompt
+          resourceName="invoices"
+          currentCount={currentInvoiceCount}
+          limit={limits.invoices}
+          onClose={() => setUpgradePromptType(null)}
+        />
+      )}
     </div>
   );
 };

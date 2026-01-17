@@ -508,7 +508,8 @@ export type SubscriptionStatus = 'trialing' | 'active' | 'cancelled' | 'past_due
 export interface UsageLimits {
   customers: number | null;
   jobPacks: number | null;
-  quotesPerMonth: number | null;
+  quotes: number | null;      // Total quotes (estimates + quotations)
+  invoices: number | null;    // Total invoices
   photosPerMonth: number | null;
   documentsPerMonth: number | null;
 }
@@ -565,22 +566,25 @@ export const FEATURE_TIER_MAP: Record<GatedFeature, SubscriptionTier> = {
 export const TIER_LIMITS: Record<SubscriptionTier, UsageLimits> = {
   free: {
     customers: 5,
-    jobPacks: 10,
-    quotesPerMonth: 10,
+    jobPacks: 3,        // Total job packs allowed
+    quotes: 3,          // Total quotes (estimates + quotations)
+    invoices: 3,        // Total invoices
     photosPerMonth: 20,
     documentsPerMonth: 5,
   },
   professional: {
     customers: null, // unlimited
     jobPacks: null,
-    quotesPerMonth: null,
+    quotes: null,
+    invoices: null,
     photosPerMonth: 100,
     documentsPerMonth: 50,
   },
   business: {
     customers: null,
     jobPacks: null,
-    quotesPerMonth: null,
+    quotes: null,
+    invoices: null,
     photosPerMonth: null,
     documentsPerMonth: null,
   },
