@@ -83,6 +83,36 @@ export default defineConfig(({ mode }) => {
                 type: 'image/png',
                 purpose: 'maskable'
               }
+            ],
+            screenshots: [
+              {
+                src: 'screenshot-1.jpeg',
+                sizes: '945x2048',
+                type: 'image/jpeg',
+                form_factor: 'narrow',
+                label: 'Home Dashboard'
+              },
+              {
+                src: 'screenshot-2.jpeg',
+                sizes: '945x2048',
+                type: 'image/jpeg',
+                form_factor: 'narrow',
+                label: 'Quote Creator'
+              },
+              {
+                src: 'screenshot-3.jpeg',
+                sizes: '945x2048',
+                type: 'image/jpeg',
+                form_factor: 'narrow',
+                label: 'Invoice View'
+              },
+              {
+                src: 'screenshot-4.jpeg',
+                sizes: '945x2048',
+                type: 'image/jpeg',
+                form_factor: 'narrow',
+                label: 'Expense Tracking'
+              }
             ]
           },
           workbox: {
