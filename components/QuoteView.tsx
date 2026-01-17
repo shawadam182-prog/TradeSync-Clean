@@ -591,8 +591,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         </div>
 
         {/* Project Title Bar */}
-        <div className="bg-slate-900 text-white px-4 py-2">
-          <h1 className="text-sm font-bold">{activeQuote?.title || 'Proposed Works'}</h1>
+        <div className="border-y border-slate-200 bg-slate-50 px-4 py-2.5">
+          <h1 className="text-sm font-bold text-slate-800 tracking-wide">{activeQuote?.title || 'Proposed Works'}</h1>
         </div>
 
         {/* Client and Job Address Section */}
@@ -637,8 +637,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
           return (
             <div key={section.id} className={`px-4 py-3 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} space-y-3`}>
-              <div className="flex items-center gap-2">
-                 <div className="h-6 w-6 bg-amber-500 text-slate-900 rounded-md flex items-center justify-center font-bold text-xs">{idx + 1}</div>
+              <div className="flex items-center gap-2.5">
+                 <span className="text-xs font-bold text-slate-400">{idx + 1}.</span>
                  <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{section.title}</h4>
               </div>
 
