@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { AppSettings, QuoteDisplayOptions } from '../types';
+import { AppSettings, QuoteDisplayOptions, DocumentTemplate } from '../types';
 import {
   Save, Building2, Calculator, MapPin,
   PoundSterling, CheckCircle, FileText,
   Settings2, Info, Palette, ReceiptText,
   ChevronRight, Building, Upload, X, Image as ImageIcon,
   Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2,
-  Calendar
+  Calendar, Layout, FileSpreadsheet, FileEdit, List
 } from 'lucide-react';
 import { useToast } from '../src/contexts/ToastContext';
 import { handleApiError } from '../src/utils/errorHandler';
@@ -404,7 +404,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                   </div>
                   <div className="grid grid-cols-3 gap-3 md:gap-6">
                     {['slate', 'amber', 'blue'].map(color => (
-                      <button 
+                      <button
                         key={color}
                         onClick={() => setSettings({ ...settings, costBoxColor: color as any })}
                         className={`flex flex-col items-center gap-4 p-3 md:p-6 rounded-[32px] border-2 transition-all ${settings.costBoxColor === color ? 'border-amber-500 bg-amber-50/20 shadow-lg' : 'border-slate-100 bg-white hover:border-slate-200'}`}
@@ -414,6 +414,37 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Document Template Selection */}
+                <div className="space-y-5 pt-6 border-t border-slate-100">
+                  <div className="flex items-center gap-2 px-1">
+                    <Layout size={16} className="text-purple-500" />
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Document Template</label>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { id: 'classic', name: 'Classic', icon: FileText, desc: 'Traditional layout' },
+                      { id: 'modern', name: 'Modern', icon: FileSpreadsheet, desc: 'Clean & minimal' },
+                      { id: 'minimal', name: 'Minimal', icon: FileEdit, desc: 'Simple & elegant' },
+                      { id: 'detailed', name: 'Detailed', icon: List, desc: 'Full breakdown' }
+                    ].map(template => (
+                      <button
+                        key={template.id}
+                        onClick={() => setSettings({ ...settings, documentTemplate: template.id as DocumentTemplate })}
+                        className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${(settings.documentTemplate || 'classic') === template.id ? 'border-purple-500 bg-purple-50/50 shadow-lg' : 'border-slate-100 bg-white hover:border-slate-200'}`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${(settings.documentTemplate || 'classic') === template.id ? 'bg-purple-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                          <template.icon size={20} />
+                        </div>
+                        <div className="text-center">
+                          <span className="text-[10px] font-black uppercase tracking-widest block">{template.name}</span>
+                          <span className="text-[8px] text-slate-400">{template.desc}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-400 text-center italic">Choose how your PDF documents will look when exported</p>
                 </div>
               </div>
             </div>

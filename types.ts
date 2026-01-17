@@ -17,6 +17,15 @@ export interface MaterialItem {
   unitPrice: number;
   totalPrice: number;
   isAIProposed?: boolean;
+  isHeading?: boolean; // For section headings/dividers within items
+}
+
+// Labour item for itemized labour tracking
+export interface LabourItem {
+  id: string;
+  description: string;
+  hours: number;
+  rate?: number; // Optional per-item rate override
 }
 
 export interface QuoteSection {
@@ -26,6 +35,7 @@ export interface QuoteSection {
   labourHours: number;
   labourRate?: number; // Optional override per section
   labourCost?: number; // Direct labour cost input (optional)
+  labourItems?: LabourItem[]; // Itemized labour tracking
   subsectionPrice?: number; // Override total price for subsection (optional, auto-calculated if not set)
 }
 
@@ -73,6 +83,10 @@ export interface Quote {
   type: 'estimate' | 'quotation' | 'invoice';
   displayOptions?: QuoteDisplayOptions;
   referenceNumber?: number;
+  // Discount fields
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  discountDescription?: string;
   // Invoice-specific fields
   dueDate?: string;
   paymentDate?: string;
@@ -142,6 +156,9 @@ export interface JobPack {
   materials?: ProjectMaterial[];
 }
 
+// Document template options
+export type DocumentTemplate = 'classic' | 'modern' | 'minimal' | 'detailed';
+
 export interface AppSettings {
   defaultLabourRate: number;
   defaultTaxRate: number;
@@ -163,6 +180,7 @@ export interface AppSettings {
   costBoxColor: 'slate' | 'amber' | 'blue';
   showBreakdown: boolean;
   defaultDisplayOptions: QuoteDisplayOptions;
+  documentTemplate?: DocumentTemplate;
   // Tax year setting (month 1-12, day 1-31) - UK default is April 6
   taxYearStartMonth?: number;
   taxYearStartDay?: number;

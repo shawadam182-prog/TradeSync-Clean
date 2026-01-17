@@ -1,12 +1,12 @@
 
 import React, { useState, useRef } from 'react';
-import { Quote, Customer, AppSettings, QuoteDisplayOptions, QuoteSection } from '../types';
+import { Quote, Customer, AppSettings, QuoteDisplayOptions, QuoteSection, LabourItem } from '../types';
 import {
   ArrowLeft, Edit3, Hammer, User, FileText, Info,
   Landmark, Package, HardHat, FileDown, Loader2, Navigation, PoundSterling,
   Settings2, Eye, EyeOff, ChevronDown, ChevronUp, LayoutGrid, List,
   Image as ImageIcon, AlignLeft, ReceiptText, ShieldCheck, ListChecks, FileDigit,
-  Box, Circle, Share2, Copy, MessageCircle, MapPin, Mail, Banknote, Check, X
+  Box, Circle, Share2, Copy, MessageCircle, MapPin, Mail, Banknote, Check, X, Clock, Tag, Type
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -77,6 +77,20 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     onUpdateQuote({ ...activeQuote, displayOptions: updatedOptions });
   };
 
+  // Helper: Calculate labour for a section (supports itemized labour)
+  const calculateSectionLabour = (section: QuoteSection) => {
+    const defaultRate = section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+    if (section.labourItems && section.labourItems.length > 0) {
+      return section.labourItems.reduce((sum, item) => {
+        const rate = item.rate || defaultRate;
+        return sum + (item.hours * rate);
+      }, 0);
+    }
+    // Fallback to labourCost or hours-based calculation
+    if (section.labourCost !== undefined) return section.labourCost;
+    return (section.labourHours || 0) * defaultRate;
+  };
+
   const calculateTotals = () => {
     try {
       const sections = activeQuote.sections || [];
@@ -87,9 +101,10 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       let sectionsTotal = 0;
 
       sections.forEach(s => {
-        const sectionMaterials = (s.items || []).reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
-        // Use new labourCost field, fallback to hours-based calculation for backwards compatibility
-        const sectionLabour = s.labourCost !== undefined ? s.labourCost : ((s.labourHours || 0) * (activeQuote.labourRate || settings.defaultLabourRate || 0));
+        // Filter out heading items from materials total
+        const sectionMaterials = (s.items || []).filter(i => !i.isHeading).reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
+        // Use labourItems if present, otherwise fall back
+        const sectionLabour = calculateSectionLabour(s);
         // Use subsectionPrice override if set, otherwise calculate from materials + labour
         const sectionPrice = s.subsectionPrice !== undefined ? s.subsectionPrice : (sectionMaterials + sectionLabour);
 
@@ -100,14 +115,25 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
 
       const clientSubtotal = sectionsTotal * markupMultiplier;
 
-      const taxAmount = (settings.enableVat && displayOptions.showVat) ? clientSubtotal * ((activeQuote.taxPercent || 0) / 100) : 0;
+      // Calculate discount
+      let discountAmount = 0;
+      if (activeQuote.discountValue) {
+        if (activeQuote.discountType === 'percentage') {
+          discountAmount = clientSubtotal * (activeQuote.discountValue / 100);
+        } else {
+          discountAmount = activeQuote.discountValue;
+        }
+      }
+
+      const afterDiscount = clientSubtotal - discountAmount;
+      const taxAmount = (settings.enableVat && displayOptions.showVat) ? afterDiscount * ((activeQuote.taxPercent || 0) / 100) : 0;
       const cisAmount = (settings.enableCis && displayOptions.showCis) ? labourTotal * ((activeQuote.cisPercent || 0) / 100) : 0;
 
-      const grandTotal = (clientSubtotal + taxAmount) - cisAmount;
+      const grandTotal = (afterDiscount + taxAmount) - cisAmount;
 
-      return { materialsTotal, labourTotal, clientSubtotal, taxAmount, cisAmount, grandTotal };
+      return { materialsTotal, labourTotal, clientSubtotal, discountAmount, taxAmount, cisAmount, grandTotal };
     } catch (e) {
-      return { materialsTotal: 0, labourTotal: 0, clientSubtotal: 0, taxAmount: 0, cisAmount: 0, grandTotal: 0 };
+      return { materialsTotal: 0, labourTotal: 0, clientSubtotal: 0, discountAmount: 0, taxAmount: 0, cisAmount: 0, grandTotal: 0 };
     }
   };
 
@@ -541,11 +567,16 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
         {(activeQuote.sections || []).map((section, idx) => {
           const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
-          const rawMaterialsTotal = (section.items || []).reduce((s, i) => s + (i.totalPrice || 0), 0);
-          // Use new labourCost field, fallback to hours-based calculation for backwards compatibility
-          const rawLabourTotal = section.labourCost !== undefined ? section.labourCost : ((section.labourHours || 0) * (activeQuote.labourRate || settings.defaultLabourRate || 0));
+          // Filter out heading items from materials total
+          const rawMaterialsTotal = (section.items || []).filter(i => !i.isHeading).reduce((s, i) => s + (i.totalPrice || 0), 0);
+          // Use labourItems if present, otherwise fall back
+          const rawLabourTotal = calculateSectionLabour(section);
           // Use subsectionPrice override if set
           const sectionTotal = section.subsectionPrice !== undefined ? section.subsectionPrice : (rawMaterialsTotal + rawLabourTotal);
+          // Get total labour hours
+          const totalLabourHours = section.labourItems && section.labourItems.length > 0
+            ? section.labourItems.reduce((sum, item) => sum + item.hours, 0)
+            : section.labourHours || 0;
 
           return (
             <div key={section.id} className={`p-4 md:p-8 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} border-b border-slate-100 last:border-b-0 space-y-8`}>
@@ -576,12 +607,24 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                           {(section.items || []).map(item => (
-                            <tr key={item.id}>
-                              <td className="py-3 pr-4"><p className="text-sm font-bold text-slate-900">{item.name}</p>{item.description && <p className="text-[10px] text-slate-500 italic leading-tight">{item.description}</p>}</td>
-                              {displayOptions.showMaterialQty && <td className="py-3 text-center"><span className="text-xs font-black text-slate-700">{item.quantity} {item.unit}</span></td>}
-                              {displayOptions.showMaterialUnitPrice && <td className="py-3 text-right text-xs font-black text-slate-700">£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
-                              {displayOptions.showMaterialLineTotals && <td className="py-3 text-right text-sm font-black text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
-                            </tr>
+                            item.isHeading ? (
+                              // Heading row
+                              <tr key={item.id} className="bg-slate-50">
+                                <td colSpan={4} className="py-2 px-3">
+                                  <div className="flex items-center gap-2">
+                                    <Type size={12} className="text-slate-400" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.name || 'Section'}</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : (
+                              <tr key={item.id}>
+                                <td className="py-3 pr-4"><p className="text-sm font-bold text-slate-900">{item.name}</p>{item.description && <p className="text-[10px] text-slate-500 italic leading-tight">{item.description}</p>}</td>
+                                {displayOptions.showMaterialQty && <td className="py-3 text-center"><span className="text-xs font-black text-slate-700">{item.quantity} {item.unit}</span></td>}
+                                {displayOptions.showMaterialUnitPrice && <td className="py-3 text-right text-xs font-black text-slate-700">£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
+                                {displayOptions.showMaterialLineTotals && <td className="py-3 text-right text-sm font-black text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
+                              </tr>
+                            )
                           ))}
                         </tbody>
                       </table>
@@ -589,18 +632,26 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                       {/* Mobile List View - Ultra Clean */}
                       <div className="md:hidden">
                         {(section.items || []).map(item => (
-                          <div key={item.id} className="py-3 border-b border-slate-50 last:border-0 flex justify-between items-start gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                {displayOptions.showMaterialQty && <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 rounded">{item.quantity}{item.unit}</span>}
-                                <span className="font-medium text-slate-900 text-sm truncate">{item.name}</span>
+                          item.isHeading ? (
+                            // Heading row for mobile
+                            <div key={item.id} className="py-2 px-3 bg-slate-50 rounded-lg my-1 flex items-center gap-2">
+                              <Type size={12} className="text-slate-400" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.name || 'Section'}</span>
+                            </div>
+                          ) : (
+                            <div key={item.id} className="py-3 border-b border-slate-50 last:border-0 flex justify-between items-start gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  {displayOptions.showMaterialQty && <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 rounded">{item.quantity}{item.unit}</span>}
+                                  <span className="font-medium text-slate-900 text-sm truncate">{item.name}</span>
+                                </div>
+                                {item.description && <p className="text-xs text-slate-400 truncate">{item.description}</p>}
                               </div>
-                              {item.description && <p className="text-xs text-slate-400 truncate">{item.description}</p>}
+                              <div className="text-right whitespace-nowrap">
+                                {displayOptions.showMaterialLineTotals && <p className="text-sm font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
+                              </div>
                             </div>
-                            <div className="text-right whitespace-nowrap">
-                              {displayOptions.showMaterialLineTotals && <p className="text-sm font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
-                            </div>
-                          </div>
+                          )
                         ))}
                       </div>
                     </div>
@@ -615,7 +666,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 </div>
               )}
 
-              {/* Labour Block */}
+              {/* Labour Block - Now with itemized support */}
               {displayOptions.showLabour && rawLabourTotal > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
@@ -624,35 +675,68 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   </div>
 
                   {displayOptions.showLabourItems && (
-                    <div className="p-5 bg-blue-50/40 rounded-2xl border border-blue-100/30 flex justify-between items-center">
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">Technical Personnel & Site Resource</p>
-                        {section.labourHours && section.labourHours > 0 && (displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
-                          <p className="text-[10px] font-black text-slate-500 italic mt-1">
-                            {displayOptions.showLabourQty ? `${section.labourHours} Hours Scheduled` : ''}
-                            {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
-                            {displayOptions.showLabourUnitPrice ? `£${((activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier).toFixed(2)} / Hour` : ''}
-                          </p>
-                        )}
-                      </div>
-                      {displayOptions.showLabourSectionTotal && (
-                        <div className="text-right">
-                          <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Subtotal</p>
-                          <p className="text-lg font-black text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</p>
+                    <div className="space-y-2">
+                      {/* Itemized Labour List */}
+                      {section.labourItems && section.labourItems.length > 0 ? (
+                        <>
+                          {section.labourItems.map((labourItem) => {
+                            const rate = labourItem.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+                            const itemTotal = labourItem.hours * rate;
+                            return (
+                              <div key={labourItem.id} className="p-4 bg-blue-50/40 rounded-xl border border-blue-100/30 flex justify-between items-center">
+                                <div className="flex-1">
+                                  <p className="text-sm font-bold text-slate-900">{labourItem.description || 'Labour'}</p>
+                                  {(displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
+                                    <p className="text-[10px] font-black text-slate-500 italic mt-1 flex items-center gap-1">
+                                      <Clock size={10} />
+                                      {displayOptions.showLabourQty ? `${labourItem.hours} hrs` : ''}
+                                      {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
+                                      {displayOptions.showLabourUnitPrice ? `£${(rate * markupMultiplier).toFixed(2)}/hr` : ''}
+                                    </p>
+                                  )}
+                                </div>
+                                {displayOptions.showLabourLineTotals && (
+                                  <p className="text-sm font-black text-blue-600">£{(itemTotal * markupMultiplier).toFixed(2)}</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        // Fallback to old-style single labour block
+                        <div className="p-5 bg-blue-50/40 rounded-2xl border border-blue-100/30 flex justify-between items-center">
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">Technical Personnel & Site Resource</p>
+                            {totalLabourHours > 0 && (displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
+                              <p className="text-[10px] font-black text-slate-500 italic mt-1">
+                                {displayOptions.showLabourQty ? `${totalLabourHours} Hours Scheduled` : ''}
+                                {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
+                                {displayOptions.showLabourUnitPrice ? `£${((activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier).toFixed(2)} / Hour` : ''}
+                              </p>
+                            )}
+                          </div>
+                          {displayOptions.showLabourSectionTotal && (
+                            <div className="text-right">
+                              <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Subtotal</p>
+                              <p className="text-lg font-black text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   )}
 
-                  {!displayOptions.showLabourItems && displayOptions.showLabourSectionTotal && (
+                  {displayOptions.showLabourSectionTotal && (
                     <div className="flex justify-between items-center py-3.5 bg-blue-50/50 px-6 rounded-2xl border border-blue-100/50">
-                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Section Labour Total</span>
+                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
+                        Section Labour Total {totalLabourHours > 0 && `(${totalLabourHours} hrs)`}
+                      </span>
                       <span className="font-black text-blue-600">£{(rawLabourTotal * markupMultiplier).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
               )}
-              
+
               <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
                 <div className="flex items-center gap-2 opacity-30">
                   <Circle size={8} fill="currentColor" className="text-slate-400" />
@@ -670,8 +754,23 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               {displayOptions.showTotalsBreakdown && (
                 <>
                   <div className="flex justify-between text-sm text-slate-500"><span>Subtotal</span><span>£{totals.clientSubtotal.toFixed(2)}</span></div>
+                  {/* Discount */}
+                  {totals.discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-600">
+                      <span className="flex items-center gap-1">
+                        <Tag size={12} />
+                        Discount
+                        {activeQuote.discountDescription && <span className="text-slate-400 ml-1">({activeQuote.discountDescription})</span>}
+                        {activeQuote.discountType === 'percentage' && <span className="text-slate-400 ml-1">({activeQuote.discountValue}%)</span>}
+                      </span>
+                      <span>-£{totals.discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   {settings.enableVat && displayOptions.showVat && (
                     <div className="flex justify-between text-sm text-slate-500"><span>VAT ({activeQuote.taxPercent}%)</span><span>£{totals.taxAmount.toFixed(2)}</span></div>
+                  )}
+                  {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
+                    <div className="flex justify-between text-sm text-red-500"><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span>-£{totals.cisAmount.toFixed(2)}</span></div>
                   )}
                 </>
               )}

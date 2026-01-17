@@ -1,21 +1,24 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions } from '../types';
+import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions, LabourItem, DBMaterialLibraryItem } from '../types';
 import {
   analyzeJobRequirements,
   parseVoiceCommandForItems,
   parseCustomerVoiceInput
 } from '../src/services/geminiService';
 import {
-  ArrowLeft, Mic, Sparkles, Plus,
+  ArrowLeft, Mic, Sparkles, Plus, Minus,
   Trash2, Loader2, Camera,
   UserPlus, ChevronDown, X, MicOff, AlertCircle,
   HardHat, PoundSterling, Percent, Package, FileText, ShieldCheck,
-  Calendar, GripVertical, Copy, Layers,
+  Calendar, GripVertical, Copy, Layers, Clock, BookmarkPlus, Type, Tag,
   User, Hammer, Mail, Phone, MapPin
 } from 'lucide-react';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
+import { MaterialsLibrary } from './MaterialsLibrary';
+import { useData } from '../src/contexts/DataContext';
+import { useToast } from '../src/contexts/ToastContext';
 
 interface QuoteCreatorProps {
   existingQuote?: Quote;
@@ -31,6 +34,9 @@ interface QuoteCreatorProps {
 export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   existingQuote, projectId, initialType = 'estimate', customers, settings, onSave, onAddCustomer, onCancel
 }) => {
+  const { services } = useData();
+  const toast = useToast();
+
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isListeningTitle, setIsListeningTitle] = useState(false);
@@ -39,12 +45,19 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
-  
+
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({});
   const [isListeningCustomer, setIsListeningCustomer] = useState(false);
   const [isProcessingCustomer, setIsProcessingCustomer] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
+
+  // Materials Library modal
+  const [showMaterialsLibrary, setShowMaterialsLibrary] = useState(false);
+  const [targetSectionForMaterial, setTargetSectionForMaterial] = useState<string | null>(null);
+
+  // Discount modal
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
 
   // Migration logic for old flat quotes
   const getInitialData = (): Partial<Quote> => {
@@ -345,6 +358,170 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
     }));
   };
 
+  // Labour items functions
+  const addLabourItem = (sectionId: string) => {
+    const newLabourItem: LabourItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      description: '',
+      hours: 1,
+    };
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        labourItems: [...(s.labourItems || []), newLabourItem]
+      } : s)
+    }));
+  };
+
+  const updateLabourItem = (sectionId: string, itemId: string, updates: Partial<LabourItem>) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        labourItems: s.labourItems?.map(item => item.id === itemId ? { ...item, ...updates } : item)
+      } : s)
+    }));
+  };
+
+  const removeLabourItem = (sectionId: string, itemId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        labourItems: s.labourItems?.filter(i => i.id !== itemId)
+      } : s)
+    }));
+  };
+
+  // Calculate labour totals for a section
+  const calculateSectionLabour = (section: QuoteSection) => {
+    const defaultRate = section.labourRate || formData.labourRate || settings.defaultLabourRate;
+    if (section.labourItems && section.labourItems.length > 0) {
+      return section.labourItems.reduce((sum, item) => {
+        const rate = item.rate || defaultRate;
+        return sum + (item.hours * rate);
+      }, 0);
+    }
+    // Fallback to labourCost if no itemized labour
+    return section.labourCost || 0;
+  };
+
+  const getTotalLabourHours = (section: QuoteSection) => {
+    if (section.labourItems && section.labourItems.length > 0) {
+      return section.labourItems.reduce((sum, item) => sum + item.hours, 0);
+    }
+    return section.labourHours || 0;
+  };
+
+  // Add heading/divider to section
+  const addHeadingToSection = (sectionId: string) => {
+    const newItem: MaterialItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: '',
+      description: '',
+      quantity: 0,
+      unit: '',
+      unitPrice: 0,
+      totalPrice: 0,
+      isHeading: true
+    };
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        items: [...s.items, newItem]
+      } : s)
+    }));
+  };
+
+  // Add material from library
+  const addMaterialFromLibrary = (sectionId: string, material: DBMaterialLibraryItem) => {
+    const newItem: MaterialItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: material.name,
+      description: material.description || '',
+      quantity: 1,
+      unit: material.unit || 'pc',
+      unitPrice: material.sell_price || material.cost_price || 0,
+      totalPrice: material.sell_price || material.cost_price || 0,
+    };
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        items: [...s.items, newItem]
+      } : s)
+    }));
+    setShowMaterialsLibrary(false);
+    hapticSuccess();
+  };
+
+  // Save item to materials library
+  const saveItemToLibrary = async (item: MaterialItem) => {
+    try {
+      await services.materialsLibrary.create({
+        name: item.name,
+        description: item.description,
+        unit: item.unit,
+        sell_price: item.unitPrice,
+      });
+      toast.success('Saved', `${item.name} added to price list`);
+      hapticSuccess();
+    } catch (err) {
+      toast.error('Failed', 'Could not save to price list');
+    }
+  };
+
+  // Quantity increment/decrement
+  const incrementQuantity = (sectionId: string, itemId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        items: s.items.map(item => item.id === itemId ? {
+          ...item,
+          quantity: item.quantity + 1,
+          totalPrice: (item.quantity + 1) * item.unitPrice
+        } : item)
+      } : s)
+    }));
+  };
+
+  const decrementQuantity = (sectionId: string, itemId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      sections: prev.sections?.map(s => s.id === sectionId ? {
+        ...s,
+        items: s.items.map(item => item.id === itemId ? {
+          ...item,
+          quantity: Math.max(0, item.quantity - 1),
+          totalPrice: Math.max(0, item.quantity - 1) * item.unitPrice
+        } : item)
+      } : s)
+    }));
+  };
+
+  // Labour hours increment/decrement
+  const incrementLabourHours = (sectionId: string, itemId: string) => {
+    updateLabourItem(sectionId, itemId, { hours: ((formData.sections?.find(s => s.id === sectionId)?.labourItems?.find(i => i.id === itemId)?.hours || 0) + 0.5) });
+  };
+
+  const decrementLabourHours = (sectionId: string, itemId: string) => {
+    const current = formData.sections?.find(s => s.id === sectionId)?.labourItems?.find(i => i.id === itemId)?.hours || 0;
+    updateLabourItem(sectionId, itemId, { hours: Math.max(0, current - 0.5) });
+  };
+
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!formData.discountValue) return 0;
+    const subtotal = totals.subtotal + totals.markup;
+    if (formData.discountType === 'percentage') {
+      return subtotal * (formData.discountValue / 100);
+    }
+    return formData.discountValue;
+  };
+
   const totals = (() => {
     const sections = formData.sections || [];
     let materialsTotal = 0;
@@ -352,8 +529,9 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
     let sectionsTotal = 0;
 
     sections.forEach(s => {
-      const sectionMaterials = s.items.reduce((sum, i) => sum + i.totalPrice, 0);
-      const sectionLabour = s.labourCost || 0;
+      const sectionMaterials = s.items.filter(i => !i.isHeading).reduce((sum, i) => sum + i.totalPrice, 0);
+      // Use labourItems if present, otherwise fall back to labourCost
+      const sectionLabour = calculateSectionLabour(s);
       const sectionPrice = s.subsectionPrice !== undefined ? s.subsectionPrice : (sectionMaterials + sectionLabour);
 
       materialsTotal += sectionMaterials;
@@ -364,10 +542,22 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
     const subtotal = sectionsTotal;
     const markup = subtotal * ((formData.markupPercent || 0) / 100);
     const clientSubtotal = subtotal + markup;
-    const tax = clientSubtotal * ((formData.taxPercent || 0) / 100);
+
+    // Calculate discount
+    let discountAmount = 0;
+    if (formData.discountValue) {
+      if (formData.discountType === 'percentage') {
+        discountAmount = clientSubtotal * (formData.discountValue / 100);
+      } else {
+        discountAmount = formData.discountValue;
+      }
+    }
+
+    const afterDiscount = clientSubtotal - discountAmount;
+    const tax = afterDiscount * ((formData.taxPercent || 0) / 100);
     const cis = labourTotal * ((formData.cisPercent || 0) / 100);
 
-    return { materialsTotal, labourTotal, subtotal, markup, tax, cis, total: (clientSubtotal + tax) - cis };
+    return { materialsTotal, labourTotal, subtotal, markup, discount: discountAmount, tax, cis, total: (afterDiscount + tax) - cis };
   })();
 
   const handleQuickAddCustomer = async (e: React.FormEvent) => {
@@ -725,23 +915,75 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               {/* Material Items - Amazing List Style */}
               <div className="space-y-3">
                 {section.items.map((item) => (
-                  <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative group overflow-hidden">
+                  item.isHeading ? (
+                    // Heading/Divider rendering
+                    <div key={item.id} className="bg-slate-100 px-4 py-2 rounded-lg my-2 flex items-center gap-2">
+                      <Type size={14} className="text-slate-400" />
+                      <input
+                        type="text"
+                        className="bg-transparent text-xs font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300"
+                        value={item.name}
+                        onChange={e => updateItem(section.id, item.id, { name: e.target.value })}
+                        placeholder="SECTION HEADING"
+                      />
+                      <button onClick={() => removeItem(section.id, item.id)} className="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={14}/>
+                      </button>
+                    </div>
+                  ) : (
+                    // Normal material item
+                    <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative group overflow-hidden">
                       <div className="flex justify-between items-start mb-3">
                          <div className="flex-1 mr-4">
                             <input type="text" className="w-full font-bold text-base text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
                             <input type="text" className="w-full text-xs text-slate-500 outline-none placeholder:text-slate-300 bg-transparent mt-1" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
-                         <button onClick={() => removeItem(section.id, item.id)} className="p-2 bg-slate-50 text-slate-300 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
+                         <div className="flex gap-1">
+                           {/* Save to Price List */}
+                           {item.name && (
+                             <button
+                               onClick={() => saveItemToLibrary(item)}
+                               className="p-2 bg-slate-50 text-slate-300 rounded-lg hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                               title="Save to price list"
+                             >
+                               <BookmarkPlus size={16}/>
+                             </button>
+                           )}
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-2 bg-slate-50 text-slate-300 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
+                             <Trash2 size={16}/>
+                           </button>
+                         </div>
                       </div>
 
                       <div className="flex gap-3 bg-slate-50 p-2 rounded-lg">
+                         {/* Quantity with +/- buttons */}
                          <div className="flex-1">
                             <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1 pl-1">Qty</label>
-                            <input type="number" className="w-full bg-white rounded-md text-sm font-bold p-2 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100" value={item.quantity || ''} onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })} placeholder="0" />
+                            <div className="flex items-center bg-white rounded-md shadow-sm border border-slate-100">
+                              <button
+                                onClick={() => decrementQuantity(section.id, item.id)}
+                                className="p-2 hover:bg-slate-50 rounded-l-md transition-colors"
+                              >
+                                <Minus size={14} className="text-slate-400" />
+                              </button>
+                              <input
+                                type="number"
+                                className="w-12 bg-transparent text-sm font-bold text-center outline-none"
+                                value={item.quantity || ''}
+                                onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
+                                placeholder="0"
+                              />
+                              <button
+                                onClick={() => incrementQuantity(section.id, item.id)}
+                                className="p-2 hover:bg-slate-50 rounded-r-md transition-colors"
+                              >
+                                <Plus size={14} className="text-slate-400" />
+                              </button>
+                            </div>
                          </div>
                          <div className="flex-1">
                             <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1 pl-1">Price (£)</label>
-                            <input type="number" className="w-full bg-white rounded-md text-sm font-bold p-2 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <input type="number" className="w-full bg-white rounded-md text-sm font-bold p-2 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
                             <div className="w-full bg-slate-900 rounded-md p-2 text-center">
@@ -749,63 +991,169 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                             </div>
                          </div>
                       </div>
-                  </div>
+                    </div>
+                  )
                 ))}
 
-                <div className="pt-2">
-                   <button onClick={() => addMaterialToSection(section.id)} className="w-full flex items-center justify-center gap-2 py-4 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Plus size={16} className="text-amber-500"/> Add Material Item
+                {/* Action buttons for materials */}
+                <div className="flex gap-2 pt-2">
+                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
+                      <Plus size={16} className="text-amber-500"/> Add Item
+                   </button>
+                   <button
+                     onClick={() => {
+                       setTargetSectionForMaterial(section.id);
+                       setShowMaterialsLibrary(true);
+                     }}
+                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-amber-100 active:scale-95 transition-all"
+                   >
+                     <Package size={16}/> Price List
+                   </button>
+                   <button
+                     onClick={() => addHeadingToSection(section.id)}
+                     className="flex items-center justify-center gap-1 py-3 px-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
+                   >
+                     <Type size={14}/>
                    </button>
                 </div>
               </div>
 
-              {/* Section Pricing: Materials, Labour, Subsection Price */}
-              <div className="pt-3 border-t border-slate-100 space-y-3">
-                <div className="grid grid-cols-3 gap-3">
-                  {/* Materials Total (calculated, read-only display) */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <Package size={12} className="text-blue-500" /> Materials
-                    </label>
-                    <div className="bg-slate-100 rounded-xl px-3 py-2.5 text-center">
-                      <span className="text-sm font-black text-slate-600">£{section.items.reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
-                    </div>
+              {/* Labour Items Section */}
+              <div className="pt-4 mt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <HardHat size={16} className="text-blue-500" />
+                    <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Labour</span>
                   </div>
+                  <div className="text-xs text-slate-400">
+                    Rate: £{section.labourRate || formData.labourRate || settings.defaultLabourRate}/hr
+                  </div>
+                </div>
 
-                  {/* Labour Cost (editable) */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <HardHat size={12} className="text-amber-500" /> Labour
-                    </label>
-                    <div className="flex items-center bg-white border-2 border-slate-100 rounded-xl px-2 py-1.5 focus-within:border-amber-400 transition-all">
-                      <span className="text-slate-400 text-sm font-bold">£</span>
+                {/* Labour Items List */}
+                {(section.labourItems || []).map((labourItem) => (
+                  <div key={labourItem.id} className="flex items-center gap-3 bg-blue-50 p-3 rounded-xl mb-2">
+                    <input
+                      type="text"
+                      placeholder="Labour description..."
+                      value={labourItem.description}
+                      onChange={e => updateLabourItem(section.id, labourItem.id, { description: e.target.value })}
+                      className="flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-blue-300"
+                    />
+                    <div className="flex items-center gap-1 bg-white rounded-lg px-2 py-1 border border-blue-200">
+                      <button
+                        onClick={() => decrementLabourHours(section.id, labourItem.id)}
+                        className="p-1 hover:bg-blue-50 rounded transition-colors"
+                      >
+                        <Minus size={12} className="text-blue-400" />
+                      </button>
                       <input
                         type="number"
-                        className="bg-transparent border-none text-slate-950 font-black text-sm outline-none w-full text-center"
-                        value={section.labourCost !== undefined ? section.labourCost : ''}
-                        onChange={e => {
-                          const labourCost = parseFloat(e.target.value) || 0;
-                          setFormData(prev => ({
-                            ...prev,
-                            sections: prev.sections?.map(s => s.id === section.id ? { ...s, labourCost } : s)
-                          }));
-                        }}
-                        placeholder="0.00"
+                        value={labourItem.hours}
+                        onChange={e => updateLabourItem(section.id, labourItem.id, { hours: parseFloat(e.target.value) || 0 })}
+                        className="w-12 text-center font-bold text-sm bg-transparent outline-none"
+                        step="0.5"
                       />
+                      <span className="text-[10px] text-slate-400 font-bold">hrs</span>
+                      <button
+                        onClick={() => incrementLabourHours(section.id, labourItem.id)}
+                        className="p-1 hover:bg-blue-50 rounded transition-colors"
+                      >
+                        <Plus size={12} className="text-blue-400" />
+                      </button>
+                    </div>
+                    <span className="font-bold text-blue-600 min-w-[60px] text-right">
+                      £{(labourItem.hours * (labourItem.rate || section.labourRate || formData.labourRate || settings.defaultLabourRate)).toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => removeLabourItem(section.id, labourItem.id)}
+                      className="p-1 text-slate-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Add Labour Item Button */}
+                <button
+                  onClick={() => addLabourItem(section.id)}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-600 font-bold text-xs uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-2"
+                >
+                  <Plus size={14} /> Add Labour Item
+                </button>
+
+                {/* Labour Summary */}
+                {(section.labourItems && section.labourItems.length > 0) && (
+                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-blue-100">
+                    <span className="text-xs text-slate-500">
+                      Total: {getTotalLabourHours(section)} hours × £{section.labourRate || formData.labourRate || settings.defaultLabourRate}
+                    </span>
+                    <span className="font-black text-blue-600">
+                      £{calculateSectionLabour(section).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Fallback: Direct labour cost input if no itemized labour */}
+                {(!section.labourItems || section.labourItems.length === 0) && (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-500">Or enter labour cost directly:</span>
+                      <div className="flex items-center bg-white border-2 border-slate-100 rounded-xl px-2 py-1.5 focus-within:border-blue-400 transition-all">
+                        <span className="text-slate-400 text-sm font-bold">£</span>
+                        <input
+                          type="number"
+                          className="bg-transparent border-none text-slate-950 font-black text-sm outline-none w-20 text-center"
+                          value={section.labourCost !== undefined ? section.labourCost : ''}
+                          onChange={e => {
+                            const labourCost = parseFloat(e.target.value) || 0;
+                            setFormData(prev => ({
+                              ...prev,
+                              sections: prev.sections?.map(s => s.id === section.id ? { ...s, labourCost } : s)
+                            }));
+                          }}
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Section Totals Summary */}
+              <div className="pt-4 mt-4 border-t border-slate-100">
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Materials Total */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
+                      <Package size={12} className="text-slate-500" /> Materials
+                    </label>
+                    <div className="bg-slate-100 rounded-xl px-3 py-2.5 text-center">
+                      <span className="text-sm font-black text-slate-600">£{section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
                     </div>
                   </div>
 
-                  {/* Subsection Price (editable, auto-calculates if empty) */}
+                  {/* Labour Total */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <PoundSterling size={12} className="text-emerald-500" /> Subsection
+                      <HardHat size={12} className="text-blue-500" /> Labour
+                    </label>
+                    <div className="bg-blue-50 rounded-xl px-3 py-2.5 text-center">
+                      <span className="text-sm font-black text-blue-600">£{calculateSectionLabour(section).toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Section Total (editable override) */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
+                      <PoundSterling size={12} className="text-emerald-500" /> Section
                     </label>
                     <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-xl px-2 py-1.5 focus-within:border-emerald-400 transition-all">
                       <span className="text-emerald-600 text-sm font-bold">£</span>
                       <input
                         type="number"
                         className="bg-transparent border-none text-emerald-700 font-black text-sm outline-none w-full text-center"
-                        value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.reduce((s, i) => s + i.totalPrice, 0) + (section.labourCost || 0)).toFixed(2)}
+                        value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0) + calculateSectionLabour(section)).toFixed(2)}
                         onChange={e => {
                           const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;
                           setFormData(prev => ({
@@ -818,7 +1166,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     </div>
                   </div>
                 </div>
-                <p className="text-[9px] text-slate-400 text-center italic">Materials + Labour = Subsection Price (edit subsection to override)</p>
+                <p className="text-[9px] text-slate-400 text-center italic mt-2">Edit section total to override calculated value</p>
               </div>
             </div>
           </div>
@@ -846,20 +1194,197 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         <div className="pt-2 space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><FileText size={14} className="text-amber-500" /> Document Footer / Terms</label><textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[20px] p-3 md:p-4 text-slate-900 font-medium text-sm outline-none focus:border-amber-400 transition-all min-h-[100px]" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Final notes, bank details etc..." /></div>
       </div>
 
+      {/* Discount Section */}
+      <div className="bg-white p-4 rounded-[24px] border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Tag size={16} className="text-emerald-500" />
+            <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Discount</span>
+          </div>
+          {formData.discountValue ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-emerald-600 font-bold">
+                -{formData.discountType === 'percentage' ? `${formData.discountValue}%` : `£${formData.discountValue.toFixed(2)}`}
+                {formData.discountDescription && <span className="text-slate-400 ml-1">({formData.discountDescription})</span>}
+              </span>
+              <button
+                onClick={() => setFormData(prev => ({ ...prev, discountType: undefined, discountValue: undefined, discountDescription: undefined }))}
+                className="p-1 text-slate-300 hover:text-red-500 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowDiscountModal(true)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors"
+            >
+              <Plus size={14} /> Add Discount
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Totals Summary */}
       <div className="bg-slate-900 text-white p-5 md:p-6 rounded-[32px] shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={100} /></div>
         <div className="flex flex-col md:flex-row justify-between items-end gap-6">
           <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div></div><p className="text-4xl md:text-5xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
           <div className="text-right text-[11px] font-bold space-y-1.5 w-full md:w-auto">
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Materials Total</span><span className="text-slate-300 italic">£{totals.materialsTotal.toFixed(2)}</span></div>
+            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Labour Total</span><span className="text-slate-300 italic">£{totals.labourTotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Net Sections</span><span className="text-slate-300 italic">£{totals.subtotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-amber-500 uppercase tracking-widest">Markup</span><span className="text-amber-500/80">£{totals.markup.toFixed(2)}</span></div>
+            {totals.discount > 0 && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-emerald-400 uppercase tracking-widest">Discount</span><span className="text-emerald-400/80">-£{totals.discount.toFixed(2)}</span></div>}
             {settings.enableVat && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-blue-400 uppercase tracking-widest">VAT</span><span className="text-blue-400/80">£{totals.tax.toFixed(2)}</span></div>}
             {settings.enableCis && <div className="flex justify-between md:justify-end gap-6"><span className="text-red-400 uppercase tracking-widest">CIS</span><span className="text-red-400/80">-£{totals.cis.toFixed(2)}</span></div>}
           </div>
         </div>
       </div>
       </div>
+
+      {/* Sticky Totals Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-4 flex justify-between items-center shadow-2xl z-30 border-t border-slate-800">
+        <div>
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest">Document Total</span>
+          <p className="text-2xl font-black">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        </div>
+        <button
+          onClick={() => { hapticSuccess(); onSave(formData as Quote); }}
+          className="bg-amber-500 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-amber-400 transition-colors shadow-lg"
+        >
+          Save {formData.type}
+        </button>
+      </div>
+
+      {/* Materials Library Modal */}
+      {showMaterialsLibrary && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
+          <div className="bg-white rounded-t-3xl w-full max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom-4">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="font-black text-lg text-slate-900">Select from Price List</h3>
+              <button
+                onClick={() => setShowMaterialsLibrary(false)}
+                className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="overflow-auto max-h-[calc(85vh-60px)]">
+              <MaterialsLibrary
+                selectionMode={true}
+                onSelectMaterial={(material) => {
+                  if (targetSectionForMaterial) {
+                    addMaterialFromLibrary(targetSectionForMaterial, material);
+                  }
+                }}
+                onBack={() => setShowMaterialsLibrary(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Discount Modal */}
+      {showDiscountModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 animate-in zoom-in-95">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-black text-lg text-slate-900">Add Discount</h3>
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Discount Type */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Discount Type</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, discountType: 'percentage' }))}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                      formData.discountType === 'percentage'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Percent size={16} className="inline mr-2" /> Percentage
+                  </button>
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, discountType: 'fixed' }))}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                      formData.discountType === 'fixed'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    <PoundSterling size={16} className="inline mr-2" /> Fixed Amount
+                  </button>
+                </div>
+              </div>
+
+              {/* Discount Value */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                  {formData.discountType === 'percentage' ? 'Percentage Off' : 'Amount Off (£)'}
+                </label>
+                <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-xl px-4 focus-within:border-emerald-400 transition-all">
+                  {formData.discountType === 'fixed' && <span className="text-slate-400 font-bold mr-2">£</span>}
+                  <input
+                    type="number"
+                    className="w-full bg-transparent py-4 outline-none text-slate-900 font-bold text-lg"
+                    value={formData.discountValue || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, discountValue: parseFloat(e.target.value) || 0 }))}
+                    placeholder={formData.discountType === 'percentage' ? '10' : '50.00'}
+                  />
+                  {formData.discountType === 'percentage' && <span className="text-slate-400 font-bold">%</span>}
+                </div>
+              </div>
+
+              {/* Discount Description */}
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Reason (Optional)</label>
+                <input
+                  type="text"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none text-slate-900 font-medium focus:border-emerald-400 transition-all"
+                  value={formData.discountDescription || ''}
+                  onChange={e => setFormData(prev => ({ ...prev, discountDescription: e.target.value }))}
+                  placeholder="e.g. Early payment, Returning customer"
+                />
+              </div>
+
+              {/* Preview */}
+              {formData.discountValue && formData.discountType && (
+                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                  <p className="text-sm text-emerald-700">
+                    Discount: <span className="font-bold">-£{(formData.discountType === 'percentage' ? (totals.subtotal + totals.markup) * (formData.discountValue / 100) : formData.discountValue).toFixed(2)}</span>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setShowDiscountModal(false)}
+                disabled={!formData.discountValue || !formData.discountType}
+                className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50"
+              >
+                Apply Discount
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
