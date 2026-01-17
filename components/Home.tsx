@@ -237,10 +237,16 @@ export const Home: React.FC<HomeProps> = ({
 
   // Photo capture and upload handlers
   const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCapturedPhoto(file);
-      setShowPhotoJobPicker(true);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file && file.size > 0) {
+        setCapturedPhoto(file);
+        setShowPhotoJobPicker(true);
+        hapticSuccess();
+      } else {
+        toast.error('Photo Error', 'Could not capture photo. Please try again.');
+      }
     }
     // Reset input for next capture
     if (cameraInputRef.current) cameraInputRef.current.value = '';
@@ -633,11 +639,15 @@ export const Home: React.FC<HomeProps> = ({
         capture="environment"
         className="hidden"
         onChange={handleCameraCapture}
+        onClick={(e) => {
+          // Reset value to ensure onChange fires even for same file
+          (e.target as HTMLInputElement).value = '';
+        }}
       />
 
       {/* Photo Destination Picker Modal - shows AFTER photo is taken */}
       {showPhotoJobPicker && capturedPhoto && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl md:rounded-[32px] p-4 md:p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Header with photo preview */}
             <div className="flex items-start justify-between mb-4">
