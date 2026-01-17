@@ -28,7 +28,7 @@ interface NavGroup {
 
 export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, onSignOut }) => {
   const { user } = useAuth();
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['work', 'expenses', 'accounting']));
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [moreMenuGroup, setMoreMenuGroup] = useState<string | null>(null);
 
