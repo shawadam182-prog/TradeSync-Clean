@@ -1,5 +1,6 @@
-import React from 'react';
-import { Lock, Sparkles, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Lock, Sparkles, X, Loader2 } from 'lucide-react';
+import { redirectToCheckout } from '../src/lib/stripe';
 
 interface UpgradePromptProps {
   resourceName: string;
@@ -14,6 +15,19 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   limit,
   onClose,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await redirectToCheckout('professional');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to start checkout');
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-[32px] p-6 md:p-8 max-w-md w-full mx-4 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
@@ -62,16 +76,27 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
             </p>
           </div>
 
+          {error && (
+            <p className="text-red-500 text-sm text-center bg-red-50 rounded-xl p-3">{error}</p>
+          )}
+
           <div className="flex flex-col gap-3 pt-4">
             <button
-              onClick={() => {
-                // Future: Navigate to upgrade page
-                alert('Upgrade feature coming soon! Contact support to upgrade your account.');
-              }}
-              className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-sm flex items-center justify-center gap-2"
+              onClick={handleUpgrade}
+              disabled={isLoading}
+              className="w-full bg-amber-500 text-white font-black py-4 rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Sparkles size={18} />
-              Upgrade Now
+              {isLoading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Redirecting...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={18} />
+                  Upgrade Now
+                </>
+              )}
             </button>
             <button
               onClick={onClose}
