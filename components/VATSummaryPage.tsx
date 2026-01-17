@@ -3,7 +3,7 @@ import {
   Calculator, TrendingUp, TrendingDown, PoundSterling,
   Calendar, ChevronDown, Loader2, FileText, Receipt,
   ArrowUpRight, ArrowDownRight, Building2, AlertCircle,
-  Download, Car, Clock, CheckCircle, Info, Percent
+  Download, Car, Clock, CheckCircle, Info, Percent, ArrowLeft
 } from 'lucide-react';
 import { expensesService, quotesService } from '../src/services/dataService';
 import { useData } from '../src/contexts/DataContext';
@@ -81,7 +81,11 @@ const getQuarterDeadline = (quarterStr: string): Date => {
   return new Date(deadlineYear, adjustedMonth - 1, 7);
 };
 
-export const VATSummaryPage: React.FC = () => {
+interface VATSummaryPageProps {
+  onBack?: () => void;
+}
+
+export const VATSummaryPage: React.FC<VATSummaryPageProps> = ({ onBack }) => {
   const { settings } = useData();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -325,9 +329,20 @@ export const VATSummaryPage: React.FC = () => {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">VAT Summary</h1>
-          <p className="text-slate-500 text-sm font-medium">Track your VAT position for HMRC returns</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">VAT Summary</h1>
+            <p className="text-slate-500 text-sm font-medium">Track your VAT position for HMRC returns</p>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-3">

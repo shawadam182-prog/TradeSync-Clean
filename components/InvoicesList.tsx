@@ -35,10 +35,11 @@ interface InvoicesListProps {
   onViewQuote: (id: string) => void;
   onCreateInvoice: () => void;
   onDeleteInvoice?: (id: string) => Promise<void>;
+  onBack?: () => void;
 }
 
 export const InvoicesList: React.FC<InvoicesListProps> = ({
-  quotes, customers, settings, onViewQuote, onCreateInvoice, onDeleteInvoice
+  quotes, customers, settings, onViewQuote, onCreateInvoice, onDeleteInvoice, onBack
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
@@ -96,6 +97,7 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
       <PageHeader
         title="Final Invoices"
         subtitle="Billed jobs and financial history."
+        onBack={onBack}
         actions={
           <button
             onClick={() => {

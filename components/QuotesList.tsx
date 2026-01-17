@@ -17,10 +17,11 @@ interface QuotesListProps {
   onEditQuote: (id: string) => void;
   onCreateQuote: () => void;
   onDeleteQuote?: (id: string) => Promise<void>;
+  onBack?: () => void;
 }
 
 export const QuotesList: React.FC<QuotesListProps> = ({
-  quotes, customers, settings, onViewQuote, onEditQuote, onCreateQuote, onDeleteQuote
+  quotes, customers, settings, onViewQuote, onEditQuote, onCreateQuote, onDeleteQuote, onBack
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
@@ -78,6 +79,7 @@ export const QuotesList: React.FC<QuotesListProps> = ({
       <PageHeader
         title="Estimates & Quotes"
         subtitle="Active project estimates and site proposals."
+        onBack={onBack}
         actions={
           <button
             onClick={() => {

@@ -6,7 +6,7 @@ import {
   Wrench, Users, Shield, MoreHorizontal, Eye, Settings,
   Package, Car, CreditCard, Briefcase, Zap, Coffee,
   Phone, Home, Truck, HardHat, Hammer, Lightbulb, Sparkles,
-  Clock, TrendingUp
+  Clock, TrendingUp, ArrowLeft
 } from 'lucide-react';
 import { expensesService, expenseCategoriesService, vendorKeywordsService, vendorsService, filingService } from '../src/services/dataService';
 import { CategoryManager } from './CategoryManager';
@@ -49,6 +49,7 @@ interface Vendor {
 
 interface ExpensesPageProps {
   projects: { id: string; title: string }[];
+  onBack?: () => void;
 }
 
 interface FormData {
@@ -106,7 +107,7 @@ const getIconComponent = (iconName: string): React.FC<any> => {
   return ICON_MAP[iconName] || Tag;
 };
 
-export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
+export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) => {
   const toast = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -525,9 +526,20 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
       />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
-          <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v17-POLL]</span></p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
+            <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v17-POLL]</span></p>
+          </div>
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowCategoryManager(true)} className="flex items-center gap-2 bg-white text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm border border-slate-200 hover:bg-slate-50 transition-colors">

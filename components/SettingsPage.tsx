@@ -7,7 +7,7 @@ import {
   Settings2, Info, Palette, ReceiptText,
   ChevronRight, Building, Upload, X, Image as ImageIcon,
   Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2,
-  Calendar, Layout, FileSpreadsheet, FileEdit, List
+  Calendar, Layout, FileSpreadsheet, FileEdit, List, ArrowLeft
 } from 'lucide-react';
 import { useToast } from '../src/contexts/ToastContext';
 import { handleApiError } from '../src/utils/errorHandler';
@@ -17,11 +17,12 @@ interface SettingsPageProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
   onSave?: (settings: Partial<AppSettings>) => Promise<void>;
+  onBack?: () => void;
 }
 
 type SettingsCategory = 'company' | 'quotes' | 'invoices';
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSettings, onSave }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSettings, onSave, onBack }) => {
   const toast = useToast();
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('company');
   const [saving, setSaving] = useState(false);
@@ -155,8 +156,21 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
         {/* Sidebar Navigation */}
         <aside className="md:w-80 shrink-0 space-y-4">
           <div className="mb-10 px-2">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Business Hub</h2>
-            <p className="text-slate-500 text-sm font-medium italic">Adjust your trading preferences</p>
+            <div className="flex items-center gap-3">
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+              )}
+              <div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Business Hub</h2>
+                <p className="text-slate-500 text-sm font-medium italic">Adjust your trading preferences</p>
+              </div>
+            </div>
           </div>
           
           <div className="space-y-3">

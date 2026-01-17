@@ -9,7 +9,7 @@ import {
   LayoutGrid, List,
   Pencil, CheckCircle2, CalendarRange, ArrowRight,
   UserPlus, User, Mail, Phone, Hammer, MapPinned,
-  Briefcase, Link2
+  Briefcase, Link2, ArrowLeft
 } from 'lucide-react';
 import { parseScheduleVoiceInput, parseCustomerVoiceInput } from '../src/services/geminiService';
 import { AddressAutocomplete } from './AddressAutocomplete';
@@ -23,6 +23,7 @@ interface ScheduleCalendarProps {
   onAddEntry: (entry: Omit<ScheduleEntry, 'id'>) => Promise<ScheduleEntry>;
   onUpdateEntry: (id: string, updates: Partial<ScheduleEntry>) => Promise<void>;
   onDeleteEntry: (id: string) => Promise<void>;
+  onBack?: () => void;
 }
 
 export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
@@ -32,7 +33,8 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
   onAddCustomer,
   onAddEntry,
   onUpdateEntry,
-  onDeleteEntry
+  onDeleteEntry,
+  onBack
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date>(new Date());
@@ -307,9 +309,20 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
     <div className="space-y-6 max-w-full mx-auto pb-12 px-2 md:px-6">
       {/* Streamlined Pro Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-200 pb-8">
-        <div>
-          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Site Diary</h2>
-          <p className="text-slate-500 text-sm font-medium">Professional resource and project site allocation.</p>
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div>
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Site Diary</h2>
+            <p className="text-slate-500 text-sm font-medium">Professional resource and project site allocation.</p>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
