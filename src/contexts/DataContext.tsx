@@ -265,6 +265,17 @@ function dbSettingsToApp(dbSettings: any): AppSettings {
     costBoxColor: (dbSettings.cost_box_color as 'slate' | 'amber' | 'blue') || 'slate',
     showBreakdown: dbSettings.show_breakdown ?? true,
     defaultDisplayOptions: dbSettings.default_display_options || DEFAULT_SETTINGS.defaultDisplayOptions,
+    // Subscription fields
+    subscriptionTier: dbSettings.subscription_tier || 'free',
+    subscriptionStatus: dbSettings.subscription_status || 'trialing',
+    trialStart: dbSettings.trial_start || undefined,
+    trialEnd: dbSettings.trial_end || undefined,
+    subscriptionStart: dbSettings.subscription_start || undefined,
+    subscriptionEnd: dbSettings.subscription_end || undefined,
+    stripeCustomerId: dbSettings.stripe_customer_id || undefined,
+    stripeSubscriptionId: dbSettings.stripe_subscription_id || undefined,
+    referralCode: dbSettings.referral_code || undefined,
+    usageLimits: dbSettings.usage_limits || undefined,
   };
 }
 

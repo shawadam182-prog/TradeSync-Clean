@@ -160,6 +160,17 @@ export interface AppSettings {
   costBoxColor: 'slate' | 'amber' | 'blue';
   showBreakdown: boolean;
   defaultDisplayOptions: QuoteDisplayOptions;
+  // Subscription fields
+  subscriptionTier?: SubscriptionTier;
+  subscriptionStatus?: SubscriptionStatus;
+  trialStart?: string;
+  trialEnd?: string;
+  subscriptionStart?: string;
+  subscriptionEnd?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  referralCode?: string;
+  usageLimits?: UsageLimits;
 }
 
 export interface Expense {
@@ -454,3 +465,93 @@ export interface Invoice {
     name: string;
   } | null;
 }
+
+// ============================================
+// SUBSCRIPTION TYPES
+// For tier-based feature gating
+// ============================================
+
+export type SubscriptionTier = 'free' | 'professional' | 'business';
+
+export type SubscriptionStatus = 'trialing' | 'active' | 'cancelled' | 'past_due' | 'expired';
+
+export interface UsageLimits {
+  customers: number | null;
+  jobPacks: number | null;
+  quotesPerMonth: number | null;
+  photosPerMonth: number | null;
+  documentsPerMonth: number | null;
+}
+
+export interface SubscriptionInfo {
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  trialStart: string | null;
+  trialEnd: string | null;
+  subscriptionStart: string | null;
+  subscriptionEnd: string | null;
+  isActive: boolean;
+  trialDaysRemaining: number | null;
+  usageLimits: UsageLimits;
+}
+
+// Feature names that can be gated by subscription tier
+export type GatedFeature =
+  | 'invoices'
+  | 'expenses'
+  | 'schedule'
+  | 'siteDocuments'
+  | 'materialsLibrary'
+  | 'bankImport'
+  | 'vatReports'
+  | 'payables'
+  | 'filingCabinet'
+  | 'unlimitedCustomers'
+  | 'unlimitedJobPacks'
+  | 'unlimitedPhotos';
+
+// Maps features to their required tier
+export const FEATURE_TIER_MAP: Record<GatedFeature, SubscriptionTier> = {
+  // Free tier features (available to all)
+  invoices: 'free', // Basic invoicing available to all
+  schedule: 'free', // Basic schedule available to all
+
+  // Professional tier features
+  expenses: 'professional',
+  siteDocuments: 'professional',
+  materialsLibrary: 'professional',
+  unlimitedCustomers: 'professional',
+  unlimitedJobPacks: 'professional',
+  unlimitedPhotos: 'professional',
+
+  // Business tier features
+  bankImport: 'business',
+  vatReports: 'business',
+  payables: 'business',
+  filingCabinet: 'business',
+};
+
+// Default usage limits by tier
+export const TIER_LIMITS: Record<SubscriptionTier, UsageLimits> = {
+  free: {
+    customers: 5,
+    jobPacks: 10,
+    quotesPerMonth: 10,
+    photosPerMonth: 20,
+    documentsPerMonth: 5,
+  },
+  professional: {
+    customers: null, // unlimited
+    jobPacks: null,
+    quotesPerMonth: null,
+    photosPerMonth: 100,
+    documentsPerMonth: 50,
+  },
+  business: {
+    customers: null,
+    jobPacks: null,
+    quotesPerMonth: null,
+    photosPerMonth: null,
+    documentsPerMonth: null,
+  },
+};
