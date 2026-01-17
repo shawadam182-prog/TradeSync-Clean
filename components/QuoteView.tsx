@@ -73,22 +73,28 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     try {
       const sections = activeQuote.sections || [];
       const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
-      
+
       let materialsTotal = 0;
-      let labourHoursTotal = 0;
+      let labourTotal = 0;
+      let sectionsTotal = 0;
 
       sections.forEach(s => {
-        materialsTotal += (s.items || []).reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
-        labourHoursTotal += s.labourHours || 0;
+        const sectionMaterials = (s.items || []).reduce((sum, item) => sum + (item?.totalPrice || 0), 0);
+        // Use new labourCost field, fallback to hours-based calculation for backwards compatibility
+        const sectionLabour = s.labourCost !== undefined ? s.labourCost : ((s.labourHours || 0) * (activeQuote.labourRate || settings.defaultLabourRate || 0));
+        // Use subsectionPrice override if set, otherwise calculate from materials + labour
+        const sectionPrice = s.subsectionPrice !== undefined ? s.subsectionPrice : (sectionMaterials + sectionLabour);
+
+        materialsTotal += sectionMaterials;
+        labourTotal += sectionLabour;
+        sectionsTotal += sectionPrice;
       });
 
-      const labourTotal = labourHoursTotal * (activeQuote.labourRate || settings.defaultLabourRate || 0);
-      const internalSubtotal = materialsTotal + labourTotal;
-      const clientSubtotal = internalSubtotal * markupMultiplier;
-      
+      const clientSubtotal = sectionsTotal * markupMultiplier;
+
       const taxAmount = (settings.enableVat && displayOptions.showVat) ? clientSubtotal * ((activeQuote.taxPercent || 0) / 100) : 0;
       const cisAmount = (settings.enableCis && displayOptions.showCis) ? labourTotal * ((activeQuote.cisPercent || 0) / 100) : 0;
-      
+
       const grandTotal = (clientSubtotal + taxAmount) - cisAmount;
 
       return { materialsTotal, labourTotal, clientSubtotal, taxAmount, cisAmount, grandTotal };
@@ -492,11 +498,42 @@ Note: Please attach the downloaded PDF file (${filename}) to this email before s
           </div>
         </div>
 
+        {/* Client and Job Address Section */}
+        <div className="px-6 py-5 bg-slate-50 border-b border-slate-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* To: Client Address */}
+            <div className="space-y-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                <User size={10} /> To
+              </p>
+              <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
+              {customer?.company && <p className="text-xs text-slate-600">{customer.company}</p>}
+              {customer?.address && (
+                <p className="text-xs text-slate-500 leading-relaxed">{customer.address}</p>
+              )}
+            </div>
+
+            {/* For: Job Address (only show if different from client) */}
+            {activeQuote.jobAddress && activeQuote.jobAddress !== customer?.address && (
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1">
+                  <MapPin size={10} /> For (Job Site)
+                </p>
+                <p className="text-sm font-bold text-slate-900">{activeQuote.title}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">{activeQuote.jobAddress}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {(activeQuote.sections || []).map((section, idx) => {
           const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
           const rawMaterialsTotal = (section.items || []).reduce((s, i) => s + (i.totalPrice || 0), 0);
-          const rawLabourTotal = (section.labourHours || 0) * (activeQuote.labourRate || settings.defaultLabourRate || 0);
-          
+          // Use new labourCost field, fallback to hours-based calculation for backwards compatibility
+          const rawLabourTotal = section.labourCost !== undefined ? section.labourCost : ((section.labourHours || 0) * (activeQuote.labourRate || settings.defaultLabourRate || 0));
+          // Use subsectionPrice override if set
+          const sectionTotal = section.subsectionPrice !== undefined ? section.subsectionPrice : (rawMaterialsTotal + rawLabourTotal);
+
           return (
             <div key={section.id} className={`p-4 md:p-8 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} border-b border-slate-100 last:border-b-0 space-y-8`}>
               <div className="flex items-center gap-3">
@@ -566,7 +603,7 @@ Note: Please attach the downloaded PDF file (${filename}) to this email before s
               )}
 
               {/* Labour Block */}
-              {displayOptions.showLabour && (section.labourHours || 0) > 0 && (
+              {displayOptions.showLabour && rawLabourTotal > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                     <HardHat size={14} className="text-blue-500" />
@@ -577,7 +614,7 @@ Note: Please attach the downloaded PDF file (${filename}) to this email before s
                     <div className="p-5 bg-blue-50/40 rounded-2xl border border-blue-100/30 flex justify-between items-center">
                       <div className="flex-1">
                         <p className="text-sm font-bold text-slate-900 uppercase tracking-tight">Technical Personnel & Site Resource</p>
-                        {(displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
+                        {section.labourHours && section.labourHours > 0 && (displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
                           <p className="text-[10px] font-black text-slate-500 italic mt-1">
                             {displayOptions.showLabourQty ? `${section.labourHours} Hours Scheduled` : ''}
                             {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
@@ -608,7 +645,7 @@ Note: Please attach the downloaded PDF file (${filename}) to this email before s
                   <Circle size={8} fill="currentColor" className="text-slate-400" />
                   <span className="text-[8px] font-black uppercase tracking-widest">Work Stream {idx + 1}</span>
                 </div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Combined Section Total: <span className="text-slate-900 ml-2">£{((rawMaterialsTotal + rawLabourTotal) * markupMultiplier).toFixed(2)}</span></p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Combined Section Total: <span className="text-slate-900 ml-2">£{(sectionTotal * markupMultiplier).toFixed(2)}</span></p>
               </div>
             </div>
           );

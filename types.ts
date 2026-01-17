@@ -25,6 +25,8 @@ export interface QuoteSection {
   items: MaterialItem[];
   labourHours: number;
   labourRate?: number; // Optional override per section
+  labourCost?: number; // Direct labour cost input (optional)
+  subsectionPrice?: number; // Override total price for subsection (optional, auto-calculated if not set)
 }
 
 export interface QuoteDisplayOptions {
@@ -60,6 +62,7 @@ export interface Quote {
   createdAt: string;
   updatedAt: string;
   title: string; // The overall document title
+  jobAddress?: string; // Optional job site address (if different from customer address)
   sections: QuoteSection[];
   labourRate: number; // Default document rate
   markupPercent: number;

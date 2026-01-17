@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions, DBMaterialLibraryItem } from '../types';
+import { Quote, Customer, AppSettings, MaterialItem, QuoteSection, QuoteDisplayOptions } from '../types';
 import {
   analyzeJobRequirements,
   parseVoiceCommandForItems,
@@ -10,11 +10,10 @@ import {
   ArrowLeft, Mic, Sparkles, Plus,
   Trash2, Loader2, Camera,
   UserPlus, ChevronDown, X, MicOff, AlertCircle,
-  HardHat, PoundSterling, Clock, Percent, Package, FileText, ShieldCheck,
-  Calendar, GripVertical, Copy, Layers, Library,
+  HardHat, PoundSterling, Percent, Package, FileText, ShieldCheck,
+  Calendar, GripVertical, Copy, Layers,
   User, Hammer, Mail, Phone, MapPin
 } from 'lucide-react';
-import { MaterialsLibrary } from './MaterialsLibrary';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 
@@ -47,10 +46,6 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   const [isProcessingCustomer, setIsProcessingCustomer] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
 
-  // Materials Library modal state
-  const [showMaterialsLibrary, setShowMaterialsLibrary] = useState(false);
-  const [librarySectionId, setLibrarySectionId] = useState<string | null>(null);
-  
   // Migration logic for old flat quotes
   const getInitialData = (): Partial<Quote> => {
     if (!existingQuote) {
@@ -326,38 +321,6 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
     }));
   };
 
-  const openLibraryForSection = (sectionId: string) => {
-    setLibrarySectionId(sectionId);
-    setShowMaterialsLibrary(true);
-  };
-
-  const handleAddFromLibrary = (material: DBMaterialLibraryItem) => {
-    if (!librarySectionId) return;
-
-    const sellPrice = material.sell_price ? Number(material.sell_price) : (material.cost_price ? Number(material.cost_price) : 0);
-
-    const newItem: MaterialItem = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: material.name,
-      description: material.description || (material.product_code ? `Code: ${material.product_code}` : ''),
-      quantity: 1,
-      unit: material.unit || 'pc',
-      unitPrice: sellPrice,
-      totalPrice: sellPrice,
-    };
-
-    setFormData(prev => ({
-      ...prev,
-      sections: prev.sections?.map(s => s.id === librarySectionId ? {
-        ...s,
-        items: [...s.items, newItem]
-      } : s)
-    }));
-
-    setShowMaterialsLibrary(false);
-    setLibrarySectionId(null);
-  };
-
   const updateItem = (sectionId: string, itemId: string, updates: Partial<MaterialItem>) => {
     setFormData(prev => ({
       ...prev,
@@ -385,20 +348,25 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   const totals = (() => {
     const sections = formData.sections || [];
     let materialsTotal = 0;
-    let labourHoursTotal = 0;
+    let labourTotal = 0;
+    let sectionsTotal = 0;
 
     sections.forEach(s => {
-      materialsTotal += s.items.reduce((sum, i) => sum + i.totalPrice, 0);
-      labourHoursTotal += s.labourHours;
+      const sectionMaterials = s.items.reduce((sum, i) => sum + i.totalPrice, 0);
+      const sectionLabour = s.labourCost || 0;
+      const sectionPrice = s.subsectionPrice !== undefined ? s.subsectionPrice : (sectionMaterials + sectionLabour);
+
+      materialsTotal += sectionMaterials;
+      labourTotal += sectionLabour;
+      sectionsTotal += sectionPrice;
     });
 
-    const labourTotal = labourHoursTotal * (formData.labourRate || 0);
-    const subtotal = materialsTotal + labourTotal;
+    const subtotal = sectionsTotal;
     const markup = subtotal * ((formData.markupPercent || 0) / 100);
     const clientSubtotal = subtotal + markup;
     const tax = clientSubtotal * ((formData.taxPercent || 0) / 100);
     const cis = labourTotal * ((formData.cisPercent || 0) / 100);
-    
+
     return { materialsTotal, labourTotal, subtotal, markup, tax, cis, total: (clientSubtotal + tax) - cis };
   })();
 
@@ -524,6 +492,21 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                   {formData.type === 'invoice' ? 'Invoice Date' : 'Date'}
                 </label>
                 <input type="date" className="w-full font-medium text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-amber-500 transition-colors" value={formData.date || ''} onChange={e => setFormData({...formData, date: e.target.value})} />
+             </div>
+
+             {/* Job Address (if different from client address) */}
+             <div className="col-span-2 mt-2">
+               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                   <MapPin size={12} className="text-amber-500" />
+                   Job Site Address <span className="text-slate-300 font-normal normal-case">(if different from client)</span>
+                 </label>
+                 <AddressAutocomplete
+                   value={formData.jobAddress || ''}
+                   onChange={(address) => setFormData(prev => ({ ...prev, jobAddress: address }))}
+                   placeholder="Enter job site address if different from client..."
+                 />
+               </div>
              </div>
 
              {/* Invoice-specific fields */}
@@ -769,31 +752,73 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                   </div>
                 ))}
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                   <button onClick={() => addMaterialToSection(section.id)} className="flex items-center justify-center gap-2 py-4 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Plus size={16} className="text-amber-500"/> Add Item
-                   </button>
-                   <button onClick={() => openLibraryForSection(section.id)} className="flex items-center justify-center gap-2 py-4 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Library size={16} className="text-blue-500"/> Library
+                <div className="pt-2">
+                   <button onClick={() => addMaterialToSection(section.id)} className="w-full flex items-center justify-center gap-2 py-4 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
+                      <Plus size={16} className="text-amber-500"/> Add Material Item
                    </button>
                 </div>
               </div>
 
-              {/* Section Labour Estimate */}
-              <div className="pt-3 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                   <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Clock size={12} className="text-amber-500" /> Labour Est (Hrs)</label>
-                    <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2 focus-within:border-amber-400 focus-within:bg-white transition-all">
-                      <input type="number" className="bg-transparent border-none text-slate-950 font-black text-sm outline-none w-20" value={section.labourHours || ''} onChange={e => updateSectionLabour(section.id, parseFloat(e.target.value) || 0)} placeholder="0.0" />
-                      <span className="text-[10px] font-black text-slate-300 uppercase">hrs</span>
+              {/* Section Pricing: Materials, Labour, Subsection Price */}
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Materials Total (calculated, read-only display) */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
+                      <Package size={12} className="text-blue-500" /> Materials
+                    </label>
+                    <div className="bg-slate-100 rounded-xl px-3 py-2.5 text-center">
+                      <span className="text-sm font-black text-slate-600">£{section.items.reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Labour Cost (editable) */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
+                      <HardHat size={12} className="text-amber-500" /> Labour
+                    </label>
+                    <div className="flex items-center bg-white border-2 border-slate-100 rounded-xl px-2 py-1.5 focus-within:border-amber-400 transition-all">
+                      <span className="text-slate-400 text-sm font-bold">£</span>
+                      <input
+                        type="number"
+                        className="bg-transparent border-none text-slate-950 font-black text-sm outline-none w-full text-center"
+                        value={section.labourCost !== undefined ? section.labourCost : ''}
+                        onChange={e => {
+                          const labourCost = parseFloat(e.target.value) || 0;
+                          setFormData(prev => ({
+                            ...prev,
+                            sections: prev.sections?.map(s => s.id === section.id ? { ...s, labourCost } : s)
+                          }));
+                        }}
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Subsection Price (editable, auto-calculates if empty) */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
+                      <PoundSterling size={12} className="text-emerald-500" /> Subsection
+                    </label>
+                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-xl px-2 py-1.5 focus-within:border-emerald-400 transition-all">
+                      <span className="text-emerald-600 text-sm font-bold">£</span>
+                      <input
+                        type="number"
+                        className="bg-transparent border-none text-emerald-700 font-black text-sm outline-none w-full text-center"
+                        value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.reduce((s, i) => s + i.totalPrice, 0) + (section.labourCost || 0)).toFixed(2)}
+                        onChange={e => {
+                          const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;
+                          setFormData(prev => ({
+                            ...prev,
+                            sections: prev.sections?.map(s => s.id === section.id ? { ...s, subsectionPrice } : s)
+                          }));
+                        }}
+                        placeholder="Auto"
+                      />
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 text-right">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Section Subtotal</p>
-                  <p className="text-lg font-black text-slate-900">£{(section.items.reduce((s, i) => s + i.totalPrice, 0) + (section.labourHours * (formData.labourRate || 0))).toFixed(2)}</p>
-                </div>
+                <p className="text-[9px] text-slate-400 text-center italic">Materials + Labour = Subsection Price (edit subsection to override)</p>
               </div>
             </div>
           </div>
@@ -835,32 +860,6 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         </div>
       </div>
       </div>
-
-      {/* Materials Library Modal */}
-      {showMaterialsLibrary && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] max-w-5xl w-full max-h-[90vh] overflow-auto shadow-2xl border border-slate-200">
-            <div className="sticky top-0 bg-white border-b border-slate-100 p-3 md:p-4 flex justify-between items-center z-10">
-              <div>
-                <h3 className="text-lg font-black text-slate-900">Add from Materials Library</h3>
-                <p className="text-xs text-slate-500">Select a material to add to your quote</p>
-              </div>
-              <button
-                onClick={() => { setShowMaterialsLibrary(false); setLibrarySectionId(null); }}
-                className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
-              >
-                <X size={20} className="text-slate-400" />
-              </button>
-            </div>
-            <div className="p-4">
-              <MaterialsLibrary
-                selectionMode={true}
-                onSelectMaterial={handleAddFromLibrary}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
