@@ -238,18 +238,26 @@ export const Home: React.FC<HomeProps> = ({
   // Photo capture and upload handlers
   const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+
+    // Debug: show that handler was triggered
+    toast.success('Photo Captured', 'Selecting destination...');
+
     if (files && files.length > 0) {
       const file = files[0];
-      if (file && file.size > 0) {
-        setCapturedPhoto(file);
-        setShowPhotoJobPicker(true);
-        hapticSuccess();
+      if (file) {
+        // Use setTimeout to ensure state updates properly on mobile
+        setTimeout(() => {
+          setCapturedPhoto(file);
+          setShowPhotoJobPicker(true);
+          hapticSuccess();
+        }, 100);
       } else {
-        toast.error('Photo Error', 'Could not capture photo. Please try again.');
+        toast.error('Photo Error', 'Could not read photo file.');
       }
+    } else {
+      toast.error('No Photo', 'No photo was captured.');
     }
-    // Reset input for next capture
-    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    // Don't reset input here - do it after modal closes
   };
 
   const handlePhotoUpload = async (jobPackId: string) => {
@@ -276,6 +284,8 @@ export const Home: React.FC<HomeProps> = ({
       setShowPhotoJobPicker(false);
       setCapturedPhoto(null);
       setNewJobName('');
+      // Reset input for next capture
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
     } catch (err: any) {
       console.error('Upload failed:', err);
       toast.error('Upload Failed', err.message || 'Could not save photo');
@@ -321,6 +331,8 @@ export const Home: React.FC<HomeProps> = ({
       setShowPhotoJobPicker(false);
       setCapturedPhoto(null);
       setNewJobName('');
+      // Reset input for next capture
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
     } catch (err: any) {
       console.error('Failed to create job:', err);
       toast.error('Failed', err.message || 'Could not create job pack');
@@ -333,6 +345,8 @@ export const Home: React.FC<HomeProps> = ({
     setShowPhotoJobPicker(false);
     setCapturedPhoto(null);
     setNewJobName('');
+    // Reset input for next capture
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
   // Future Jobs helpers
