@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { ScheduleEntry, Customer, JobPack, Quote } from '../types';
+import { createPortal } from 'react-dom';
+import { ScheduleEntry, Customer, JobPack, Quote, AppSettings } from '../types';
 import {
   Mic, Trash2, MapPin, Clock, Navigation,
   Bell, BellRing, Play, CheckCircle2,
@@ -17,12 +18,14 @@ import { sitePhotosService } from '../src/services/dataService';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
 import { BusinessDashboard } from './BusinessDashboard';
+import { FinancialOverview } from './FinancialOverview';
 
 interface HomeProps {
   schedule: ScheduleEntry[];
   customers: Customer[];
   projects: JobPack[];
   quotes: Quote[];
+  settings: AppSettings;
   onNavigateToSchedule: () => void;
   onNavigateToInvoices?: () => void;
   onNavigateToQuotes?: () => void;
@@ -59,6 +62,7 @@ export const Home: React.FC<HomeProps> = ({
   customers,
   projects,
   quotes,
+  settings,
   onNavigateToSchedule,
   onNavigateToInvoices,
   onNavigateToQuotes,
@@ -239,25 +243,19 @@ export const Home: React.FC<HomeProps> = ({
   const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
-    // Debug: show that handler was triggered
-    toast.success('Photo Captured', 'Selecting destination...');
-
     if (files && files.length > 0) {
       const file = files[0];
       if (file) {
-        // Use setTimeout to ensure state updates properly on mobile
-        setTimeout(() => {
-          setCapturedPhoto(file);
-          setShowPhotoJobPicker(true);
-          hapticSuccess();
-        }, 100);
+        // Set state immediately
+        setCapturedPhoto(file);
+        setShowPhotoJobPicker(true);
+        hapticSuccess();
       } else {
         toast.error('Photo Error', 'Could not read photo file.');
       }
     } else {
       toast.error('No Photo', 'No photo was captured.');
     }
-    // Don't reset input here - do it after modal closes
   };
 
   const handlePhotoUpload = async (jobPackId: string) => {
@@ -659,9 +657,9 @@ export const Home: React.FC<HomeProps> = ({
         }}
       />
 
-      {/* Photo Destination Picker Modal - shows AFTER photo is taken */}
-      {showPhotoJobPicker && capturedPhoto && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+      {/* Photo Destination Picker Modal - rendered via portal to ensure it's above everything on mobile */}
+      {showPhotoJobPicker && capturedPhoto && createPortal(
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl md:rounded-[32px] p-4 md:p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Header with photo preview */}
             <div className="flex items-start justify-between mb-4">
@@ -743,7 +741,8 @@ export const Home: React.FC<HomeProps> = ({
               Discard Photo
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* TODAY'S SCHEDULE Section Header */}
@@ -1008,55 +1007,8 @@ export const Home: React.FC<HomeProps> = ({
       <div>
         <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Financial Snapshot</h3>
 
-        <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl md:rounded-2xl">
-                <PoundSterling size={18} className="md:w-6 md:h-6" />
-              </div>
-              <div>
-                <h4 className="font-black text-slate-900 text-sm md:text-lg">Financial Overview</h4>
-                <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">This month's summary</p>
-              </div>
-            </div>
-            <button
-              onClick={() => { hapticTap(); onNavigateToAccounting?.(); }}
-              className="flex items-center gap-1 text-teal-600 hover:text-teal-700 font-bold text-xs md:text-sm"
-            >
-              View Full Accounting
-              <ArrowRight size={14} className="md:w-4 md:h-4" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-            <div className="bg-emerald-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 text-center">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 mb-1">
-                <TrendingUp size={10} className="sm:w-3 sm:h-3 md:w-4 md:h-4 text-emerald-600 shrink-0" />
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-emerald-600 uppercase truncate">Income</span>
-              </div>
-              <p className="text-sm sm:text-lg md:text-2xl font-black text-slate-900 truncate">
-                {todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
-              </p>
-              <p className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-medium truncate">Paid</p>
-            </div>
-            <div className="bg-red-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 text-center">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 mb-1">
-                <Receipt size={10} className="sm:w-3 sm:h-3 md:w-4 md:h-4 text-red-600 shrink-0" />
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-red-600 uppercase truncate">Spent</span>
-              </div>
-              <p className="text-sm sm:text-lg md:text-2xl font-black text-slate-900 truncate">£0</p>
-              <p className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-medium truncate">Month</p>
-            </div>
-            <div className="bg-amber-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 text-center">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 mb-1">
-                <FileWarning size={10} className="sm:w-3 sm:h-3 md:w-4 md:h-4 text-amber-600 shrink-0" />
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-amber-600 uppercase truncate">VAT</span>
-              </div>
-              <p className="text-sm sm:text-lg md:text-2xl font-black text-slate-900 truncate">£0</p>
-              <p className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-500 font-medium truncate">Est.</p>
-            </div>
-          </div>
-        </div>
+        {/* Revenue Overview with Period Selector */}
+        <FinancialOverview quotes={quotes} settings={settings} />
 
         {/* Invoice Summary Card */}
         {(todayStats.outstandingInvoices > 0 || todayStats.overdueInvoices > 0) && (
