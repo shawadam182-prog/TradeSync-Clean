@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
           registerType: 'autoUpdate',
           includeAssets: ['favicon.svg', 'apple-touch-icon.svg', 'pwa-192x192.svg', 'pwa-512x512.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon.png'],
           manifest: {
+            id: '/',
             name: 'TradeSync',
             short_name: 'TradeSync',
             description: 'Job management and accounting for UK tradespeople',
@@ -25,7 +26,43 @@ export default defineConfig(({ mode }) => {
             orientation: 'portrait',
             scope: '/',
             start_url: '/',
+            lang: 'en-GB',
+            dir: 'ltr',
             categories: ['business', 'finance', 'productivity'],
+            iarc_rating_id: '',
+            prefer_related_applications: false,
+            shortcuts: [
+              {
+                name: 'New Quote',
+                short_name: 'Quote',
+                description: 'Create a new quote',
+                url: '/?action=new-quote',
+                icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+              },
+              {
+                name: 'New Job',
+                short_name: 'Job',
+                description: 'Create a new job',
+                url: '/?action=new-job',
+                icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+              },
+              {
+                name: 'Add Expense',
+                short_name: 'Expense',
+                description: 'Add a new expense',
+                url: '/?action=new-expense',
+                icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }]
+              }
+            ],
+            screenshots: [
+              {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                form_factor: 'narrow',
+                label: 'TradeSync Home'
+              }
+            ],
             icons: [
               {
                 src: 'pwa-192x192.svg',
@@ -40,12 +77,14 @@ export default defineConfig(({ mode }) => {
               {
                 src: 'pwa-192x192.png',
                 sizes: '192x192',
-                type: 'image/png'
+                type: 'image/png',
+                purpose: 'any'
               },
               {
                 src: 'pwa-512x512.png',
                 sizes: '512x512',
-                type: 'image/png'
+                type: 'image/png',
+                purpose: 'any'
               },
               {
                 src: 'maskable-icon.png',
