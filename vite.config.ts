@@ -29,8 +29,9 @@ export default defineConfig(({ mode }) => {
             lang: 'en-GB',
             dir: 'ltr',
             categories: ['business', 'finance', 'productivity'],
-            iarc_rating_id: '',
             prefer_related_applications: false,
+            display_override: ['standalone', 'minimal-ui', 'browser'],
+            handle_links: 'preferred',
             shortcuts: [
               {
                 name: 'New Quote',
