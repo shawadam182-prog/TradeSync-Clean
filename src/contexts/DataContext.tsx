@@ -228,6 +228,17 @@ function dbQuoteToApp(dbQuote: any): Quote {
     paymentMethod: dbQuote.payment_method || undefined,
     amountPaid: dbQuote.amount_paid != null ? Number(dbQuote.amount_paid) : undefined,
     parentQuoteId: dbQuote.parent_quote_id || undefined,
+    // Discount fields
+    discountType: dbQuote.discount_type || undefined,
+    discountValue: dbQuote.discount_value != null ? Number(dbQuote.discount_value) : undefined,
+    discountDescription: dbQuote.discount_description || undefined,
+    // Part payment fields
+    partPaymentEnabled: dbQuote.part_payment_enabled || false,
+    partPaymentType: dbQuote.part_payment_type || undefined,
+    partPaymentValue: dbQuote.part_payment_value != null ? Number(dbQuote.part_payment_value) : undefined,
+    partPaymentLabel: dbQuote.part_payment_label || undefined,
+    // Job address
+    jobAddress: dbQuote.job_address || undefined,
   };
 }
 
@@ -537,6 +548,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         payment_method: quote.paymentMethod || null,
         amount_paid: quote.amountPaid ?? 0,
         parent_quote_id: quote.parentQuoteId || null,
+        // Discount fields
+        discount_type: quote.discountType || null,
+        discount_value: quote.discountValue ?? null,
+        discount_description: quote.discountDescription || null,
+        // Part payment fields
+        part_payment_enabled: quote.partPaymentEnabled || false,
+        part_payment_type: quote.partPaymentType || null,
+        part_payment_value: quote.partPaymentValue ?? null,
+        part_payment_label: quote.partPaymentLabel || null,
+        // Job address
+        job_address: quote.jobAddress || null,
       });
 
       const newQuote = dbQuoteToApp(created);
@@ -562,6 +584,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         payment_method: quote.paymentMethod || null,
         amount_paid: quote.amountPaid ?? 0,
         parent_quote_id: quote.parentQuoteId || null,
+        // Discount fields
+        discount_type: quote.discountType || null,
+        discount_value: quote.discountValue ?? null,
+        discount_description: quote.discountDescription || null,
+        // Part payment fields
+        part_payment_enabled: quote.partPaymentEnabled || false,
+        part_payment_type: quote.partPaymentType || null,
+        part_payment_value: quote.partPaymentValue ?? null,
+        part_payment_label: quote.partPaymentLabel || null,
+        // Job address
+        job_address: quote.jobAddress || null,
       });
 
       const updatedQuote = dbQuoteToApp(updated);
