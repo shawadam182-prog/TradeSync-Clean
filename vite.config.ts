@@ -56,6 +56,7 @@ export default defineConfig(({ mode }) => {
             ]
           },
           workbox: {
+            maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB limit for large logo images
             globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
             navigateFallback: 'index.html',
             navigateFallbackDenylist: [/^\/api/, /^\/functions/],
