@@ -638,7 +638,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           return (
             <div key={section.id} className={`px-4 py-3 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} space-y-3`}>
               <div className="flex items-center gap-2">
-                 <div className="h-6 w-6 bg-slate-900 text-amber-500 rounded flex items-center justify-center font-bold text-[10px]">{idx + 1}</div>
+                 <div className="h-6 w-6 bg-amber-500 text-slate-900 rounded-md flex items-center justify-center font-bold text-xs">{idx + 1}</div>
                  <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{section.title}</h4>
               </div>
 
@@ -744,12 +744,11 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                                 <div className="flex-1">
                                   <p className="text-[11px] font-medium text-slate-900">{labourItem.description || 'Labour'}</p>
                                   {(displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
-                                    <p className="text-[9px] font-medium text-slate-500 flex items-center gap-1">
-                                      <Clock size={9} />
+                                    <span className="text-[9px] font-medium text-slate-500">
                                       {displayOptions.showLabourQty ? `${labourItem.hours} hrs` : ''}
                                       {displayOptions.showLabourQty && displayOptions.showLabourUnitPrice ? ' @ ' : ''}
                                       {displayOptions.showLabourUnitPrice ? `£${(rate * markupMultiplier).toFixed(2)}/hr` : ''}
-                                    </p>
+                                    </span>
                                   )}
                                 </div>
                                 {displayOptions.showLabourLineTotals && (
