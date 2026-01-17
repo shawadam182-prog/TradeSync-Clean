@@ -624,7 +624,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('jobs');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-900 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-900/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-teal-400 to-teal-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/40 group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Briefcase size={20} className="md:w-7 md:h-7" />
@@ -645,7 +645,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('quotes');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-blue-400 to-blue-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <FileText size={20} className="md:w-7 md:h-7" />
@@ -666,7 +666,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('invoices');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-600/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/40 group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <PoundSterling size={20} className="md:w-7 md:h-7" />
@@ -680,7 +680,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); handleOpenPhotoPicker(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-800 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-800/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-violet-400 to-violet-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Camera size={20} className="md:w-7 md:h-7" />
@@ -689,7 +689,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); onLogExpense?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-700 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-700/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-amber-400 to-amber-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:shadow-amber-500/40 group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Receipt size={20} className="md:w-7 md:h-7" />
@@ -698,7 +698,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); onAddCustomer?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-700 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-700/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-gradient-to-br from-rose-400 to-rose-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-rose-500/30 hover:shadow-2xl hover:shadow-rose-500/40 group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <UserPlus size={20} className="md:w-7 md:h-7" />
