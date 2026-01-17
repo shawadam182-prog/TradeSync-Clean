@@ -9,6 +9,7 @@ import {
 import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
 import { UpgradePrompt } from './UpgradePrompt';
+import { PageHeader } from './common/PageHeader';
 
 interface JobPackListProps {
   projects: JobPack[];
@@ -227,29 +228,29 @@ export const JobPackList: React.FC<JobPackListProps> = ({
 
   return (
     <div className="space-y-3 md:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base md:text-2xl font-black text-slate-900 tracking-tight">Job Packs</h2>
-          <p className="text-slate-500 font-medium text-sm italic">Organize site documentation by project.</p>
-        </div>
-        <button
-          onClick={() => {
-            if (canCreateJobPack) {
-              setIsAdding(true);
-            } else {
-              setShowUpgradePrompt(true);
-            }
-          }}
-          className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-amber-600 transition-all flex items-center gap-2"
-        >
-          <FolderPlus size={18} /> New Job Pack
-          {jobPackLimit !== null && (
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-              {currentJobPackCount}/{jobPackLimit}
-            </span>
-          )}
-        </button>
-      </div>
+      <PageHeader
+        title="Job Packs"
+        subtitle="Organize site documentation by project."
+        actions={
+          <button
+            onClick={() => {
+              if (canCreateJobPack) {
+                setIsAdding(true);
+              } else {
+                setShowUpgradePrompt(true);
+              }
+            }}
+            className="bg-teal-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-teal-600 transition-all flex items-center gap-2"
+          >
+            <FolderPlus size={18} /> New Job Pack
+            {jobPackLimit !== null && (
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                {currentJobPackCount}/{jobPackLimit}
+              </span>
+            )}
+          </button>
+        }
+      />
 
       {isAdding && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 pb-28 md:pb-4 overflow-y-auto">
@@ -474,7 +475,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                     </div>
                   </div>
                   <div className="flex flex-col gap-3 pt-4">
-                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-amber-500 text-white font-black py-6 rounded-[32px] hover:bg-amber-600 shadow-2xl shadow-amber-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3">
+                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-teal-500 text-white font-black py-6 rounded-[32px] hover:bg-teal-600 shadow-2xl shadow-teal-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3">
                       {isCreating ? <Loader2 className="animate-spin" size={20}/> : <FolderPlus size={20}/>}
                       Start Job Pack
                     </button>
@@ -487,16 +488,16 @@ export const JobPackList: React.FC<JobPackListProps> = ({
         </div>
       )}
 
-      <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-amber-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
+      <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         {filtered.map(project => (
-          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-[32px] border-2 border-slate-100 p-7 hover:border-amber-500 transition-all group cursor-pointer shadow-sm hover:shadow-2xl relative overflow-hidden flex flex-col h-full">
-            <div className="absolute top-0 left-0 w-2 h-full bg-amber-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="flex justify-between items-start mb-3 md:mb-6"><div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{project.status}</div><div className="p-2 bg-slate-50 rounded-xl group-hover:bg-amber-50 group-hover:text-amber-500 transition-colors"><ArrowRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-transform" /></div></div>
-            <h3 className="text-sm md:text-xl font-black text-slate-900 group-hover:text-amber-600 transition-colors mb-2 leading-tight">{project.title}</h3>
+          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-[32px] border-2 border-slate-100 p-7 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-2xl relative overflow-hidden flex flex-col h-full">
+            <div className="absolute top-0 left-0 w-2 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="flex justify-between items-start mb-3 md:mb-6"><div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{project.status}</div><div className="p-2 bg-slate-50 rounded-xl group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors"><ArrowRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-transform" /></div></div>
+            <h3 className="text-sm md:text-xl font-black text-slate-900 group-hover:text-teal-600 transition-colors mb-2 leading-tight">{project.title}</h3>
             <div className="space-y-3 mb-4 md:mb-8"><div className="flex items-center gap-2 text-slate-500 text-xs font-bold italic"><User size={14} className="text-slate-400" /> <span className="truncate">{customers.find(c => c.id === project.customerId)?.name || 'Unknown Client'}</span></div><div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-tight"><Clock size={14} className="text-slate-400" /> Updated {new Date(project.updatedAt).toLocaleDateString()}</div></div>
-            <div className="grid grid-cols-3 gap-3 mt-auto pt-6 border-t border-slate-50 text-center"><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-1">Photos</p><p className="text-sm font-black text-slate-900">{project.photos.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-1">Notes</p><p className="text-sm font-black text-slate-900">{project.notes.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-1">Docs</p><p className="text-sm font-black text-slate-900">{project.documents.length}</p></div></div>
+            <div className="grid grid-cols-3 gap-3 mt-auto pt-6 border-t border-slate-50 text-center"><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Photos</p><p className="text-sm font-black text-slate-900">{project.photos.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Notes</p><p className="text-sm font-black text-slate-900">{project.notes.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Docs</p><p className="text-sm font-black text-slate-900">{project.documents.length}</p></div></div>
           </div>
         ))}
       </div>

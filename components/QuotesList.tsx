@@ -7,6 +7,7 @@ import { useToast } from '../src/contexts/ToastContext';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
 import { UpgradePrompt } from './UpgradePrompt';
 import { useData } from '../src/contexts/DataContext';
+import { PageHeader } from './common/PageHeader';
 
 interface QuotesListProps {
   quotes: Quote[];
@@ -74,37 +75,37 @@ export const QuotesList: React.FC<QuotesListProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Estimates & Quotes</h2>
-          <p className="text-slate-500 font-medium text-sm italic tracking-tight">Active project estimates and site proposals.</p>
-        </div>
-        <button
-          onClick={() => {
-            if (canCreateQuote) {
-              onCreateQuote();
-            } else {
-              setShowUpgradePrompt(true);
-            }
-          }}
-          className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-200"
-        >
-          <Plus size={18} />
-          <span>New Estimate</span>
-          {quoteLimit !== null && (
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-              {currentQuoteCount}/{quoteLimit}
-            </span>
-          )}
-        </button>
-      </div>
+      <PageHeader
+        title="Estimates & Quotes"
+        subtitle="Active project estimates and site proposals."
+        actions={
+          <button
+            onClick={() => {
+              if (canCreateQuote) {
+                onCreateQuote();
+              } else {
+                setShowUpgradePrompt(true);
+              }
+            }}
+            className="flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-teal-500/20"
+          >
+            <Plus size={18} />
+            <span>New Estimate</span>
+            {quoteLimit !== null && (
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                {currentQuoteCount}/{quoteLimit}
+              </span>
+            )}
+          </button>
+        }
+      />
 
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
         <input 
           type="text" 
           placeholder="Search quotes or customers..." 
-          className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-amber-200 outline-none shadow-sm transition-all"
+          className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -127,14 +128,14 @@ export const QuotesList: React.FC<QuotesListProps> = ({
               <div 
                 key={quote.id} 
                 onClick={() => onViewQuote(quote.id)}
-                className="bg-white p-5 rounded-[28px] border-2 border-slate-100 hover:border-amber-500 transition-all group cursor-pointer shadow-sm hover:shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="bg-white p-5 rounded-[28px] border-2 border-slate-100 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="bg-slate-900 text-amber-500 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0">
-                      <Hash size={10} /> {ref}
+                    <span className="bg-slate-900 text-teal-500 text-xs font-black px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0">
+                      <Hash size={12} /> {ref}
                     </span>
-                    <h3 className="font-black text-slate-900 text-lg leading-tight truncate group-hover:text-amber-600 transition-colors">
+                    <h3 className="font-black text-slate-900 text-lg leading-tight truncate group-hover:text-teal-600 transition-colors">
                       {quote.title}
                     </h3>
                   </div>
@@ -149,7 +150,7 @@ export const QuotesList: React.FC<QuotesListProps> = ({
 
                 <div className="flex items-center justify-between sm:justify-end gap-3 md:gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-50">
                   <div className="flex flex-col items-start sm:items-end">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 italic">
                       Estimate Total
                     </p>
                     <p className="font-black text-slate-900 text-sm md:text-xl tracking-tight">
@@ -158,7 +159,7 @@ export const QuotesList: React.FC<QuotesListProps> = ({
                   </div>
                   
                   <div className="flex gap-2">
-                    <div className="p-3 bg-amber-50 text-amber-600 rounded-xl transition-all border border-amber-100 group-hover:scale-105">
+                    <div className="p-3 bg-teal-50 text-teal-600 rounded-xl transition-all border border-teal-100 group-hover:scale-105">
                       <Eye size={20} />
                     </div>
                     {onDeleteQuote && (
@@ -170,7 +171,7 @@ export const QuotesList: React.FC<QuotesListProps> = ({
                         <Trash2 size={18} />
                       </button>
                     )}
-                    <div className="p-3 bg-white text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
+                    <div className="p-3 bg-white text-slate-300 group-hover:text-teal-500 group-hover:translate-x-1 transition-all">
                       <ChevronRight size={20} />
                     </div>
                   </div>

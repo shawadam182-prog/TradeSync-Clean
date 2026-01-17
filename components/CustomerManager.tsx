@@ -11,6 +11,7 @@ import { useToast } from '../src/contexts/ToastContext';
 import { validateCustomerData } from '../src/utils/inputValidation';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 import { AddressAutocomplete } from './AddressAutocomplete';
+import { PageHeader } from './common/PageHeader';
 
 interface CustomerManagerProps {
   customers: Customer[];
@@ -221,13 +222,11 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Customer Directory</h2>
-          <p className="text-sm text-slate-500 font-medium italic">Manage your active site clients and project owners.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!editingId && (
+      {!editingId && (
+        <PageHeader
+          title="Customer Directory"
+          subtitle="Manage your active site clients and project owners."
+          actions={
             <button
               onClick={() => { hapticTap(); setEditingId('new'); setCustomerForm({}); }}
               className="bg-slate-900 text-white px-5 py-3 min-h-[48px] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-lg shadow-slate-200 active:scale-95"
@@ -236,9 +235,9 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
               <span className="hidden sm:inline">New Contact</span>
               <span className="sm:hidden">Add</span>
             </button>
-          )}
-        </div>
-      </div>
+          }
+        />
+      )}
 
       {editingId ? (
         <>
@@ -255,8 +254,8 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                   isListeningGlobal
                     ? 'bg-red-500 text-white border-red-600 animate-pulse'
                     : isProcessing
-                    ? 'bg-amber-500 text-white border-amber-600'
-                    : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
+                    ? 'bg-teal-500 text-white border-teal-600'
+                    : 'bg-white text-teal-600 border-teal-100 hover:bg-teal-50'
                 }`}
               >
                 {isProcessing ? <Loader2 size={10} className="md:w-3 md:h-3 animate-spin" /> : isListeningGlobal ? <MicOff size={10} className="md:w-3 md:h-3" /> : <Sparkles size={10} className="md:w-3 md:h-3" />}
@@ -280,14 +279,14 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
             <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-6">
               {/* Name Field */}
               <div className="space-y-0.5 sm:space-y-1">
-                <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
-                  <UserIcon size={10} className="md:w-3 md:h-3" /> Full Name *
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <UserIcon size={12} className="md:w-3 md:h-3" /> Full Name *
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     autoComplete="name"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-10 md:pr-12 text-slate-950 font-bold text-sm outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-10 md:pr-12 text-slate-950 font-bold text-sm outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={customerForm.name || ''}
                     placeholder="e.g. John Smith"
                     onChange={e => setCustomerForm({...customerForm, name: e.target.value})}
@@ -295,7 +294,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                   <button
                     type="button"
                     onClick={() => { hapticTap(); startFieldListening('name'); }}
-                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                   >
                     <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                   </button>
@@ -304,14 +303,14 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
 
               {/* Company Field */}
               <div className="space-y-0.5">
-                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
-                  <Building size={10} className="md:w-3 md:h-3" /> Company Name
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Hammer size={12} className="md:w-3 md:h-3" /> Company Name
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     autoComplete="organization"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={customerForm.company || ''}
                     placeholder="e.g. Smith & Co Roofing"
                     onChange={e => setCustomerForm({...customerForm, company: e.target.value})}
@@ -319,7 +318,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                   <button
                     type="button"
                     onClick={() => { hapticTap(); startFieldListening('company'); }}
-                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                   >
                     <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                   </button>
@@ -328,15 +327,15 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
 
               {/* Email Field - with proper type for mobile keyboard */}
               <div className="space-y-0.5">
-                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
-                  <Mail size={10} className="md:w-3 md:h-3" /> Email Address
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Mail size={12} className="md:w-3 md:h-3" /> Email Address
                 </label>
                 <div className="relative">
                   <input
                     type="email"
                     inputMode="email"
                     autoComplete="email"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={customerForm.email || ''}
                     placeholder="john@example.com"
                     onChange={e => setCustomerForm({...customerForm, email: e.target.value})}
@@ -344,7 +343,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                   <button
                     type="button"
                     onClick={() => { hapticTap(); startFieldListening('email'); }}
-                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                   >
                     <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                   </button>
@@ -353,15 +352,15 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
 
               {/* Phone Field - with proper type for mobile keyboard */}
               <div className="space-y-0.5">
-                <label className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
-                  <Phone size={10} className="md:w-3 md:h-3" /> Phone Number
+                <label className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 px-0.5">
+                  <Phone size={12} className="md:w-3 md:h-3" /> Phone Number
                 </label>
                 <div className="relative">
                   <input
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={customerForm.phone || ''}
                     placeholder="07123 456789"
                     onChange={e => setCustomerForm({...customerForm, phone: e.target.value})}
@@ -369,7 +368,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                   <button
                     type="button"
                     onClick={() => { hapticTap(); startFieldListening('phone'); }}
-                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${activeFieldVoice === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                   >
                     <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                   </button>
@@ -397,7 +396,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
 
             {/* Desktop buttons */}
             <div className="hidden md:flex gap-4 pt-4 border-t border-slate-50">
-              <button type="submit" className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs">
+              <button type="submit" className="flex-1 bg-teal-500 text-white font-black py-5 rounded-[24px] hover:bg-teal-600 transition-all shadow-xl shadow-teal-200 uppercase tracking-widest text-xs">
                 {editingId === 'new' ? 'Register Contact' : 'Update Credentials'}
               </button>
               <button type="button" onClick={() => { setEditingId(null); setError(null); }} className="px-12 bg-slate-50 text-slate-500 font-black py-5 rounded-[24px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Cancel</button>
@@ -412,7 +411,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
               form="customer-form"
               type="submit"
               onClick={() => hapticTap()}
-              className="flex-1 bg-amber-500 text-white font-black min-h-[44px] rounded-xl shadow-lg shadow-amber-200/50 uppercase tracking-wider text-[10px] active:scale-95 transition-transform"
+              className="flex-1 bg-teal-500 text-white font-black min-h-[44px] rounded-xl shadow-lg shadow-teal-200/50 uppercase tracking-wider text-[10px] active:scale-95 transition-transform"
             >
               {editingId === 'new' ? 'Register' : 'Update'}
             </button>
@@ -434,7 +433,7 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
               type="search"
               inputMode="search"
               placeholder="Search by name, email or company..."
-              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 min-h-[52px] font-bold text-base text-slate-900 focus:border-amber-200 outline-none shadow-sm transition-all"
+              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 min-h-[52px] font-bold text-base text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -448,11 +447,11 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
               </div>
             ) : (
               filteredCustomers.map(customer => (
-                <div key={customer.id} className="bg-white p-6 rounded-[32px] border-2 border-slate-100 hover:border-amber-500 transition-all group relative shadow-sm hover:shadow-xl hover:-translate-y-1">
+                <div key={customer.id} className="bg-white p-6 rounded-[32px] border-2 border-slate-100 hover:border-teal-500 transition-all group relative shadow-sm hover:shadow-xl hover:-translate-y-1">
                   <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
                     <button 
                       onClick={() => startEdit(customer)} 
-                      className="p-2.5 bg-slate-900 text-amber-500 rounded-xl hover:bg-black transition-all shadow-md"
+                      className="p-2.5 bg-slate-900 text-teal-500 rounded-xl hover:bg-black transition-all shadow-md"
                       title="Edit Contact"
                     >
                       <Pencil size={16} />
@@ -466,12 +465,12 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                     </button>
                   </div>
                   
-                  <div className="h-12 w-12 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center font-black text-lg mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                  <div className="h-12 w-12 bg-slate-900 text-teal-500 rounded-2xl flex items-center justify-center font-black text-lg mb-4 shadow-lg group-hover:scale-110 transition-transform">
                     {customer.name.charAt(0)}
                   </div>
 
                   <h3 className="font-black text-slate-950 text-xl leading-tight mb-1">{customer.name}</h3>
-                  {customer.company && <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic">{customer.company}</p>}
+                  {customer.company && <p className="text-xs font-black text-teal-600 uppercase tracking-widest italic">{customer.company}</p>}
                   
                   <div className="space-y-3 pt-6 mt-6 border-t border-slate-50">
                     <div className="flex items-center gap-3 text-slate-500 text-xs font-bold italic">
@@ -487,10 +486,10 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-3 text-amber-600 hover:text-amber-700 text-xs font-bold italic group/link transition-colors"
+                        className="flex items-start gap-3 text-teal-600 hover:text-teal-700 text-xs font-bold italic group/link transition-colors"
                       >
-                        <Navigation size={14} className="text-amber-500 shrink-0 mt-0.5 group-hover/link:animate-bounce" /> 
-                        <span className="leading-relaxed hover:underline decoration-amber-500/30 underline-offset-2">{customer.address}</span>
+                        <Navigation size={14} className="text-teal-500 shrink-0 mt-0.5 group-hover/link:animate-bounce" />
+                        <span className="leading-relaxed hover:underline decoration-teal-500/30 underline-offset-2">{customer.address}</span>
                       </a>
                     ) : (
                       <div className="flex items-start gap-3 text-slate-400 text-xs font-bold italic">

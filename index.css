@@ -86,10 +86,10 @@
   input[type="datetime-local"],
   select,
   textarea {
-    min-height: 40px;
+    min-height: 48px;
     font-size: 16px !important; /* Prevents iOS zoom */
     border-radius: var(--radius-md);
-    padding: 6px 10px;
+    padding: 12px 14px;
   }
 }
 
@@ -105,8 +105,8 @@
   input[type="datetime-local"],
   select,
   textarea {
-    min-height: 38px;
-    padding: 4px 8px;
+    min-height: 44px;
+    padding: 10px 12px;
   }
 }
 

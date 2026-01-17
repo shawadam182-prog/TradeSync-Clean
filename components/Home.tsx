@@ -599,7 +599,7 @@ export const Home: React.FC<HomeProps> = ({
           <p className="text-xs md:text-base text-slate-500 font-medium italic mt-0.5 md:mt-1">Ready for the site. Your immediate priorities at a glance.</p>
         </div>
         <div className="bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl px-3 py-1.5 md:px-5 md:py-3 shadow-sm flex items-center gap-2 md:gap-3">
-          <Clock size={14} className="md:w-5 md:h-5 text-amber-500" />
+          <Clock size={14} className="md:w-5 md:h-5 text-teal-500" />
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
             <span className="font-black text-slate-900 text-sm md:text-lg">
               {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -624,7 +624,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('jobs');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-blue-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-900 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-900/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Briefcase size={20} className="md:w-7 md:h-7" />
@@ -645,7 +645,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('quotes');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-amber-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <FileText size={20} className="md:w-7 md:h-7" />
@@ -666,7 +666,7 @@ export const Home: React.FC<HomeProps> = ({
                 setUpgradePromptType('invoices');
               }
             }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group relative"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-600 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-600/20 hover:shadow-2xl group relative"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <PoundSterling size={20} className="md:w-7 md:h-7" />
@@ -680,7 +680,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); handleOpenPhotoPicker(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-rose-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-rose-500/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-800 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-800/20 hover:shadow-2xl group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Camera size={20} className="md:w-7 md:h-7" />
@@ -689,7 +689,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); onLogExpense?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-emerald-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-emerald-500/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-700 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-700/20 hover:shadow-2xl group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <Receipt size={20} className="md:w-7 md:h-7" />
@@ -698,7 +698,7 @@ export const Home: React.FC<HomeProps> = ({
           </button>
           <button
             onClick={() => { hapticTap(); onAddCustomer?.(); }}
-            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-purple-500 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-purple-500/20 hover:shadow-2xl group"
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-slate-700 text-white p-2 sm:p-3 md:p-6 min-h-[64px] sm:min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-slate-700/20 hover:shadow-2xl group"
           >
             <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
               <UserPlus size={20} className="md:w-7 md:h-7" />
@@ -729,7 +729,7 @@ export const Home: React.FC<HomeProps> = ({
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-rose-500 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
                   <Camera size={24} className="text-white" />
                 </div>
                 <div>
@@ -754,12 +754,12 @@ export const Home: React.FC<HomeProps> = ({
                   placeholder="Job name..."
                   value={newJobName}
                   onChange={e => setNewJobName(e.target.value)}
-                  className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl p-3 font-bold text-sm text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-slate-300"
+                  className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl p-3 font-bold text-sm text-slate-900 outline-none focus:border-teal-400 transition-all placeholder:text-slate-300"
                 />
                 <button
                   onClick={handleCreateJobForPhoto}
                   disabled={!newJobName.trim()}
-                  className="px-4 bg-amber-500 text-white rounded-xl shadow-lg active:scale-95 transition-all disabled:opacity-30 disabled:active:scale-100 flex items-center gap-2"
+                  className="px-4 bg-teal-500 text-white rounded-xl shadow-lg active:scale-95 transition-all disabled:opacity-30 disabled:active:scale-100 flex items-center gap-2"
                 >
                   <Camera size={18} />
                 </button>
@@ -783,7 +783,7 @@ export const Home: React.FC<HomeProps> = ({
                           {customers.find(c => c.id === project.customerId)?.name || 'No customer'}
                         </p>
                       </div>
-                      <div className="p-2 bg-slate-200 group-hover:bg-rose-500 group-hover:text-white rounded-lg transition-colors shrink-0 ml-2">
+                      <div className="p-2 bg-slate-200 group-hover:bg-teal-500 group-hover:text-white rounded-lg transition-colors shrink-0 ml-2">
                         <Camera size={16} />
                       </div>
                     </button>
@@ -811,45 +811,45 @@ export const Home: React.FC<HomeProps> = ({
       {/* Today's Stats Card */}
       <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-3 md:p-6 shadow-sm mb-3 md:mb-4">
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
-          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
-            <div className="p-1.5 md:p-3 bg-blue-500 text-white rounded-lg md:rounded-xl">
+          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-slate-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
+            <div className="p-1.5 md:p-3 bg-slate-900 text-white rounded-lg md:rounded-xl">
               <Calendar size={14} className="md:w-5 md:h-5" />
             </div>
             <p className="text-lg md:text-2xl font-black text-slate-900 leading-none">{todayStats.jobsToday}</p>
-            <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Jobs Today</p>
+            <p className="text-[10px] sm:text-[11px] md:text-xs font-black text-slate-500 uppercase tracking-wide leading-tight">Jobs Today</p>
           </div>
-          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-emerald-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
-            <div className="p-1.5 md:p-3 bg-emerald-500 text-white rounded-lg md:rounded-xl">
+          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-teal-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
+            <div className="p-1.5 md:p-3 bg-teal-500 text-white rounded-lg md:rounded-xl">
               <PoundSterling size={14} className="md:w-5 md:h-5" />
             </div>
             <p className="text-sm sm:text-lg md:text-2xl font-black text-slate-900 leading-none truncate max-w-full">{todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}</p>
-            <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">This Week</p>
+            <p className="text-[10px] sm:text-[11px] md:text-xs font-black text-slate-500 uppercase tracking-wide leading-tight">This Week</p>
           </div>
-          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-amber-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
-            <div className="p-1.5 md:p-3 bg-amber-500 text-white rounded-lg md:rounded-xl">
+          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-slate-100 rounded-xl md:rounded-2xl text-center min-h-[80px]">
+            <div className="p-1.5 md:p-3 bg-slate-500 text-white rounded-lg md:rounded-xl">
               <FileWarning size={14} className="md:w-5 md:h-5" />
             </div>
             <p className="text-lg md:text-2xl font-black text-slate-900 leading-none">{todayStats.outstandingInvoices}</p>
-            <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Owed</p>
+            <p className="text-[10px] sm:text-[11px] md:text-xs font-black text-slate-500 uppercase tracking-wide leading-tight">Owed</p>
           </div>
-          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-purple-50 rounded-xl md:rounded-2xl text-center min-h-[80px]">
-            <div className="p-1.5 md:p-3 bg-purple-500 text-white rounded-lg md:rounded-xl">
+          <div className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 md:gap-3 p-2 sm:p-3 md:p-4 bg-teal-100 rounded-xl md:rounded-2xl text-center min-h-[80px]">
+            <div className="p-1.5 md:p-3 bg-teal-600 text-white rounded-lg md:rounded-xl">
               <Clock size={14} className="md:w-5 md:h-5" />
             </div>
             <p className="text-lg md:text-2xl font-black text-slate-900 leading-none">{todayStats.pendingQuotes}</p>
-            <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-wide leading-tight">Pending</p>
+            <p className="text-[10px] sm:text-[11px] md:text-xs font-black text-slate-500 uppercase tracking-wide leading-tight">Pending</p>
           </div>
         </div>
       </div>
 
       <div className="relative group">
         {!nextJob ? (
-          <div onClick={onNavigateToSchedule} className="bg-white border-4 border-dashed border-slate-100 rounded-2xl md:rounded-[48px] p-8 md:p-16 text-center cursor-pointer hover:border-amber-200 transition-all flex flex-col items-center">
+          <div onClick={onNavigateToSchedule} className="bg-white border-4 border-dashed border-slate-100 rounded-2xl md:rounded-[48px] p-8 md:p-16 text-center cursor-pointer hover:border-teal-200 transition-all flex flex-col items-center">
             <Calendar size={40} className="md:w-[60px] md:h-[60px] text-slate-200 mb-2 md:mb-4" />
             <p className="text-slate-400 font-black uppercase tracking-widest text-xs md:text-base">No upcoming jobs found</p>
           </div>
         ) : (
-          <div className="bg-slate-900 rounded-2xl md:rounded-[48px] p-4 md:p-10 lg:p-12 text-white shadow-2xl overflow-hidden relative border-b-4 md:border-b-8 border-amber-600">
+          <div className="bg-slate-900 rounded-2xl md:rounded-[48px] p-4 md:p-10 lg:p-12 text-white shadow-2xl overflow-hidden relative border-b-4 md:border-b-8 border-teal-500">
             <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 rotate-12 pointer-events-none">
               <Navigation size={200} />
             </div>
@@ -857,10 +857,10 @@ export const Home: React.FC<HomeProps> = ({
             <div className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-10 relative z-10">
               <div className="space-y-3 md:space-y-6 flex-1">
                 <div className="flex items-center gap-2 md:gap-3">
-                  <div className="px-3 py-1 md:px-4 md:py-2 bg-amber-500 rounded-full text-slate-900 text-[9px] md:text-[10px] font-black uppercase tracking-widest animate-pulse">
+                  <div className="px-3 py-1 md:px-4 md:py-2 bg-teal-500 rounded-full text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest animate-pulse">
                     Next Job
                   </div>
-                  <div className="text-amber-500 font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-1 md:gap-2">
+                  <div className="text-teal-400 font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-1 md:gap-2">
                     <Timer size={12} className="md:w-[14px] md:h-[14px]" /> {getTimeUntil(nextJob.start)}
                   </div>
                 </div>
@@ -869,7 +869,7 @@ export const Home: React.FC<HomeProps> = ({
                   <h3 className="text-2xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none">{nextJob.title}</h3>
                   <div className="flex items-center gap-3 md:gap-6">
                     <div className="flex items-center gap-1.5 md:gap-2 text-slate-400 font-bold text-sm md:text-lg italic">
-                      <Clock size={16} className="md:w-5 md:h-5 text-amber-500" />
+                      <Clock size={16} className="md:w-5 md:h-5 text-teal-500" />
                       {new Date(nextJob.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — {new Date(nextJob.end).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -878,7 +878,7 @@ export const Home: React.FC<HomeProps> = ({
                 <div className="flex flex-wrap gap-4">
                   {nextJobCustomer && (
                     <div className="flex items-center gap-3 bg-white/5 p-4 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
-                      <div className="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-900 font-black">
+                      <div className="w-10 h-10 bg-teal-500 rounded-2xl flex items-center justify-center text-white font-black">
                         {nextJobCustomer.name.charAt(0)}
                       </div>
                       <div>
@@ -893,11 +893,11 @@ export const Home: React.FC<HomeProps> = ({
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nextJob.location)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 min-w-[200px] flex flex-col gap-2 bg-amber-500 p-5 rounded-3xl hover:bg-amber-400 transition-all text-slate-900 shadow-xl shadow-amber-500/20 group/nav"
+                      className="flex-1 min-w-[200px] flex flex-col gap-2 bg-teal-500 p-5 rounded-3xl hover:bg-teal-400 transition-all text-white shadow-xl shadow-teal-500/20 group/nav"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-[10px] font-black uppercase tracking-widest opacity-75">Navigate to Site</span>
-                        <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 shrink-0 group-hover/nav:scale-110 transition-transform">
+                        <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-teal-500 shrink-0 group-hover/nav:scale-110 transition-transform">
                           <Navigation size={16} />
                         </div>
                       </div>
@@ -914,7 +914,7 @@ export const Home: React.FC<HomeProps> = ({
                 onClick={() => { hapticTap(); onViewJob?.(nextJob.id); }}
                 className="w-full md:w-auto h-auto md:h-64 bg-white/5 border border-white/10 rounded-[32px] p-8 flex flex-col justify-between hover:bg-white/10 transition-all group"
               >
-                <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
+                <div className="h-12 w-12 bg-teal-500 rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                   <Eye size={24} />
                 </div>
                 <div className="text-right">
@@ -935,7 +935,7 @@ export const Home: React.FC<HomeProps> = ({
           {futureJobs.filter(j => !j.isCompleted).length > 0 && (
             <button
               onClick={() => { hapticTap(); onNavigateToFutureJobs?.(); }}
-              className="text-[10px] md:text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+              className="text-[10px] md:text-xs font-bold text-teal-600 hover:text-teal-700 transition-colors"
             >
               See All ({futureJobs.filter(j => !j.isCompleted).length})
             </button>
@@ -947,7 +947,7 @@ export const Home: React.FC<HomeProps> = ({
             <input
               type="text"
               placeholder="Add enquiry..."
-              className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2 font-bold text-sm text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-slate-300"
+              className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2 font-bold text-sm text-slate-900 outline-none focus:border-teal-400 transition-all placeholder:text-slate-300"
               value={newFutureJobName}
               onChange={e => setNewFutureJobName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addFutureJob()}
@@ -955,7 +955,7 @@ export const Home: React.FC<HomeProps> = ({
             <button
               onClick={() => { hapticTap(); addFutureJob(); }}
               disabled={!newFutureJobName.trim()}
-              className="px-3 bg-amber-500 text-white rounded-xl shadow-lg active:scale-95 transition-transform disabled:opacity-30 disabled:active:scale-100"
+              className="px-3 bg-teal-500 text-white rounded-xl shadow-lg active:scale-95 transition-transform disabled:opacity-30 disabled:active:scale-100"
             >
               <Plus size={18} />
             </button>
@@ -972,7 +972,7 @@ export const Home: React.FC<HomeProps> = ({
               {futureJobs.filter(j => !j.isCompleted).slice(0, 3).map(job => (
                 <div
                   key={job.id}
-                  className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 hover:border-amber-200 transition-all"
+                  className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 hover:border-teal-200 transition-all"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-slate-900 text-sm truncate">{job.name}</p>
@@ -982,7 +982,7 @@ export const Home: React.FC<HomeProps> = ({
                   </div>
                   <button
                     onClick={() => { hapticTap(); convertToJobPack(job); }}
-                    className="p-1.5 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors shrink-0"
+                    className="p-1.5 bg-teal-100 text-teal-600 rounded-lg hover:bg-teal-200 transition-colors shrink-0"
                     title="Convert to Job Pack"
                   >
                     <ArrowRightCircle size={14} />
@@ -992,7 +992,7 @@ export const Home: React.FC<HomeProps> = ({
               {futureJobs.filter(j => !j.isCompleted).length > 3 && (
                 <button
                   onClick={() => { hapticTap(); onNavigateToFutureJobs?.(); }}
-                  className="w-full py-2 text-xs font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
+                  className="w-full py-2 text-xs font-bold text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-all"
                 >
                   +{futureJobs.filter(j => !j.isCompleted).length - 3} more
                 </button>
@@ -1012,12 +1012,12 @@ export const Home: React.FC<HomeProps> = ({
                 key={idx}
                 onClick={onNavigateToSchedule}
                 className={`flex-shrink-0 w-[52px] sm:w-14 md:w-16 p-1.5 sm:p-2 md:p-3 rounded-lg md:rounded-xl text-center transition-all ${
-                  idx === 0 ? 'bg-amber-500 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-900'
+                  idx === 0 ? 'bg-teal-500 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-900'
                 }`}
               >
-                <p className="text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase truncate">{day.dayName}</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs font-black uppercase truncate">{day.dayName}</p>
                 <p className="text-base sm:text-lg md:text-xl font-black">{day.date.getDate()}</p>
-                <div className={`text-[8px] sm:text-[9px] md:text-[10px] font-bold truncate ${day.jobCount > 0 ? '' : 'opacity-40'}`}>
+                <div className={`text-[10px] sm:text-[11px] md:text-xs font-bold truncate ${day.jobCount > 0 ? '' : 'opacity-40'}`}>
                   {day.jobCount}
                 </div>
               </button>
@@ -1041,44 +1041,44 @@ export const Home: React.FC<HomeProps> = ({
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 md:gap-3">
-                <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${todayStats.overdueInvoices > 0 ? 'bg-red-500' : 'bg-amber-500'} text-white`}>
+                <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${todayStats.overdueInvoices > 0 ? 'bg-red-500' : 'bg-teal-500'} text-white`}>
                   {todayStats.overdueInvoices > 0 ? <AlertTriangle size={18} className="md:w-6 md:h-6" /> : <FileText size={18} className="md:w-6 md:h-6" />}
                 </div>
                 <div>
                   <h4 className="font-black text-slate-900 text-sm md:text-lg">Invoice Summary</h4>
-                  <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">
+                  <p className="text-[10px] md:text-xs text-slate-500 font-medium italic">
                     {todayStats.overdueInvoices > 0 ? 'Action required' : 'Awaiting payment'}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 text-slate-400 group-hover:text-amber-500 transition-colors">
+              <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-500 transition-colors">
                 <span className="text-xs font-bold hidden sm:inline">View All</span>
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-              <div className="bg-amber-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4">
+              <div className="bg-teal-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                  <Clock size={12} className="sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 text-amber-600 shrink-0" />
-                  <span className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-amber-600 uppercase truncate">Owed</span>
+                  <Clock size={12} className="sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 text-teal-600 shrink-0" />
+                  <span className="text-[10px] sm:text-[11px] md:text-xs font-black text-teal-600 uppercase truncate">Owed</span>
                 </div>
                 <p className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 truncate">
                   {todayStats.outstandingTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
                 </p>
-                <p className="text-[9px] sm:text-[10px] md:text-xs text-slate-500 font-bold mt-1 truncate">
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-slate-500 font-bold mt-1 truncate">
                   {todayStats.outstandingInvoices} awaiting
                 </p>
               </div>
               <div className={`rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 ${todayStats.overdueInvoices > 0 ? 'bg-red-50' : 'bg-slate-50'}`}>
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
                   <AlertTriangle size={12} className={`sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 shrink-0 ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`} />
-                  <span className={`text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`}>Overdue</span>
+                  <span className={`text-[10px] sm:text-[11px] md:text-xs font-black uppercase truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`}>Overdue</span>
                 </div>
                 <p className={`text-lg sm:text-xl md:text-3xl font-black truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-300'}`}>
                   {todayStats.overdueTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
                 </p>
-                <p className={`text-[9px] sm:text-[10px] md:text-xs font-bold mt-1 truncate ${todayStats.overdueInvoices > 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                <p className={`text-[10px] sm:text-[11px] md:text-xs font-bold mt-1 truncate ${todayStats.overdueInvoices > 0 ? 'text-red-500' : 'text-slate-400'}`}>
                   {todayStats.overdueInvoices > 0 ? `${todayStats.overdueInvoices} past due` : 'None'}
                 </p>
               </div>
@@ -1097,7 +1097,7 @@ export const Home: React.FC<HomeProps> = ({
               </div>
               <div>
                 <h3 className="text-sm md:text-2xl font-black text-slate-900 uppercase tracking-tight">Reminders</h3>
-                <p className="text-[8px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest italic hidden sm:block">Time-sensitive site alarms</p>
+                <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest italic hidden sm:block">Time-sensitive site alarms</p>
               </div>
             </div>
             <button
@@ -1107,7 +1107,7 @@ export const Home: React.FC<HomeProps> = ({
                 isListeningReminder
                   ? 'bg-red-500 text-white animate-pulse'
                   : isProcessingReminder
-                    ? 'bg-amber-500 text-white'
+                    ? 'bg-teal-500 text-white'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
@@ -1152,7 +1152,7 @@ export const Home: React.FC<HomeProps> = ({
                   key={reminder.id}
                   className={`p-3 md:p-6 rounded-xl md:rounded-[32px] border-2 transition-all flex items-center justify-between group ${
                     reminder.isAlarming
-                      ? 'bg-amber-500 border-amber-600 text-slate-900 animate-pulse'
+                      ? 'bg-red-500 border-red-600 text-white animate-pulse'
                       : reminder.isCompleted
                         ? 'bg-slate-50 border-transparent opacity-40'
                         : 'bg-white border-slate-100 hover:border-blue-200'
@@ -1172,17 +1172,17 @@ export const Home: React.FC<HomeProps> = ({
                       {reminder.isCompleted ? <CheckCircle2 size={18} className="md:w-6 md:h-6" /> : reminder.isAlarming ? <BellRing size={18} className="md:w-6 md:h-6 animate-bounce" /> : <Play size={16} className="md:w-[22px] md:h-[22px]" />}
                     </button>
                     <div className="truncate">
-                      <p className={`font-black text-sm md:text-lg truncate ${reminder.isCompleted ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                        <p className={`font-black text-sm md:text-lg truncate ${reminder.isCompleted ? 'line-through text-slate-400' : reminder.isAlarming ? 'text-white' : 'text-slate-900'}`}>
                         {reminder.text}
                       </p>
-                      <p className={`text-[10px] md:text-[12px] font-black uppercase tracking-widest italic ${reminder.isAlarming ? 'text-slate-900' : 'text-slate-400'}`}>
+                        <p className={`text-[10px] md:text-[12px] font-black uppercase tracking-widest italic ${reminder.isAlarming ? 'text-white/80' : 'text-slate-400'}`}>
                         {reminder.time}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setReminders(prev => prev.filter(r => r.id !== reminder.id))}
-                    className={`p-2 md:p-3 transition-colors ${reminder.isAlarming ? 'text-slate-900' : 'text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100'}`}
+                      className={`p-2 md:p-3 transition-colors ${reminder.isAlarming ? 'text-white' : 'text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100'}`}
                   >
                     <Trash2 size={18} className="md:w-6 md:h-6" />
                   </button>
@@ -1196,12 +1196,12 @@ export const Home: React.FC<HomeProps> = ({
         <div className="bg-white rounded-2xl md:rounded-[40px] border border-slate-200 p-3 md:p-8 shadow-sm flex flex-col md:min-h-[500px]">
           <div className="flex items-center justify-between mb-2 md:mb-8">
             <div className="flex items-center gap-1.5 md:gap-3">
-              <div className="p-1.5 md:p-4 bg-amber-50 text-amber-600 rounded-lg md:rounded-3xl">
+              <div className="p-1.5 md:p-4 bg-slate-50 text-slate-600 rounded-lg md:rounded-3xl">
                 <StickyNote size={16} className="md:w-7 md:h-7" />
               </div>
               <div>
                 <h3 className="text-sm md:text-2xl font-black text-slate-900 uppercase tracking-tight">Quick Notes</h3>
-                <p className="text-[8px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest italic hidden sm:block">Daily site scratchpad</p>
+                <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-widest italic hidden sm:block">Daily site scratchpad</p>
               </div>
             </div>
             <div className="flex gap-1 md:gap-2">
@@ -1217,7 +1217,7 @@ export const Home: React.FC<HomeProps> = ({
                 className={`h-9 w-9 md:h-16 md:w-16 rounded-lg md:rounded-[24px] flex items-center justify-center shadow-md md:shadow-2xl transition-all ${
                   isListeningNote
                     ? 'bg-red-500 text-white animate-pulse'
-                    : 'bg-amber-500 text-white hover:bg-amber-600'
+                    : 'bg-teal-500 text-white hover:bg-teal-600'
                 }`}
               >
                 {isListeningNote ? <MicOff size={16} className="md:w-6 md:h-6" /> : <Mic size={16} className="md:w-6 md:h-6" />}
@@ -1227,13 +1227,13 @@ export const Home: React.FC<HomeProps> = ({
 
           <div className="flex flex-col gap-1.5 md:gap-4">
             <textarea
-              className="bg-slate-50 border-2 border-slate-100 rounded-lg md:rounded-[32px] p-3 md:p-8 font-medium text-slate-900 outline-none focus:border-amber-400 transition-all shadow-inner leading-relaxed text-sm md:text-lg resize-none placeholder:text-slate-300 placeholder:italic min-h-[120px] md:min-h-[300px]"
+              className="bg-slate-50 border-2 border-slate-100 rounded-lg md:rounded-[32px] p-3 md:p-8 font-medium text-slate-900 outline-none focus:border-teal-400 transition-all shadow-inner leading-relaxed text-sm md:text-lg resize-none placeholder:text-slate-300 placeholder:italic min-h-[120px] md:min-h-[300px]"
               placeholder="Jot down site measurements, material shortages, or general notes..."
               value={quickNotes}
               onChange={e => setQuickNotes(e.target.value)}
             />
             <div className="flex items-center gap-1 md:gap-2 px-1 md:px-2">
-              <Sparkles size={10} className="md:w-[14px] md:h-[14px] text-amber-500" />
+              <Sparkles size={10} className="md:w-[14px] md:h-[14px] text-teal-500" />
               <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Tap mic to dictate and append to your notes.</p>
             </div>
           </div>

@@ -308,7 +308,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
       {/* Streamlined Pro Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-200 pb-8">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Site Diary</h2>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">Site Diary</h2>
           <p className="text-slate-500 text-sm font-medium">Professional resource and project site allocation.</p>
         </div>
         
@@ -328,7 +328,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                   }
                   setViewType(view.id as any);
                 }}
-                className={`px-6 py-3 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${viewType === view.id ? 'bg-amber-500 text-slate-900 shadow-xl scale-105' : 'text-slate-400 hover:text-white'}`}
+                className={`px-6 py-3 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${viewType === view.id ? 'bg-teal-500 text-white shadow-xl scale-105' : 'text-slate-400 hover:text-white'}`}
               >
                 <view.icon size={14} /> {view.label}
               </button>
@@ -342,7 +342,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
               setDraft({ start: defaultDate.toISOString() });
               setIsAddingManual(true);
             }}
-            className="h-12 px-6 rounded-2xl flex items-center gap-2 bg-white border-2 border-slate-100 text-slate-900 font-black uppercase text-[10px] tracking-widest hover:border-amber-400 transition-all shadow-sm"
+            className="h-12 px-6 rounded-2xl flex items-center gap-2 bg-white border-2 border-slate-100 text-slate-900 font-black uppercase text-[10px] tracking-widest hover:border-teal-400 transition-all shadow-sm"
           >
             <Plus size={18} /> Book Site
           </button>
@@ -351,7 +351,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
             onClick={() => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start()}
             disabled={isProcessing}
             className={`h-12 px-6 rounded-2xl flex items-center gap-3 font-black uppercase text-[10px] tracking-widest transition-all shadow-lg ${
-              isListening ? 'bg-red-500 text-white animate-pulse' : isProcessing ? 'bg-amber-500 text-white' : 'bg-slate-100 text-amber-600 hover:bg-white border-2 border-transparent hover:border-amber-400'
+              isListening ? 'bg-red-500 text-white animate-pulse' : isProcessing ? 'bg-teal-500 text-white' : 'bg-slate-100 text-teal-600 hover:bg-white border-2 border-transparent hover:border-teal-400'
             }`}
           >
             {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />}
@@ -382,7 +382,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
           
           <div className="hidden lg:flex items-center gap-6 bg-white px-6 py-3 rounded-2xl border border-slate-100 shadow-inner">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-200"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-teal-500 shadow-sm shadow-teal-200"></div>
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Job Logged</span>
             </div>
             <div className="flex items-center gap-2">
@@ -415,13 +415,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                       key={idx}
                       onClick={() => { if(date) { setSelectedDay(date); setViewType('day'); } }}
                       className={`aspect-square p-1 sm:p-2 md:p-3 transition-all cursor-pointer relative group flex flex-col bg-white ${
-                        !date ? 'opacity-20 pointer-events-none' : isSelected ? 'bg-amber-50/30' : 'hover:bg-slate-50/80'
+                        !date ? 'opacity-20 pointer-events-none' : isSelected ? 'bg-teal-50/30' : 'hover:bg-slate-50/80'
                       }`}
                     >
                       {date && (
                         <>
                           <div className={`flex items-center justify-center h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 rounded-md sm:rounded-lg md:rounded-xl font-black text-[10px] sm:text-xs mb-1 sm:mb-2 md:mb-3 transition-all ${
-                            isToday ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-300 group-hover:text-slate-900 group-hover:bg-slate-100'
+                            isToday ? 'bg-teal-500 text-white shadow-lg' : 'text-slate-300 group-hover:text-slate-900 group-hover:bg-slate-100'
                           }`}>
                             {date.getDate()}
                           </div>
@@ -431,7 +431,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                               <div
                                 key={e.id}
                                 onClick={(ev) => { ev.stopPropagation(); handleEdit(e); }}
-                                className="bg-slate-900 text-amber-500 text-[7px] sm:text-[8px] md:text-[9px] font-black px-1 sm:px-1.5 md:px-2.5 py-0.5 sm:py-1 md:py-1.5 rounded sm:rounded-md md:rounded-lg border-l-2 border-amber-500 shadow-sm hover:bg-black transition-all overflow-hidden"
+                                className="bg-slate-900 text-teal-500 text-[7px] sm:text-[8px] md:text-[9px] font-black px-1 sm:px-1.5 md:px-2.5 py-0.5 sm:py-1 md:py-1.5 rounded sm:rounded-md md:rounded-lg border-l-2 border-teal-500 shadow-sm hover:bg-black transition-all overflow-hidden"
                               >
                                 <span className="block truncate max-w-full">{e.title}</span>
                               </div>
@@ -463,15 +463,15 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                     key={idx}
                     onClick={() => { setSelectedDay(date); setViewType('day'); }}
                     className={`group flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 rounded-[28px] border-2 transition-all cursor-pointer ${
-                      isToday ? 'bg-amber-50 border-amber-200 shadow-lg' : 'bg-white border-slate-50 hover:border-slate-200 hover:shadow-md'
+                      isToday ? 'bg-teal-50 border-teal-200 shadow-lg' : 'bg-white border-slate-50 hover:border-slate-200 hover:shadow-md'
                     } ${isEmpty ? 'py-3' : 'py-5'}`}
                   >
                     <div className="flex items-center gap-6 md:min-w-[140px]">
-                      <div className={`h-12 w-12 rounded-2xl flex flex-col items-center justify-center font-black ${isToday ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-900 group-hover:text-white'} transition-colors`}>
+                      <div className={`h-12 w-12 rounded-2xl flex flex-col items-center justify-center font-black ${isToday ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-900 group-hover:text-white'} transition-colors`}>
                         <span className="text-xs leading-none">{date.getDate()}</span>
                         <span className="text-[8px] uppercase tracking-tighter mt-0.5">{date.toLocaleDateString(undefined, { weekday: 'short' })}</span>
                       </div>
-                      {isToday && <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic animate-pulse hidden sm:block">Today</span>}
+                      {isToday && <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest italic animate-pulse hidden sm:block">Today</span>}
                     </div>
                     
                     <div className="flex-1">
@@ -485,20 +485,20 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                               onClick={(ev) => { ev.stopPropagation(); handleEdit(e); }}
                               className="bg-slate-900 text-white pl-3 pr-4 py-2 rounded-xl flex items-center gap-3 shadow-lg hover:bg-black transition-all group/item"
                             >
-                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
                               <span className="text-[10px] font-black uppercase tracking-tight">{e.title}</span>
                               <span className="text-[9px] font-black text-slate-500 italic ml-2">{new Date(e.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                              <Pencil size={12} className="text-amber-500 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                              <Pencil size={12} className="text-teal-500 opacity-0 group-hover/item:opacity-100 transition-opacity" />
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 text-slate-300 group-hover:text-amber-500 transition-colors">
+                    <div className="flex items-center gap-4 text-slate-300 group-hover:text-teal-500 transition-colors">
                       <div className="text-right hidden sm:block">
                         <p className="text-[10px] font-black uppercase tracking-widest">Status</p>
-                        <p className={`text-[11px] font-bold italic ${isEmpty ? 'text-slate-200' : 'text-amber-600'}`}>
+                        <p className={`text-[11px] font-bold italic ${isEmpty ? 'text-slate-200' : 'text-teal-600'}`}>
                           {isEmpty ? 'Available' : `${dayEntries.length} Job${dayEntries.length > 1 ? 's' : ''}`}
                         </p>
                       </div>
@@ -525,7 +525,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                       setDraft({ start: defaultDate.toISOString() });
                       setIsAddingManual(true);
                     }}
-                    className="mt-10 bg-slate-900 text-amber-500 px-12 py-5 rounded-[28px] font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-2xl active:scale-95"
+                    className="mt-10 bg-slate-900 text-teal-500 px-12 py-5 rounded-[28px] font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-2xl active:scale-95"
                   >
                     + Log New Site Booking
                   </button>
@@ -535,13 +535,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                   {getDayEntries(selectedDay).map(entry => {
                     const customer = customers.find(c => c.id === entry.customerId);
                     return (
-                      <div key={entry.id} className="bg-white rounded-[40px] border-2 border-slate-50 p-10 hover:border-amber-400 transition-all shadow-md hover:shadow-2xl group relative overflow-hidden">
+                      <div key={entry.id} className="bg-white rounded-[40px] border-2 border-slate-50 p-10 hover:border-teal-400 transition-all shadow-md hover:shadow-2xl group relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-3 h-full bg-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-10">
                           <div className="space-y-6 flex-1">
                             <div className="flex flex-wrap items-center gap-5">
-                              <div className="flex items-center gap-2 bg-amber-500 text-slate-900 px-5 py-2.5 rounded-xl text-xs font-black shadow-xl">
+                              <div className="flex items-center gap-2 bg-teal-500 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-xl">
                                 <Clock size={16} />
                                 {new Date(entry.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </div>
@@ -552,13 +552,13 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                             </div>
 
                             <div>
-                              <h4 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-4 group-hover:text-amber-600 transition-colors">
+                              <h4 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-4 group-hover:text-teal-600 transition-colors">
                                 {entry.title}
                               </h4>
                               <div className="flex flex-wrap gap-4">
                                 {customer && (
                                   <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl text-slate-500 font-bold text-base">
-                                    <div className="h-10 w-10 bg-slate-100 rounded-2xl flex items-center justify-center text-amber-500 font-black not-italic text-sm shadow-sm">
+                                    <div className="h-10 w-10 bg-slate-100 rounded-2xl flex items-center justify-center text-teal-500 font-black not-italic text-sm shadow-sm">
                                       {customer.name.charAt(0)}
                                     </div>
                                     {customer.name}
@@ -570,11 +570,11 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="flex items-center gap-3 bg-amber-500 text-slate-900 px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg group/map"
+                                    className="flex items-center gap-3 bg-teal-500 text-white px-6 py-3 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-teal-600 transition-all shadow-lg group/map"
                                   >
                                     <MapPin size={20} />
                                     <span className="max-w-[200px] truncate">Navigate</span>
-                                    <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-amber-500 ml-2">
+                                    <div className="h-8 w-8 bg-slate-900 rounded-xl flex items-center justify-center text-teal-500 ml-2">
                                       <ArrowRight size={16} className="group-hover/map:translate-x-0.5 transition-transform" />
                                     </div>
                                   </a>
@@ -737,7 +737,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
               <div className="space-y-12">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-8">
-                    <div className={`h-20 w-20 rounded-[36px] flex items-center justify-center shadow-2xl ${isReviewingAI ? 'bg-amber-500 text-slate-900' : 'bg-slate-900 text-amber-500'}`}>
+                    <div className={`h-20 w-20 rounded-[36px] flex items-center justify-center shadow-2xl ${isReviewingAI ? 'bg-teal-500 text-white' : 'bg-slate-900 text-teal-500'}`}>
                       {isReviewingAI ? <Sparkles size={40} /> : <CalendarIcon size={40} />}
                     </div>
                     <div>
@@ -756,12 +756,12 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                   <div className="space-y-3">
                     <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Booking Reference *</label>
                     <div className="flex gap-2">
-                      <input className="flex-1 min-w-0 bg-slate-50 border-2 border-slate-100 rounded-[36px] px-6 py-5 font-black text-2xl text-slate-950 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-inner" value={draft.title || ''} onChange={e => setDraft({...draft, title: e.target.value})} placeholder="e.g. Groundworks" />
+                      <input className="flex-1 min-w-0 bg-slate-50 border-2 border-slate-100 rounded-[36px] px-6 py-5 font-black text-2xl text-slate-950 outline-none focus:border-teal-400 focus:bg-white transition-all shadow-inner" value={draft.title || ''} onChange={e => setDraft({...draft, title: e.target.value})} placeholder="e.g. Groundworks" />
                       <button
                         type="button"
                         onClick={() => isListeningTitle ? titleRecognitionRef.current?.stop() : titleRecognitionRef.current?.start()}
                         className={`shrink-0 w-[70px] h-[70px] rounded-[36px] shadow-lg transition-all active:scale-95 flex items-center justify-center ${
-                          isListeningTitle ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-900 text-amber-500 hover:bg-black'
+                          isListeningTitle ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-900 text-teal-500 hover:bg-black'
                         }`}
                       >
                         <Mic size={28} />
@@ -860,7 +860,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                         </div>
                         <button
                           onClick={() => { hapticTap(); setIsAddingCustomer(true); }}
-                          className="p-7 bg-slate-900 text-amber-500 rounded-[36px] hover:bg-black transition-all shadow-lg active:scale-95"
+                          className="p-7 bg-slate-900 text-teal-500 rounded-[36px] hover:bg-black transition-all shadow-lg active:scale-95"
                         >
                           <UserPlus size={32} />
                         </button>
@@ -876,7 +876,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                         <button
                           type="button"
                           onClick={() => { hapticTap(); setDraft({ ...draft, location: selectedCustomer.address }); }}
-                          className="min-h-[44px] px-4 text-[10px] font-black uppercase text-amber-600 hover:text-amber-700 flex items-center gap-2 bg-amber-50 rounded-xl active:scale-95"
+                          className="min-h-[44px] px-4 text-[10px] font-black uppercase text-teal-600 hover:text-teal-700 flex items-center gap-2 bg-teal-50 rounded-xl active:scale-95"
                         >
                           <MapPinned size={16} />
                           <span className="hidden sm:inline">Use Client Address</span>
@@ -896,7 +896,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                       <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Arrival At</label>
                       <input 
                         type="datetime-local" 
-                        className="w-full bg-white border-2 border-slate-100 rounded-3xl p-6 font-black text-lg text-slate-950 outline-none focus:border-amber-400 transition-all" 
+                        className="w-full bg-white border-2 border-slate-100 rounded-3xl p-6 font-black text-lg text-slate-950 outline-none focus:border-teal-400 transition-all"
                         value={draft.start ? new Date(draft.start).toISOString().slice(0, 16) : ''} 
                         onChange={e => setDraft({...draft, start: new Date(e.target.value).toISOString()})} 
                       />
@@ -905,7 +905,7 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
                       <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest px-1 italic">Departure At</label>
                       <input 
                         type="datetime-local" 
-                        className="w-full bg-white border-2 border-slate-100 rounded-3xl p-6 font-black text-lg text-slate-950 outline-none focus:border-amber-400 transition-all" 
+                        className="w-full bg-white border-2 border-slate-100 rounded-3xl p-6 font-black text-lg text-slate-950 outline-none focus:border-teal-400 transition-all"
                         value={draft.end ? new Date(draft.end).toISOString().slice(0, 16) : ''} 
                         onChange={e => setDraft({...draft, end: new Date(e.target.value).toISOString()})} 
                       />

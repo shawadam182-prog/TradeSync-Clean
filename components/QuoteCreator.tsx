@@ -597,7 +597,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
           <button onClick={() => { hapticTap(); onCancel(); }} className="p-2 -ml-2 text-slate-400 hover:text-slate-700">
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-lg font-bold text-slate-900">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
             {existingQuote
               ? `Edit ${formData.type === 'invoice' ? 'Invoice' : formData.type === 'quotation' ? 'Quotation' : 'Estimate'}`
               : `New ${formData.type === 'invoice' ? 'Invoice' : formData.type === 'quotation' ? 'Quotation' : 'Estimate'}`}
@@ -606,7 +606,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         <div className="flex gap-2">
            <button
              onClick={() => { hapticTap(); onSave(formData as Quote); }}
-             className="text-amber-600 font-bold text-sm px-3 py-1.5 bg-amber-50 rounded-lg"
+             className="text-teal-600 font-bold text-sm px-3 py-1.5 bg-teal-50 rounded-lg"
            >
              Save
            </button>
@@ -615,14 +615,14 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
 
       <div className="p-4 space-y-6">
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-             <div className="col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+             <div className="col-span-1 md:col-span-2">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Project Title</label>
-                <input type="text" className="w-full text-lg font-bold text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-amber-500 transition-colors placeholder:text-slate-300" value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Enter title..." />
+                <input type="text" className="w-full text-lg font-bold text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-teal-500 transition-colors placeholder:text-slate-300" value={formData.title || ''} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Enter title..." />
              </div>
 
              {/* Document Type Selector */}
-             <div className="col-span-2">
+             <div className="col-span-1 md:col-span-2">
                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Document Type</label>
                <div className="flex gap-1.5 sm:gap-2">
                  <button
@@ -630,7 +630,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                    onClick={() => { hapticTap(); handleTypeChange('estimate'); }}
                    className={`flex-1 py-2 sm:py-3 px-2 sm:px-4 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all ${
                      formData.type === 'estimate'
-                       ? 'bg-amber-500 text-white shadow-lg'
+                       ? 'bg-teal-500 text-white shadow-lg'
                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                    }`}
                  >
@@ -654,7 +654,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                    onClick={() => { hapticTap(); handleTypeChange('invoice'); }}
                    className={`flex-1 py-2 sm:py-3 px-2 sm:px-4 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all ${
                      formData.type === 'invoice'
-                       ? 'bg-emerald-500 text-white shadow-lg'
+                       ? 'bg-slate-900 text-white shadow-lg'
                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                    }`}
                  >
@@ -688,7 +688,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
              </div>
 
              {/* Job Address (if different from client address) */}
-             <div className="col-span-2 mt-2">
+             <div className="col-span-1 md:col-span-2 mt-2">
                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                    <MapPin size={12} className="text-amber-500" />
@@ -704,8 +704,8 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
 
              {/* Invoice-specific fields */}
              {formData.type === 'invoice' && (
-               <div className="col-span-2 mt-2 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                 <div className="grid grid-cols-2 gap-4">
+               <div className="col-span-1 md:col-span-2 mt-2 p-4 bg-slate-100 rounded-xl border border-slate-200">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                    <div>
                      <label className="block text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
                        <Calendar size={12} className="inline mr-1" />
@@ -1193,14 +1193,14 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       {/* Global Terms & Financial Summary */}
       <div className="bg-white p-3 md:p-5 rounded-[24px] border border-slate-200 space-y-3 md:space-y-4 shadow-sm">
         <div className="flex items-center gap-3 border-b border-slate-50 pb-3">
-          <div className="h-10 w-10 bg-slate-900 text-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><FileText size={20} /></div>
+          <div className="h-10 w-10 bg-slate-900 text-teal-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><FileText size={20} /></div>
           <div><h3 className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-widest">Document Terms & Document-wide Rates</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Apply to all sections</p></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><PoundSterling size={12} className="text-amber-500" /> Default Hourly Rate</label><input type="number" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3 text-slate-950 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.labourRate || ''} onChange={e => setFormData({...formData, labourRate: parseFloat(e.target.value) || 0})} placeholder="65.00" /></div>
-          <div className="space-y-1"><label className="text-[10px] font-black text-amber-600 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Percent size={12} className="text-amber-500" /> Global Markup %</label><input type="number" className="w-full bg-amber-50 border-2 border-amber-100 rounded-xl p-3 text-amber-900 font-black text-sm outline-none focus:border-amber-400 transition-all" value={formData.markupPercent || ''} onChange={e => setFormData({...formData, markupPercent: parseFloat(e.target.value) || 0})} placeholder="15" /></div>
+          <div className="space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><PoundSterling size={12} className="text-teal-500" /> Default Hourly Rate</label><input type="number" className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3 text-slate-950 font-black text-sm outline-none focus:border-teal-400 transition-all" value={formData.labourRate || ''} onChange={e => setFormData({...formData, labourRate: parseFloat(e.target.value) || 0})} placeholder="65.00" /></div>
+          <div className="space-y-1"><label className="text-[10px] font-black text-teal-600 uppercase tracking-widest px-1 flex items-center gap-2 italic"><Percent size={12} className="text-teal-500" /> Global Markup %</label><input type="number" className="w-full bg-teal-50 border-2 border-teal-100 rounded-xl p-3 text-teal-900 font-black text-sm outline-none focus:border-teal-400 transition-all" value={formData.markupPercent || ''} onChange={e => setFormData({...formData, markupPercent: parseFloat(e.target.value) || 0})} placeholder="15" /></div>
         </div>
-        <div className="pt-2 space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><FileText size={14} className="text-amber-500" /> Document Footer / Terms</label><textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[20px] p-3 md:p-4 text-slate-900 font-medium text-sm outline-none focus:border-amber-400 transition-all min-h-[100px]" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Final notes, bank details etc..." /></div>
+        <div className="pt-2 space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2 italic"><FileText size={14} className="text-teal-500" /> Document Footer / Terms</label><textarea className="w-full bg-slate-50 border-2 border-slate-100 rounded-[20px] p-3 md:p-4 text-slate-900 font-medium text-sm outline-none focus:border-teal-400 transition-all min-h-[100px]" value={formData.notes || ''} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Final notes, bank details etc..." /></div>
       </div>
 
       {/* Discount Section */}
@@ -1284,12 +1284,12 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       <div className="bg-slate-900 text-white p-5 md:p-6 rounded-[32px] shadow-2xl relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={100} /></div>
         <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-          <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div></div><p className="text-4xl md:text-5xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
+          <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div></div><p className="text-4xl md:text-5xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
           <div className="text-right text-[11px] font-bold space-y-1.5 w-full md:w-auto">
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Materials Total</span><span className="text-slate-300 italic">£{totals.materialsTotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Labour Total</span><span className="text-slate-300 italic">£{totals.labourTotal.toFixed(2)}</span></div>
             <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Net Sections</span><span className="text-slate-300 italic">£{totals.subtotal.toFixed(2)}</span></div>
-            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-amber-500 uppercase tracking-widest">Markup</span><span className="text-amber-500/80">£{totals.markup.toFixed(2)}</span></div>
+            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-teal-500 uppercase tracking-widest">Markup</span><span className="text-teal-500/80">£{totals.markup.toFixed(2)}</span></div>
             {totals.discount > 0 && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-emerald-400 uppercase tracking-widest">Discount</span><span className="text-emerald-400/80">-£{totals.discount.toFixed(2)}</span></div>}
             {settings.enableVat && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-blue-400 uppercase tracking-widest">VAT</span><span className="text-blue-400/80">£{totals.tax.toFixed(2)}</span></div>}
             {settings.enableCis && <div className="flex justify-between md:justify-end gap-6"><span className="text-red-400 uppercase tracking-widest">CIS</span><span className="text-red-400/80">-£{totals.cis.toFixed(2)}</span></div>}
@@ -1306,7 +1306,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         </div>
         <button
           onClick={() => { hapticSuccess(); onSave(formData as Quote); }}
-          className="bg-amber-500 text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-amber-400 transition-colors shadow-lg"
+          className="bg-teal-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-teal-400 transition-colors shadow-lg"
         >
           Save {formData.type}
         </button>

@@ -166,18 +166,18 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
       {/* Main Revenue Card */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-2xl shadow-slate-900/30 relative overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative">
           {/* Header with Period Selector */}
           <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-amber-400 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">
+              <p className="text-teal-400 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-1">
                 Total Revenue
               </p>
               <div className="flex items-center gap-2">
-                <PoundSterling size={28} className="text-amber-500" />
+                <PoundSterling size={28} className="text-teal-500" />
                 <span className="text-4xl md:text-5xl font-black tracking-tight">
                   {formatCurrency(currentData.revenue)}
                 </span>
@@ -212,7 +212,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
                         }}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
                           selectedPeriod === option.id
-                            ? 'bg-amber-500 text-slate-900'
+                            ? 'bg-teal-500 text-slate-900'
                             : 'hover:bg-slate-700 text-white'
                         }`}
                       >
@@ -254,11 +254,11 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
             )}
 
             {selectedPeriod === 'tax_year' && revenueData.tax_year.label && (
-              <div className="bg-amber-500/20 backdrop-blur rounded-xl px-4 py-2">
-                <span className="text-[10px] md:text-xs font-bold text-amber-400 uppercase tracking-wider">
+              <div className="bg-teal-500/20 backdrop-blur rounded-xl px-4 py-2">
+                <span className="text-[10px] md:text-xs font-bold text-teal-400 uppercase tracking-wider">
                   Year
                 </span>
-                <span className="text-base md:text-lg font-black ml-2 text-amber-300">
+                <span className="text-base md:text-lg font-black ml-2 text-teal-300">
                   {revenueData.tax_year.label}
                 </span>
               </div>
@@ -283,7 +283,7 @@ export const FinancialOverview: React.FC<FinancialOverviewProps> = ({
                   : 'bg-white border-slate-100 hover:border-slate-300 text-slate-900'
               }`}
             >
-              <div className={`flex items-center gap-2 mb-2 ${isSelected ? 'text-amber-400' : 'text-slate-400'}`}>
+              <div className={`flex items-center gap-2 mb-2 ${isSelected ? 'text-teal-400' : 'text-slate-400'}`}>
                 {option.icon}
                 <span className="text-[10px] font-black uppercase tracking-wider">{option.shortLabel}</span>
               </div>

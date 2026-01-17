@@ -159,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                   <span className="font-bold text-xs uppercase tracking-wider">{group.label}</span>
                   {group.badge && (
                     <span className={`text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold ${
-                      group.tier === 'professional' ? 'bg-amber-500' :
+                      group.tier === 'professional' ? 'bg-teal-600' :
                       group.tier === 'business' ? 'bg-purple-500' : 'bg-slate-500'
                     }`}>{group.badge}</span>
                   )}
@@ -219,7 +219,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                 }`}
               >
                 {isActive && (
-                  <div className="absolute top-0 w-8 h-0.5 bg-teal-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
+                  <div className="absolute top-0 w-8 h-0.5 bg-teal-500 rounded-full shadow-[0_0_8px_rgba(20,184,166,0.6)]" />
                 )}
                 <item.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
                 <span className={`text-[8px] xs:text-[9px] font-medium tracking-tight leading-none truncate max-w-[48px] ${isActive ? 'opacity-100 font-bold' : 'opacity-70'}`}>
@@ -249,7 +249,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                     <span className="font-black text-[10px] uppercase tracking-wider text-slate-700">{group.label}</span>
                     {group.badge && (
                       <span className={`text-[9px] text-white px-1.5 py-0.5 rounded-full font-bold ${
-                        group.tier === 'professional' ? 'bg-amber-500' :
+                        group.tier === 'professional' ? 'bg-teal-600' :
                         group.tier === 'business' ? 'bg-purple-500' : 'bg-slate-500'
                       }`}>{group.badge}</span>
                     )}
