@@ -4,48 +4,33 @@ import { ScheduleEntry, Customer, JobPack, Quote } from '../types';
 import {
   Mic, Trash2, MapPin, Clock, Navigation,
   Bell, BellRing, Play, CheckCircle2,
-  Calendar, ArrowRight, Sparkles,
-  Timer, Loader2, MicOff, StickyNote, Eraser,
+  Calendar, ArrowRight, Sparkles, Timer,
+  Loader2, MicOff, StickyNote, Eraser,
   Briefcase, FileText, Receipt, UserPlus,
   PoundSterling, FileWarning, AlertTriangle,
-  LogIn, LogOut, ChevronDown, ChevronUp, BarChart3,
-  Lock, Zap, TrendingUp
+  ChevronDown, ChevronUp, BarChart3,
+  TrendingUp, Camera, Eye
 } from 'lucide-react';
 import { parseReminderVoiceInput } from '../src/services/geminiService';
 import { hapticTap, hapticSuccess } from '../src/hooks/useHaptic';
 import { BusinessDashboard } from './BusinessDashboard';
-
-type SubscriptionTier = 'starter' | 'professional' | 'business' | 'enterprise';
 
 interface HomeProps {
   schedule: ScheduleEntry[];
   customers: Customer[];
   projects: JobPack[];
   quotes: Quote[];
-  userTier?: SubscriptionTier;
   onNavigateToSchedule: () => void;
   onNavigateToInvoices?: () => void;
   onNavigateToQuotes?: () => void;
   onNavigateToAccounting?: () => void;
-  onUpgrade?: () => void;
   onCreateJob?: () => void;
   onCreateQuote?: () => void;
+  onCreateInvoice?: () => void;
   onLogExpense?: () => void;
   onAddCustomer?: () => void;
-}
-
-interface SiteLog {
-  id: string;
-  clockInTime: string;
-  clockInLocation?: { lat: number; lng: number };
-  clockOutTime?: string;
-  clockOutLocation?: { lat: number; lng: number };
-  jobTitle?: string;
-}
-
-interface SiteSession {
-  currentSession: SiteLog | null;
-  history: SiteLog[];
+  onTakePhoto?: (jobPackId?: string) => void;
+  onViewJob?: (jobId: string) => void;
 }
 
 interface Reminder {
@@ -61,25 +46,26 @@ export const Home: React.FC<HomeProps> = ({
   customers,
   projects,
   quotes,
-  userTier = 'starter', // Default to starter for now
   onNavigateToSchedule,
   onNavigateToInvoices,
   onNavigateToQuotes,
   onNavigateToAccounting,
-  onUpgrade,
   onCreateJob,
   onCreateQuote,
+  onCreateInvoice,
   onLogExpense,
-  onAddCustomer
+  onAddCustomer,
+  onTakePhoto,
+  onViewJob
 }) => {
-  const hasBusinessTier = userTier === 'business' || userTier === 'enterprise';
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [quickNotes, setQuickNotes] = useState<string>('');
   const [isListeningReminder, setIsListeningReminder] = useState(false);
   const [isListeningNote, setIsListeningNote] = useState(false);
   const [isProcessingReminder, setIsProcessingReminder] = useState(false);
-  const [siteSession, setSiteSession] = useState<SiteSession>({ currentSession: null, history: [] });
-  const [elapsedTime, setElapsedTime] = useState<string>('0h 0m');
+  const [showPhotoJobPicker, setShowPhotoJobPicker] = useState(false);
+  const [capturedPhotoData, setCapturedPhotoData] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [showDashboard, setShowDashboard] = useState<boolean>(() => {
     const saved = localStorage.getItem('bq_show_dashboard');
     return saved !== 'false'; // Default to true
@@ -95,10 +81,8 @@ export const Home: React.FC<HomeProps> = ({
     try {
     const savedReminders = localStorage.getItem('bq_home_reminders');
     const savedNotes = localStorage.getItem('bq_home_quick_notes');
-    const savedSiteSession = localStorage.getItem('bq_site_log');
     if (savedReminders) setReminders(JSON.parse(savedReminders));
     if (savedNotes) setQuickNotes(savedNotes);
-    if (savedSiteSession) setSiteSession(JSON.parse(savedSiteSession));
     } catch (e) { console.error("Failed to parse localStorage data:", e); }
   }, []);
 
@@ -111,29 +95,8 @@ export const Home: React.FC<HomeProps> = ({
   }, [quickNotes]);
 
   useEffect(() => {
-    localStorage.setItem('bq_site_log', JSON.stringify(siteSession));
-  }, [siteSession]);
-
-  useEffect(() => {
     localStorage.setItem('bq_show_dashboard', showDashboard.toString());
   }, [showDashboard]);
-
-  // Update elapsed time when on site
-  useEffect(() => {
-    if (!siteSession.currentSession) {
-      setElapsedTime('0h 0m');
-      return;
-    }
-    const updateElapsed = () => {
-      const diff = Date.now() - new Date(siteSession.currentSession!.clockInTime).getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setElapsedTime(`${hours}h ${minutes}m`);
-    };
-    updateElapsed();
-    const interval = setInterval(updateElapsed, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, [siteSession.currentSession]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -245,44 +208,28 @@ export const Home: React.FC<HomeProps> = ({
     setNewReminderTime('');
   };
 
-  // Clock In/Out functions
-  const clockIn = async () => {
-    let location: { lat: number; lng: number } | undefined;
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-      });
-      location = { lat: position.coords.latitude, lng: position.coords.longitude };
-    } catch (e) {
-      // Location optional, continue without
+  // Photo capture handling
+  const handlePhotoCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedPhotoData(reader.result as string);
+        setShowPhotoJobPicker(true);
+      };
+      reader.readAsDataURL(file);
     }
-    const newSession: SiteLog = {
-      id: Math.random().toString(36).substr(2, 9),
-      clockInTime: new Date().toISOString(),
-      clockInLocation: location,
-      jobTitle: nextJob?.title
-    };
-    setSiteSession(prev => ({ ...prev, currentSession: newSession }));
   };
 
-  const clockOut = async () => {
-    if (!siteSession.currentSession) return;
-    let location: { lat: number; lng: number } | undefined;
-    try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-      });
-      location = { lat: position.coords.latitude, lng: position.coords.longitude };
-    } catch (e) { console.warn('Could not get clock-out location:', e); }
-    const completedSession: SiteLog = {
-      ...siteSession.currentSession,
-      clockOutTime: new Date().toISOString(),
-      clockOutLocation: location
-    };
-    setSiteSession(prev => ({
-      currentSession: null,
-      history: [completedSession, ...prev.history].slice(0, 30)
-    }));
+  const handleJobPackSelect = (jobPackId?: string) => {
+    if (capturedPhotoData) {
+      onTakePhoto?.(jobPackId);
+    }
+    setShowPhotoJobPicker(false);
+    setCapturedPhotoData(null);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
+    }
   };
 
   // Calculate quote total helper
@@ -449,54 +396,122 @@ export const Home: React.FC<HomeProps> = ({
         </div>
         <div className="bg-white border-2 border-slate-100 rounded-xl md:rounded-2xl px-3 py-1.5 md:px-5 md:py-3 shadow-sm flex items-center gap-2 md:gap-3">
           <Clock size={14} className="md:w-5 md:h-5 text-amber-500" />
-          <span className="font-black text-slate-900 text-sm md:text-lg">
-            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+            <span className="font-black text-slate-900 text-sm md:text-lg">
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <span className="text-[10px] md:text-xs font-bold text-slate-500">
+              {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* QUICK ACTIONS Section */}
       <div>
         <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Quick Actions</h3>
-      <div className="grid grid-cols-2 gap-2 md:gap-3">
-        <button
-          onClick={() => { hapticTap(); onCreateJob?.(); }}
-          className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-blue-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/20 hover:shadow-2xl group"
-        >
-          <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
-            <Briefcase size={20} className="md:w-7 md:h-7" />
-          </div>
-          <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">New Job</span>
-        </button>
-        <button
-          onClick={() => { hapticTap(); onCreateQuote?.(); }}
-          className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-amber-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/20 hover:shadow-2xl group"
-        >
-          <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
-            <FileText size={20} className="md:w-7 md:h-7" />
-          </div>
-          <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">New Quote</span>
-        </button>
-        <button
-          onClick={() => { hapticTap(); onLogExpense?.(); }}
-          className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-emerald-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-emerald-500/20 hover:shadow-2xl group"
-        >
-          <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
-            <Receipt size={20} className="md:w-7 md:h-7" />
-          </div>
-          <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Expense</span>
-        </button>
-        <button
-          onClick={() => { hapticTap(); onAddCustomer?.(); }}
-          className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-purple-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-purple-500/20 hover:shadow-2xl group"
-        >
-          <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
-            <UserPlus size={20} className="md:w-7 md:h-7" />
-          </div>
-          <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Customer</span>
-        </button>
+        {/* Hidden file input for photo capture */}
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handlePhotoCapture}
+        />
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
+          <button
+            onClick={() => { hapticTap(); onCreateJob?.(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-blue-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-blue-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <Briefcase size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">New Job</span>
+          </button>
+          <button
+            onClick={() => { hapticTap(); onCreateQuote?.(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-amber-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-amber-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <FileText size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Quote</span>
+          </button>
+          <button
+            onClick={() => { hapticTap(); onCreateInvoice?.(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-teal-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-teal-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <PoundSterling size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Invoice</span>
+          </button>
+          <button
+            onClick={() => { hapticTap(); photoInputRef.current?.click(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-rose-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-rose-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <Camera size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Photo</span>
+          </button>
+          <button
+            onClick={() => { hapticTap(); onLogExpense?.(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-emerald-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-emerald-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <Receipt size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Expense</span>
+          </button>
+          <button
+            onClick={() => { hapticTap(); onAddCustomer?.(); }}
+            className="flex flex-col items-center justify-center gap-1.5 md:gap-3 bg-purple-500 text-white p-3 md:p-6 min-h-[70px] md:min-h-[100px] rounded-2xl md:rounded-[28px] active:scale-95 transition-all shadow-lg md:shadow-xl shadow-purple-500/20 hover:shadow-2xl group"
+          >
+            <div className="p-2 md:p-3 bg-white/20 rounded-xl md:rounded-2xl group-active:scale-90 transition-transform">
+              <UserPlus size={20} className="md:w-7 md:h-7" />
+            </div>
+            <span className="font-black text-[10px] md:text-sm uppercase tracking-wider md:tracking-widest leading-none">Customer</span>
+          </button>
+        </div>
       </div>
-      </div>
+
+      {/* Photo Job Pack Picker Modal */}
+      {showPhotoJobPicker && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl md:rounded-[32px] p-4 md:p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-lg md:text-xl font-black text-slate-900 mb-4">Add Photo To</h3>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              <button
+                onClick={() => handleJobPackSelect(undefined)}
+                className="w-full p-4 bg-amber-50 hover:bg-amber-100 rounded-xl text-left transition-colors border-2 border-amber-200"
+              >
+                <p className="font-bold text-slate-900">Create New Job Pack</p>
+                <p className="text-sm text-slate-500">Start a new project with this photo</p>
+              </button>
+              {projects.filter(p => p.status === 'active').map(project => (
+                <button
+                  key={project.id}
+                  onClick={() => handleJobPackSelect(project.id)}
+                  className="w-full p-4 bg-slate-50 hover:bg-slate-100 rounded-xl text-left transition-colors"
+                >
+                  <p className="font-bold text-slate-900">{project.title}</p>
+                  <p className="text-sm text-slate-500">
+                    {customers.find(c => c.id === project.customerId)?.name || 'No customer'}
+                  </p>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => { setShowPhotoJobPicker(false); setCapturedPhotoData(null); }}
+              className="w-full mt-4 p-3 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold text-slate-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* TODAY'S SCHEDULE Section Header */}
       <div>
@@ -604,16 +619,16 @@ export const Home: React.FC<HomeProps> = ({
                 </div>
               </div>
 
-              <button 
-                onClick={onNavigateToSchedule}
+              <button
+                onClick={() => { hapticTap(); onViewJob?.(nextJob.id); }}
                 className="w-full md:w-auto h-auto md:h-64 bg-white/5 border border-white/10 rounded-[32px] p-8 flex flex-col justify-between hover:bg-white/10 transition-all group"
               >
-                <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
-                  <ArrowRight size={24} />
+                <div className="h-12 w-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
+                  <Eye size={24} />
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Full Schedule</p>
-                  <p className="text-xl font-black text-white mt-1">View Week</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Job Details</p>
+                  <p className="text-xl font-black text-white mt-1">View Job</p>
                 </div>
               </button>
             </div>
@@ -622,44 +637,8 @@ export const Home: React.FC<HomeProps> = ({
       </div>
       </div>
 
-      {/* On Site Clock + Week Preview Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-        {/* On Site Clock */}
-        <div className={`rounded-xl md:rounded-[32px] p-3 md:p-6 ${siteSession.currentSession ? 'bg-emerald-500' : 'bg-slate-900'} text-white shadow-lg`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] md:text-xs font-black uppercase tracking-widest opacity-70 mb-0.5 md:mb-1">
-                {siteSession.currentSession ? 'On Site' : 'Off Site'}
-              </p>
-              {siteSession.currentSession ? (
-                <>
-                  <p className="text-xl md:text-3xl font-black">{elapsedTime}</p>
-                  <p className="text-xs md:text-sm opacity-80 mt-0.5 md:mt-1">
-                    Since {new Date(siteSession.currentSession.clockInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {siteSession.currentSession.jobTitle && ` - ${siteSession.currentSession.jobTitle}`}
-                  </p>
-                </>
-              ) : (
-                <p className="text-sm md:text-lg font-bold opacity-60">Tap to clock in when you arrive</p>
-              )}
-            </div>
-            <button
-              onClick={() => {
-                hapticTap();
-                siteSession.currentSession ? clockOut() : clockIn();
-              }}
-              className={`h-12 w-12 md:h-16 md:w-16 min-w-[48px] md:min-w-[64px] rounded-xl md:rounded-[20px] flex items-center justify-center font-black text-sm active:scale-95 transition-transform ${
-                siteSession.currentSession
-                  ? 'bg-white text-emerald-600'
-                  : 'bg-amber-500 text-slate-900'
-              }`}
-            >
-              {siteSession.currentSession ? <LogOut size={20} className="md:w-[26px] md:h-[26px]" /> : <LogIn size={20} className="md:w-[26px] md:h-[26px]" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Week Preview */}
+      {/* Week Preview */}
+      <div>
         <div className="bg-white rounded-xl md:rounded-[32px] border border-slate-200 p-3 md:p-6 shadow-sm">
           <h3 className="text-xs md:text-sm font-black text-slate-900 uppercase tracking-tight mb-2 md:mb-4">Week Ahead</h3>
           <div className="flex gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -686,111 +665,55 @@ export const Home: React.FC<HomeProps> = ({
       <div>
         <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Financial Snapshot</h3>
 
-        {hasBusinessTier ? (
-          /* Business Tier - Full Financial Overview */
-          <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl md:rounded-2xl">
-                  <PoundSterling size={18} className="md:w-6 md:h-6" />
-                </div>
-                <div>
-                  <h4 className="font-black text-slate-900 text-sm md:text-lg">Financial Overview</h4>
-                  <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">This month's summary</p>
-                </div>
+        <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-2 md:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl md:rounded-2xl">
+                <PoundSterling size={18} className="md:w-6 md:h-6" />
               </div>
-              <button
-                onClick={() => { hapticTap(); onNavigateToAccounting?.(); }}
-                className="flex items-center gap-1 text-teal-600 hover:text-teal-700 font-bold text-xs md:text-sm"
-              >
-                View Full Accounting
-                <ArrowRight size={14} className="md:w-4 md:h-4" />
-              </button>
+              <div>
+                <h4 className="font-black text-slate-900 text-sm md:text-lg">Financial Overview</h4>
+                <p className="text-[9px] md:text-xs text-slate-500 font-medium italic">This month's summary</p>
+              </div>
             </div>
+            <button
+              onClick={() => { hapticTap(); onNavigateToAccounting?.(); }}
+              className="flex items-center gap-1 text-teal-600 hover:text-teal-700 font-bold text-xs md:text-sm"
+            >
+              View Full Accounting
+              <ArrowRight size={14} className="md:w-4 md:h-4" />
+            </button>
+          </div>
 
-            <div className="grid grid-cols-3 gap-3 md:gap-4">
-              <div className="bg-emerald-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <TrendingUp size={12} className="md:w-4 md:h-4 text-emerald-600" />
-                  <span className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase">Income</span>
-                </div>
-                <p className="text-lg md:text-2xl font-black text-slate-900">
-                  {todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Paid invoices</p>
+          <div className="grid grid-cols-3 gap-3 md:gap-4">
+            <div className="bg-emerald-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <TrendingUp size={12} className="md:w-4 md:h-4 text-emerald-600" />
+                <span className="text-[9px] md:text-[10px] font-black text-emerald-600 uppercase">Income</span>
               </div>
-              <div className="bg-red-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <Receipt size={12} className="md:w-4 md:h-4 text-red-600" />
-                  <span className="text-[9px] md:text-[10px] font-black text-red-600 uppercase">Expenses</span>
-                </div>
-                <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
-                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">This month</p>
+              <p className="text-lg md:text-2xl font-black text-slate-900">
+                {todayStats.weeklyRevenue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
+              </p>
+              <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Paid invoices</p>
+            </div>
+            <div className="bg-red-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Receipt size={12} className="md:w-4 md:h-4 text-red-600" />
+                <span className="text-[9px] md:text-[10px] font-black text-red-600 uppercase">Expenses</span>
               </div>
-              <div className="bg-amber-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <FileWarning size={12} className="md:w-4 md:h-4 text-amber-600" />
-                  <span className="text-[9px] md:text-[10px] font-black text-amber-600 uppercase">VAT Due</span>
-                </div>
-                <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
-                <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Estimated</p>
+              <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
+              <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">This month</p>
+            </div>
+            <div className="bg-amber-50 rounded-xl md:rounded-2xl p-3 md:p-4 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <FileWarning size={12} className="md:w-4 md:h-4 text-amber-600" />
+                <span className="text-[9px] md:text-[10px] font-black text-amber-600 uppercase">VAT Due</span>
               </div>
+              <p className="text-lg md:text-2xl font-black text-slate-900">£0</p>
+              <p className="text-[8px] md:text-[9px] text-slate-500 font-medium">Estimated</p>
             </div>
           </div>
-        ) : (
-          /* Starter/Professional Tier - Upgrade Teaser */
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-xl text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-5 scale-150 rotate-12 pointer-events-none">
-              <PoundSterling size={150} />
-            </div>
-
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 md:gap-3">
-                  <div className="p-2 md:p-3 bg-white/10 rounded-xl md:rounded-2xl">
-                    <PoundSterling size={18} className="md:w-6 md:h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-black text-sm md:text-lg">Financial Overview</h4>
-                    <p className="text-[9px] md:text-xs text-slate-400 font-medium italic">Unlock powerful accounting</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 bg-purple-500 px-2 py-1 rounded-full">
-                  <Lock size={10} className="md:w-3 md:h-3" />
-                  <span className="text-[9px] md:text-[10px] font-black uppercase">Business</span>
-                </div>
-              </div>
-
-              <p className="text-slate-300 text-xs md:text-sm mb-4">Upgrade to Business to unlock:</p>
-
-              <div className="grid grid-cols-2 gap-2 md:gap-3 mb-4">
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
-                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
-                  <span className="text-[10px] md:text-xs font-medium">AI receipt scanning</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
-                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
-                  <span className="text-[10px] md:text-xs font-medium">Bank statement import</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
-                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
-                  <span className="text-[10px] md:text-xs font-medium">Auto reconciliation</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 rounded-lg p-2 md:p-3">
-                  <Zap size={14} className="md:w-4 md:h-4 text-amber-400" />
-                  <span className="text-[10px] md:text-xs font-medium">VAT quarterly reports</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => { hapticTap(); onUpgrade?.(); }}
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 font-black text-xs md:text-sm uppercase tracking-wider py-3 md:py-4 rounded-xl md:rounded-2xl active:scale-[0.98] transition-all shadow-lg shadow-amber-500/20"
-              >
-                Upgrade to Business — £29/mo
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Alerts Section */}
