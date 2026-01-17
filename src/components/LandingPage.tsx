@@ -594,16 +594,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignUp }) =
             <p className="text-lg text-slate-400">No hidden fees. No per-invoice charges. Just one fair price.</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Trial */}
-            <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700">
-              <h3 className="text-xl font-bold text-white mb-2">Free Trial</h3>
-              <p className="text-slate-400 mb-6">Try everything for 14 days</p>
-              <p className="text-4xl font-black text-white mb-6">£0</p>
-              <ul className="space-y-3 mb-8">
-                {['All features included', 'Up to 10 quotes', 'No card required', 'Full support'].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-slate-300">
-                    <Check size={18} className="text-teal-400" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {/* Starter */}
+            <div className="bg-slate-800 rounded-3xl p-6 border border-slate-700">
+              <h3 className="text-xl font-bold text-white mb-2">Starter</h3>
+              <p className="text-slate-400 mb-4">Get started for free</p>
+              <p className="text-3xl font-black text-white mb-1">FREE</p>
+              <p className="text-slate-400 text-sm mb-6">or £9/month for more</p>
+              <ul className="space-y-2 mb-6">
+                {['Basic job management', 'Up to 5 jobs/month', 'Quotes & invoices', 'Mobile app access'].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-slate-300 text-sm">
+                    <Check size={16} className="text-teal-400 shrink-0" />
                     {feature}
                   </li>
                 ))}
@@ -612,23 +613,46 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignUp }) =
                 onClick={onSignUp}
                 className="w-full bg-slate-700 text-white py-3 rounded-xl font-semibold hover:bg-slate-600 transition-colors"
               >
-                Start Free Trial
+                Start Free
               </button>
             </div>
 
-            {/* Pro - Highlighted */}
-            <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl p-8 transform scale-105 shadow-2xl shadow-teal-500/30 relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-4 py-1 rounded-full">
-                MOST POPULAR
-              </div>
+            {/* Professional */}
+            <div className="bg-slate-800 rounded-3xl p-6 border border-slate-700">
               <h3 className="text-xl font-bold text-white mb-2">Professional</h3>
-              <p className="text-teal-100 mb-6">For serious tradespeople</p>
-              <p className="text-4xl font-black text-white mb-1">£19<span className="text-lg font-normal">/month</span></p>
-              <p className="text-teal-200 text-sm mb-6">or £190/year (save 17%)</p>
-              <ul className="space-y-3 mb-8">
-                {['Unlimited quotes & invoices', 'Full job pack management', 'Bank reconciliation', 'Receipt OCR', 'Materials library', 'Priority support'].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-white">
-                    <Check size={18} className="text-white" />
+              <p className="text-slate-400 mb-4">For solo tradespeople</p>
+              <p className="text-3xl font-black text-white mb-1">£19<span className="text-lg font-normal">/month</span></p>
+              <p className="text-slate-400 text-sm mb-6">Billed monthly</p>
+              <ul className="space-y-2 mb-6">
+                {['Unlimited jobs', 'Unlimited quotes & invoices', 'Materials library', 'Full job pack management', 'Priority support'].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-slate-300 text-sm">
+                    <Check size={16} className="text-teal-400 shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={onSignUp}
+                className="w-full bg-slate-700 text-white py-3 rounded-xl font-semibold hover:bg-slate-600 transition-colors"
+              >
+                Get Started
+              </button>
+            </div>
+
+            {/* Business - Highlighted */}
+            <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-3xl p-6 transform lg:scale-105 shadow-2xl shadow-teal-500/30 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                <Star size={12} className="fill-amber-900" />
+                RECOMMENDED
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Business</h3>
+              <p className="text-teal-100 mb-4">Full power features</p>
+              <p className="text-3xl font-black text-white mb-1">£29<span className="text-lg font-normal">/month</span></p>
+              <p className="text-teal-200 text-sm mb-6">Best value for pros</p>
+              <ul className="space-y-2 mb-6">
+                {['Everything in Professional', 'AI receipt scanning', 'Bank statement import', 'Auto reconciliation', 'VAT tracking & reports'].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-white text-sm">
+                    <Check size={16} className="text-white shrink-0" />
                     {feature}
                   </li>
                 ))}
@@ -641,15 +665,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignUp }) =
               </button>
             </div>
 
-            {/* Business */}
-            <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700">
-              <h3 className="text-xl font-bold text-white mb-2">Business</h3>
-              <p className="text-slate-400 mb-6">For growing teams</p>
-              <p className="text-4xl font-black text-white mb-6">£49<span className="text-lg font-normal">/month</span></p>
-              <ul className="space-y-3 mb-8">
-                {['Everything in Pro', 'Up to 5 team members', 'Advanced reporting', 'API access', 'Dedicated support'].map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-slate-300">
-                    <Check size={18} className="text-teal-400" />
+            {/* Enterprise */}
+            <div className="bg-slate-800 rounded-3xl p-6 border border-slate-700">
+              <h3 className="text-xl font-bold text-white mb-2">Enterprise</h3>
+              <p className="text-slate-400 mb-4">For teams & agencies</p>
+              <p className="text-3xl font-black text-white mb-1">£45<span className="text-lg font-normal">/month</span></p>
+              <p className="text-slate-400 text-sm mb-6">3 users included</p>
+              <ul className="space-y-2 mb-6">
+                {['Everything in Business', 'Team collaboration (3 users)', 'Multi-business support', 'Advanced reporting', 'Dedicated support'].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-slate-300 text-sm">
+                    <Check size={16} className="text-teal-400 shrink-0" />
                     {feature}
                   </li>
                 ))}
