@@ -873,111 +873,75 @@ export const Home: React.FC<HomeProps> = ({
       </div>
       </div>
 
-      {/* FUTURE JOBS Section */}
+      {/* FUTURE JOBS Section - Compact View */}
       <div>
-        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Future Jobs</h3>
-        <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-3 md:p-5 shadow-sm">
-          {/* Add Form */}
-          <div className="flex flex-col gap-2 mb-3">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Customer / Job name..."
-                className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl p-3 font-bold text-sm text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-slate-300"
-                value={newFutureJobName}
-                onChange={e => setNewFutureJobName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addFutureJob()}
-              />
-              <button
-                onClick={() => { hapticTap(); addFutureJob(); }}
-                disabled={!newFutureJobName.trim()}
-                className="px-4 bg-amber-500 text-white rounded-xl shadow-lg active:scale-95 transition-transform disabled:opacity-30 disabled:active:scale-100"
-              >
-                <Plus size={20} />
-              </button>
-            </div>
-            {newFutureJobName && (
-              <textarea
-                placeholder="Notes (optional)..."
-                className="bg-slate-50 border-2 border-slate-100 rounded-xl p-3 font-medium text-sm text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-slate-300 resize-none min-h-[60px]"
-                value={newFutureJobNotes}
-                onChange={e => setNewFutureJobNotes(e.target.value)}
-              />
-            )}
+        <div className="flex items-center justify-between mb-2 md:mb-3 px-1">
+          <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest">Future Jobs</h3>
+          {futureJobs.filter(j => !j.isCompleted).length > 0 && (
+            <button
+              onClick={() => { hapticTap(); onNavigateToFutureJobs?.(); }}
+              className="text-[10px] md:text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+            >
+              See All ({futureJobs.filter(j => !j.isCompleted).length})
+            </button>
+          )}
+        </div>
+        <div className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-3 md:p-4 shadow-sm">
+          {/* Quick Add Form */}
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              placeholder="Add enquiry..."
+              className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2 font-bold text-sm text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-slate-300"
+              value={newFutureJobName}
+              onChange={e => setNewFutureJobName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addFutureJob()}
+            />
+            <button
+              onClick={() => { hapticTap(); addFutureJob(); }}
+              disabled={!newFutureJobName.trim()}
+              className="px-3 bg-amber-500 text-white rounded-xl shadow-lg active:scale-95 transition-transform disabled:opacity-30 disabled:active:scale-100"
+            >
+              <Plus size={18} />
+            </button>
           </div>
 
-          {/* Jobs List */}
-          <div className="space-y-2 max-h-[300px] overflow-y-auto">
-            {futureJobs.filter(j => !j.isCompleted).length === 0 ? (
-              <div className="py-8 text-center opacity-40">
-                <ClipboardList size={32} className="mx-auto text-slate-300 mb-2" />
-                <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">No jobs queued</p>
-                <p className="text-[9px] text-slate-400 mt-1">Add enquiries as they come in</p>
-              </div>
-            ) : (
-              futureJobs.filter(j => !j.isCompleted).map(job => (
+          {/* Compact Jobs List - Show first 4 only */}
+          {futureJobs.filter(j => !j.isCompleted).length === 0 ? (
+            <div className="py-6 text-center opacity-40">
+              <ClipboardList size={24} className="mx-auto text-slate-300 mb-1" />
+              <p className="text-[9px] font-bold text-slate-400 uppercase">No enquiries queued</p>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {futureJobs.filter(j => !j.isCompleted).slice(0, 4).map(job => (
                 <div
                   key={job.id}
-                  className="bg-slate-50 rounded-xl p-3 border border-slate-100 group hover:border-amber-200 transition-all"
+                  className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 hover:border-amber-200 transition-all"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-black text-slate-900 text-sm truncate">{job.name}</p>
-                      {job.notes && (
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{job.notes}</p>
-                      )}
-                      <p className="text-[9px] text-slate-400 mt-1.5 font-medium">
-                        {new Date(job.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                      </p>
-                    </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      <button
-                        onClick={() => { hapticTap(); convertToJobPack(job); }}
-                        className="p-2 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors"
-                        title="Convert to Job Pack"
-                      >
-                        <ArrowRightCircle size={16} />
-                      </button>
-                      <button
-                        onClick={() => { hapticTap(); toggleFutureJobComplete(job.id); }}
-                        className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
-                        title="Mark as done"
-                      >
-                        <CheckCircle2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => { hapticTap(); deleteFutureJob(job.id); }}
-                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900 text-sm truncate">{job.name}</p>
+                    <p className="text-[9px] text-slate-400 font-medium">
+                      {new Date(job.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </p>
                   </div>
+                  <button
+                    onClick={() => { hapticTap(); convertToJobPack(job); }}
+                    className="p-1.5 bg-amber-100 text-amber-600 rounded-lg hover:bg-amber-200 transition-colors shrink-0"
+                    title="Convert to Job Pack"
+                  >
+                    <ArrowRightCircle size={14} />
+                  </button>
                 </div>
-              ))
-            )}
-          </div>
-
-          {/* Completed jobs (collapsed) */}
-          {futureJobs.filter(j => j.isCompleted).length > 0 && (
-            <div className="mt-3 pt-3 border-t border-slate-100">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                Completed ({futureJobs.filter(j => j.isCompleted).length})
-              </p>
-              <div className="space-y-1">
-                {futureJobs.filter(j => j.isCompleted).slice(0, 3).map(job => (
-                  <div key={job.id} className="flex items-center justify-between py-1.5 px-2 bg-slate-50/50 rounded-lg opacity-50">
-                    <span className="text-xs text-slate-500 line-through truncate">{job.name}</span>
-                    <button
-                      onClick={() => deleteFutureJob(job.id)}
-                      className="p-1 text-slate-300 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              ))}
+              {futureJobs.filter(j => !j.isCompleted).length > 4 && (
+                <button
+                  onClick={() => { hapticTap(); onNavigateToFutureJobs?.(); }}
+                  className="w-full py-2 text-xs font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-all"
+                >
+                  +{futureJobs.filter(j => !j.isCompleted).length - 4} more
+                </button>
+              )}
             </div>
           )}
         </div>
