@@ -9,10 +9,10 @@ import { expenseCategoriesService } from '../src/services/dataService';
 interface ExpenseCategory {
   id: string;
   name: string;
-  icon: string;
-  color: string;
-  display_order: number;
-  is_default: boolean;
+  icon: string | null;
+  color: string | null;
+  display_order: number | null;
+  is_default: boolean | null;
 }
 
 interface CategoryManagerProps {

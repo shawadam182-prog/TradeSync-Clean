@@ -575,7 +575,7 @@ export const expensesService = {
     return data;
   },
 
-  async create(expense) {
+  async create(expense: Omit<Tables['expenses']['Insert'], 'user_id'>) {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
@@ -588,7 +588,7 @@ export const expensesService = {
     return data;
   },
 
-  async update(id, updates) {
+  async update(id: string, updates: Tables['expenses']['Update']) {
     const { data, error } = await supabase
       .from('expenses')
       .update(updates)
@@ -599,7 +599,7 @@ export const expensesService = {
     return data;
   },
 
-  async delete(id) {
+  async delete(id: string) {
     const { error } = await supabase
       .from('expenses')
       .delete()
@@ -630,7 +630,7 @@ export const expensesService = {
     return fileName;
   },
 
-  async getReceiptUrl(storagePath) {
+  async getReceiptUrl(storagePath: string) {
     const { data } = await supabase.storage
       .from('receipts')
       .createSignedUrl(storagePath, 3600);
@@ -775,23 +775,23 @@ export interface Payable {
   id: string;
   user_id: string;
   vendor_name: string;
-  vendor_id?: string;
-  invoice_number?: string;
-  description?: string;
+  vendor_id?: string | null;
+  invoice_number?: string | null;
+  description?: string | null;
   amount: number;
-  vat_amount: number;
-  invoice_date: string;
-  due_date?: string;
-  paid_date?: string;
-  status: 'unpaid' | 'partial' | 'paid' | 'overdue' | 'disputed';
-  amount_paid: number;
-  category: string;
-  job_pack_id?: string;
-  document_path?: string;
-  notes?: string;
-  is_reconciled: boolean;
-  created_at: string;
-  updated_at: string;
+  vat_amount: number | null;
+  invoice_date: string | null;
+  due_date?: string | null;
+  paid_date?: string | null;
+  status: 'unpaid' | 'partial' | 'paid' | 'overdue' | 'disputed' | string | null;
+  amount_paid: number | null;
+  category: string | null;
+  job_pack_id?: string | null;
+  document_path?: string | null;
+  notes?: string | null;
+  is_reconciled: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const payablesService = {
@@ -918,22 +918,22 @@ export interface FiledDocument {
   id: string;
   user_id: string;
   name: string;
-  description?: string;
-  file_type?: string;
-  file_size?: number;
+  description?: string | null;
+  file_type?: string | null;
+  file_size?: number | null;
   storage_path: string;
-  category: DocumentCategory;
-  tags?: string[];
-  document_date?: string;
-  expiry_date?: string;
-  vendor_name?: string;
-  job_pack_id?: string;
-  expense_id?: string;
-  payable_id?: string;
-  extracted_text?: string;
-  tax_year?: string;
-  created_at: string;
-  updated_at: string;
+  category: DocumentCategory | string | null;
+  tags?: string[] | null;
+  document_date?: string | null;
+  expiry_date?: string | null;
+  vendor_name?: string | null;
+  job_pack_id?: string | null;
+  expense_id?: string | null;
+  payable_id?: string | null;
+  extracted_text?: string | null;
+  tax_year?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export const filingService = {
@@ -1189,7 +1189,7 @@ export const vendorKeywordsService = {
     return data;
   },
 
-  async findCategoryByVendor(vendorName: string) {
+  async findCategoryByVendor(vendorName: string): Promise<{ id: string; name: string } | null> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return null;
 
@@ -1197,14 +1197,15 @@ export const vendorKeywordsService = {
 
     const { data, error } = await supabase
       .from('vendor_keywords')
-      .select()
+      .select('keyword, category:expense_categories(id, name)')
       .eq('user_id', user.id);
 
     if (error || !data) return null;
 
     for (const keyword of data) {
       if (normalizedVendor.includes(keyword.keyword.toLowerCase())) {
-        return keyword.category;
+        const cat = keyword.category as { id: string; name: string } | null;
+        if (cat) return { id: cat.id, name: cat.name };
       }
     }
 
@@ -1230,7 +1231,7 @@ export const vendorKeywordsService = {
         .from('vendor_keywords')
         .update({
           category_id: categoryId,
-          match_count: existing.match_count + 1,
+          match_count: (existing.match_count || 0) + 1,
           updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id);

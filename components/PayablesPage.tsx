@@ -13,7 +13,7 @@ import { handleApiError } from '../src/utils/errorHandler';
 interface Vendor {
   id: string;
   name: string;
-  default_category?: string;
+  default_category?: string | null;
 }
 
 const STATUS_CONFIG = {

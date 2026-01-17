@@ -17,24 +17,24 @@ import { handleApiError } from '../src/utils/errorHandler';
 interface Expense {
   id: string;
   vendor: string;
-  description?: string;
+  description?: string | null;
   amount: number;
-  vat_amount: number;
-  category: string;
+  vat_amount: number | null;
+  category: string | null;
   expense_date: string;
-  payment_method: string;
-  receipt_storage_path?: string;
-  is_reconciled: boolean;
+  payment_method: string | null;
+  receipt_storage_path?: string | null;
+  is_reconciled: boolean | null;
   job_pack?: { id: string; title: string } | null;
 }
 
 interface ExpenseCategory {
   id: string;
   name: string;
-  icon: string;
-  color: string;
-  display_order: number;
-  is_default: boolean;
+  icon: string | null;
+  color: string | null;
+  display_order: number | null;
+  is_default: boolean | null;
 }
 
 interface Vendor {
@@ -42,13 +42,24 @@ interface Vendor {
   name: string;
   default_category: string | null;
   default_payment_method: string | null;
-  total_spent: number;
-  expense_count: number;
+  total_spent: number | null;
+  expense_count: number | null;
   last_expense_date: string | null;
 }
 
 interface ExpensesPageProps {
   projects: { id: string; title: string }[];
+}
+
+interface FormData {
+  vendor: string;
+  description: string;
+  amount: string;
+  vat_amount: string;
+  category: string;
+  expense_date: string;
+  payment_method: string;
+  job_pack_id: string;
 }
 
 const DEFAULT_CATEGORIES = [
@@ -132,13 +143,13 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects }) => {
     } catch { /* ignore */ }
   };
 
-  const [formData, setFormData] = useState(() => {
+  const [formData, setFormData] = useState<FormData>(() => {
     // Check for scanned data in sessionStorage (persists across PWA camera resumption)
     try {
       const scanned = sessionStorage.getItem('scannedExpense');
       if (scanned) {
         sessionStorage.removeItem('scannedExpense');
-        return JSON.parse(scanned);
+        return JSON.parse(scanned) as FormData;
       }
     } catch { /* ignore */ }
     return {

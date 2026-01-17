@@ -1,9 +1,18 @@
+/// <reference types="@types/google.maps" />
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   MapPin, Mic, Loader2, MapPinned, LocateFixed, Navigation
 } from 'lucide-react';
 import { formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { hapticTap } from '../src/hooks/useHaptic';
+
+// Extend Window interface for Google callback
+declare global {
+  interface Window {
+    google?: typeof google;
+    initGooglePlacesCallback?: () => void;
+  }
+}
 
 interface AddressAutocompleteProps {
   value: string;
@@ -123,11 +132,11 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         componentRestrictions: { country: 'gb' },
         types: ['address'],
       },
-      (predictions, status) => {
+      (predictions: google.maps.places.AutocompletePrediction[] | null, status: google.maps.places.PlacesServiceStatus) => {
         setIsSearching(false);
         if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
           setSuggestions(
-            predictions.map(p => ({
+            predictions.map((p: google.maps.places.AutocompletePrediction) => ({
               description: p.description,
               placeId: p.place_id,
             }))

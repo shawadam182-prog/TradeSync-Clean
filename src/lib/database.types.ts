@@ -580,16 +580,21 @@ export type Database = {
       }
       quotes: {
         Row: {
+          amount_paid: number | null
           cis_percent: number | null
           created_at: string | null
           customer_id: string | null
           date: string | null
           display_options: Json | null
+          due_date: string | null
           id: string
           job_pack_id: string | null
           labour_rate: number | null
           markup_percent: number | null
           notes: string | null
+          parent_quote_id: string | null
+          payment_date: string | null
+          payment_method: string | null
           reference_number: number | null
           sections: Json | null
           status: string | null
@@ -600,16 +605,21 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          amount_paid?: number | null
           cis_percent?: number | null
           created_at?: string | null
           customer_id?: string | null
           date?: string | null
           display_options?: Json | null
+          due_date?: string | null
           id?: string
           job_pack_id?: string | null
           labour_rate?: number | null
           markup_percent?: number | null
           notes?: string | null
+          parent_quote_id?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
           reference_number?: number | null
           sections?: Json | null
           status?: string | null
@@ -620,16 +630,21 @@ export type Database = {
           user_id: string
         }
         Update: {
+          amount_paid?: number | null
           cis_percent?: number | null
           created_at?: string | null
           customer_id?: string | null
           date?: string | null
           display_options?: Json | null
+          due_date?: string | null
           id?: string
           job_pack_id?: string | null
           labour_rate?: number | null
           markup_percent?: number | null
           notes?: string | null
+          parent_quote_id?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
           reference_number?: number | null
           sections?: Json | null
           status?: string | null
@@ -652,6 +667,13 @@ export type Database = {
             columns: ["job_pack_id"]
             isOneToOne: false
             referencedRelation: "job_packs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_parent_quote_id_fkey"
+            columns: ["parent_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
         ]
@@ -885,6 +907,8 @@ export type Database = {
           company_address: string | null
           company_logo_path: string | null
           company_name: string | null
+          converted: boolean | null
+          converted_at: string | null
           cost_box_color: string | null
           created_at: string | null
           default_cis_rate: number | null
@@ -900,7 +924,10 @@ export type Database = {
           invoice_prefix: string | null
           is_vat_registered: boolean | null
           quote_prefix: string | null
+          referral_code: string | null
           show_breakdown: boolean | null
+          trial_end: string | null
+          trial_start: string | null
           updated_at: string | null
           user_id: string
           vat_number: string | null
@@ -909,6 +936,8 @@ export type Database = {
           company_address?: string | null
           company_logo_path?: string | null
           company_name?: string | null
+          converted?: boolean | null
+          converted_at?: string | null
           cost_box_color?: string | null
           created_at?: string | null
           default_cis_rate?: number | null
@@ -924,7 +953,10 @@ export type Database = {
           invoice_prefix?: string | null
           is_vat_registered?: boolean | null
           quote_prefix?: string | null
+          referral_code?: string | null
           show_breakdown?: boolean | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string | null
           user_id: string
           vat_number?: string | null
@@ -933,6 +965,8 @@ export type Database = {
           company_address?: string | null
           company_logo_path?: string | null
           company_name?: string | null
+          converted?: boolean | null
+          converted_at?: string | null
           cost_box_color?: string | null
           created_at?: string | null
           default_cis_rate?: number | null
@@ -948,7 +982,10 @@ export type Database = {
           invoice_prefix?: string | null
           is_vat_registered?: boolean | null
           quote_prefix?: string | null
+          referral_code?: string | null
           show_breakdown?: boolean | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string | null
           user_id?: string
           vat_number?: string | null
@@ -1032,6 +1069,51 @@ export type Database = {
           total_spent?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      wholesalers: {
+        Row: {
+          active: boolean | null
+          commission_paid: number | null
+          commission_per_conversion: number | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: string
+          last_payment_date: string | null
+          name: string
+          notes: string | null
+          referral_code: string
+        }
+        Insert: {
+          active?: boolean | null
+          commission_paid?: number | null
+          commission_per_conversion?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          name: string
+          notes?: string | null
+          referral_code: string
+        }
+        Update: {
+          active?: boolean | null
+          commission_paid?: number | null
+          commission_per_conversion?: number | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          last_payment_date?: string | null
+          name?: string
+          notes?: string | null
+          referral_code?: string
         }
         Relationships: []
       }
@@ -1169,6 +1251,26 @@ export type Database = {
           output_vat: number | null
           quarter: string | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      wholesaler_stats: {
+        Row: {
+          active: boolean | null
+          commission_owed: number | null
+          commission_paid: number | null
+          commission_per_conversion: number | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: string | null
+          last_payment_date: string | null
+          name: string | null
+          notes: string | null
+          referral_code: string | null
+          total_conversions: number | null
+          total_signups: number | null
         }
         Relationships: []
       }

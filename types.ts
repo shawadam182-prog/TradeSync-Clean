@@ -145,8 +145,10 @@ export interface AppSettings {
   defaultCisRate: number;
   companyName: string;
   companyLogo?: string;
-  footerLogos?: string[]; 
+  footerLogos?: string[];
   companyAddress: string;
+  phone?: string;
+  email?: string;
   vatNumber?: string;
   isVatRegistered: boolean;
   enableVat: boolean;
@@ -162,18 +164,18 @@ export interface AppSettings {
 
 export interface Expense {
   id: string;
-  jobPackId?: string;
+  jobPackId?: string | null;
   vendor: string;
-  description?: string;
+  description?: string | null;
   amount: number;
   vatAmount: number;
-  category: 'materials' | 'tools' | 'fuel' | 'subcontractor' | 'office' | 'insurance' | 'other';
-  receiptStoragePath?: string;
-  receiptExtractedText?: string;
+  category: 'materials' | 'tools' | 'fuel' | 'subcontractor' | 'office' | 'insurance' | 'other' | string;
+  receiptStoragePath?: string | null;
+  receiptExtractedText?: string | null;
   expenseDate: string;
   isReconciled: boolean;
-  reconciledTransactionId?: string;
-  paymentMethod: 'card' | 'cash' | 'bank_transfer' | 'cheque';
+  reconciledTransactionId?: string | null;
+  paymentMethod: 'card' | 'cash' | 'bank_transfer' | 'cheque' | string;
   createdAt: string;
   updatedAt: string;
 }
@@ -183,15 +185,15 @@ export interface BankTransaction {
   transactionDate: string;
   description: string;
   amount: number;
-  balance?: number;
-  reference?: string;
-  transactionType?: string;
+  balance?: number | null;
+  reference?: string | null;
+  transactionType?: string | null;
   isReconciled: boolean;
-  reconciledExpenseId?: string;
-  reconciledInvoiceId?: string;
-  importBatchId?: string;
-  bankName?: string;
-  accountLastFour?: string;
+  reconciledExpenseId?: string | null;
+  reconciledInvoiceId?: string | null;
+  importBatchId?: string | null;
+  bankName?: string | null;
+  accountLastFour?: string | null;
   createdAt: string;
 }
 
@@ -241,10 +243,10 @@ export interface DBBankTransaction {
 export interface ExpenseCategory {
   id: string;
   name: string;
-  icon: string;
-  color: string;
-  display_order: number;
-  is_default: boolean;
+  icon: string | null;
+  color: string | null;
+  display_order: number | null;
+  is_default: boolean | null;
 }
 
 export interface Vendor {
@@ -252,29 +254,30 @@ export interface Vendor {
   name: string;
   default_category?: string | null;
   default_payment_method?: string | null;
-  total_spent?: number;
-  expense_count?: number;
+  total_spent?: number | null;
+  expense_count?: number | null;
   last_expense_date?: string | null;
 }
 
 export interface Payable {
   id: string;
   user_id: string;
+  vendor_id?: string | null;
   vendor_name: string;
-  invoice_number?: string;
-  description?: string;
+  invoice_number?: string | null;
+  description?: string | null;
   amount: number;
   vat_amount: number;
-  amount_paid: number;
-  status: 'unpaid' | 'partial' | 'paid' | 'overdue' | 'disputed';
-  invoice_date?: string;
-  due_date?: string;
-  paid_date?: string;
-  category?: string;
-  notes?: string;
-  attachment_path?: string;
-  created_at: string;
-  updated_at: string;
+  amount_paid: number | null;
+  status: 'unpaid' | 'partial' | 'paid' | 'overdue' | 'disputed' | string;
+  invoice_date?: string | null;
+  due_date?: string | null;
+  paid_date?: string | null;
+  category?: string | null;
+  notes?: string | null;
+  attachment_path?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export type DocumentCategory = 'receipt' | 'invoice' | 'contract' | 'certificate' | 'insurance' | 'warranty' | 'tax' | 'bank' | 'general';
@@ -284,16 +287,16 @@ export interface FiledDocument {
   user_id: string;
   name: string;
   storage_path: string;
-  file_type?: string;
-  file_size?: number;
-  category: DocumentCategory;
-  description?: string;
-  document_date?: string;
-  expiry_date?: string;
-  vendor_name?: string;
-  tax_year?: string;
-  created_at: string;
-  updated_at: string;
+  file_type?: string | null;
+  file_size?: number | null;
+  category: DocumentCategory | string | null;
+  description?: string | null;
+  document_date?: string | null;
+  expiry_date?: string | null;
+  vendor_name?: string | null;
+  tax_year?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface QuarterSummary {
@@ -329,17 +332,17 @@ export interface MaterialLibraryItem {
 export interface DBMaterialLibraryItem {
   id: string;
   user_id: string;
-  product_code?: string;
+  product_code?: string | null;
   name: string;
-  description?: string;
+  description?: string | null;
   unit: string;
-  cost_price?: number;
-  sell_price?: number;
-  supplier?: string;
-  category?: string;
-  is_favourite: boolean;
-  last_updated: string;
-  created_at: string;
+  cost_price?: number | null;
+  sell_price?: number | null;
+  supplier?: string | null;
+  category?: string | null;
+  is_favourite: boolean | null;
+  last_updated: string | null;
+  created_at: string | null;
 }
 
 export interface MaterialsImportHistory {
@@ -403,3 +406,51 @@ export type MaterialCategory =
   | 'windows'
   | 'landscaping'
   | 'other';
+
+// ============================================
+// WHOLESALER TYPES
+// For tracking referrals and commissions
+// ============================================
+
+export interface WholesalerStats {
+  id: string | null;
+  name: string | null;
+  referral_code: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  commission_per_conversion: number | null;
+  commission_paid: number | null;
+  last_payment_date: string | null;
+  notes: string | null;
+  created_at: string | null;
+  active: boolean | null;
+  total_signups: number | null;
+  total_conversions: number | null;
+  commission_owed: number | null;
+}
+
+// ============================================
+// INVOICE TYPES
+// For VAT/Reconciliation pages
+// ============================================
+
+export interface Invoice {
+  id: string;
+  title: string | null;
+  customer_id: string | null;
+  date: string | null;
+  due_date: string | null;
+  payment_date: string | null;
+  amount_paid: number | null;
+  tax_percent: number | null;
+  sections: unknown;
+  status: string | null;
+  subtotal: number;
+  vat: number;
+  total: number;
+  customer?: {
+    id: string;
+    name: string;
+  } | null;
+}
