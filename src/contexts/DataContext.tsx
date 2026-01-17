@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   companyName: 'My Trade Business',
   companyAddress: '',
   companyLogo: undefined,
+  companyLogoPath: undefined,
   footerLogos: [],
   isVatRegistered: false,
   vatNumber: undefined,
@@ -252,7 +253,9 @@ function dbSettingsToApp(dbSettings: any): AppSettings {
     defaultCisRate: Number(dbSettings.default_cis_rate) || 20,
     companyName: dbSettings.company_name || '',
     companyAddress: dbSettings.company_address || '',
-    companyLogo: dbSettings.company_logo_path || undefined,
+    // Store the path for now, we'll fetch the signed URL separately
+    companyLogo: undefined,
+    companyLogoPath: dbSettings.company_logo_path || undefined,
     footerLogos: dbSettings.footer_logos || [],
     isVatRegistered: dbSettings.is_vat_registered ?? false,
     vatNumber: dbSettings.vat_number || undefined,
@@ -415,7 +418,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (settingsResult.status === 'fulfilled' && settingsResult.value) {
-        setSettings(dbSettingsToApp(settingsResult.value));
+        const appSettings = dbSettingsToApp(settingsResult.value);
+
+        // Fetch signed URL for company logo if path exists
+        if (appSettings.companyLogoPath) {
+          try {
+            const logoUrl = await userSettingsService.getLogoUrl(appSettings.companyLogoPath);
+            if (logoUrl) {
+              appSettings.companyLogo = logoUrl;
+            }
+          } catch (err) {
+            console.warn('Failed to fetch logo URL:', err);
+          }
+        }
+
+        setSettings(appSettings);
       }
 
       // Cache data to IndexedDB for offline use

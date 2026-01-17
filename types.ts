@@ -165,6 +165,7 @@ export interface AppSettings {
   defaultCisRate: number;
   companyName: string;
   companyLogo?: string;
+  companyLogoPath?: string;  // Storage path for logo persistence
   footerLogos?: string[];
   companyAddress: string;
   phone?: string;

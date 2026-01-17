@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../src/contexts/ToastContext';
 import { handleApiError } from '../src/utils/errorHandler';
+import { userSettingsService } from '../src/services/dataService';
 
 interface SettingsPageProps {
   settings: AppSettings;
@@ -24,6 +25,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
   const toast = useToast();
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('company');
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const handleNumericChange = (field: keyof AppSettings, val: string) => {
     if (val === '') {
@@ -36,26 +38,61 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, isFooter: boolean = false) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isFooter: boolean = false) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    if (isFooter) {
+      // Footer logos still use base64 for now (multiple logos)
       const reader = new FileReader();
       reader.onload = (ev) => {
         const base64 = ev.target?.result as string;
-        if (isFooter) {
-          setSettings({ ...settings, footerLogos: [...(settings.footerLogos || []), base64] });
-        } else {
-          setSettings({ ...settings, companyLogo: base64 });
-        }
+        setSettings({ ...settings, footerLogos: [...(settings.footerLogos || []), base64] });
       };
       reader.readAsDataURL(file);
+    } else {
+      // Main company logo - upload to Supabase storage for persistence
+      setUploadingLogo(true);
+      try {
+        const storagePath = await userSettingsService.uploadLogo(file);
+        const signedUrl = await userSettingsService.getLogoUrl(storagePath);
+        if (signedUrl) {
+          setSettings({ ...settings, companyLogo: signedUrl });
+          toast.success('Logo Uploaded', 'Your company logo has been saved');
+        }
+      } catch (error) {
+        console.error('Failed to upload logo:', error);
+        const { message } = handleApiError(error);
+        toast.error('Upload Failed', message);
+      } finally {
+        setUploadingLogo(false);
+      }
     }
+
+    // Reset the input so the same file can be re-selected
+    e.target.value = '';
   };
 
   const removeFooterLogo = (index: number) => {
     const newList = [...(settings.footerLogos || [])];
     newList.splice(index, 1);
     setSettings({ ...settings, footerLogos: newList });
+  };
+
+  const removeCompanyLogo = async () => {
+    setUploadingLogo(true);
+    try {
+      // Clear the logo path in the database
+      await userSettingsService.update({ company_logo_path: null });
+      setSettings({ ...settings, companyLogo: undefined });
+      toast.success('Logo Removed', 'Your company logo has been removed');
+    } catch (error) {
+      console.error('Failed to remove logo:', error);
+      const { message } = handleApiError(error);
+      toast.error('Remove Failed', message);
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const toggleDisplayOption = (key: keyof QuoteDisplayOptions) => {
@@ -156,7 +193,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 italic">Main Business Logo</label>
                   <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-6 p-3 md:p-6 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200">
                     <div className="w-32 h-32 rounded-[24px] bg-white border-2 border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                      {settings.companyLogo ? (
+                      {uploadingLogo ? (
+                        <Loader2 className="text-slate-400 animate-spin" size={32} />
+                      ) : settings.companyLogo ? (
                         <img src={settings.companyLogo} className="w-full h-full object-contain" alt="Logo" />
                       ) : (
                         <ImageIcon className="text-slate-200" size={40} />
@@ -166,14 +205,14 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                       <p className="text-sm font-black text-slate-900 mb-1">Upload your brand mark</p>
                       <p className="text-[10px] text-slate-500 italic mb-4">Recommended: PNG or JPG, square or wide format.</p>
                       <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                        <label className="cursor-pointer bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2">
-                          <Upload size={14} />
-                          Browse Files
-                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleLogoUpload(e)} />
+                        <label className={`bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${uploadingLogo ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-black'}`}>
+                          {uploadingLogo ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                          {uploadingLogo ? 'Uploading...' : 'Browse Files'}
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleLogoUpload(e)} disabled={uploadingLogo} />
                         </label>
-                        {settings.companyLogo && (
-                          <button 
-                            onClick={() => setSettings({ ...settings, companyLogo: undefined })}
+                        {settings.companyLogo && !uploadingLogo && (
+                          <button
+                            onClick={removeCompanyLogo}
                             className="bg-white border border-slate-200 text-red-500 px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-all flex items-center gap-2"
                           >
                             <X size={14} /> Remove
