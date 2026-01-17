@@ -52,6 +52,9 @@ export function useFeatureAccess(feature: GatedFeature): FeatureAccessResult {
     const currentTier: SubscriptionTier = settings.subscriptionTier || 'free';
     const status: SubscriptionStatus = settings.subscriptionStatus || 'trialing';
     const trialEnd = settings.trialEnd ? new Date(settings.trialEnd) : null;
+    const subscriptionPeriodEnd = settings.subscriptionPeriodEnd
+      ? new Date(settings.subscriptionPeriodEnd)
+      : null;
     const now = new Date();
 
     // Calculate trial days remaining
@@ -78,9 +81,8 @@ export function useFeatureAccess(feature: GatedFeature): FeatureAccessResult {
     }
 
     if (status === 'cancelled') {
-      // Allow access until subscription_end date if set
-      const subscriptionEnd = settings.subscriptionEnd ? new Date(settings.subscriptionEnd) : null;
-      if (subscriptionEnd && subscriptionEnd < now) {
+      // Allow access until subscription_period_end date if set
+      if (subscriptionPeriodEnd && subscriptionPeriodEnd < now) {
         return {
           ...baseResult,
           allowed: false,
@@ -104,6 +106,15 @@ export function useFeatureAccess(feature: GatedFeature): FeatureAccessResult {
         allowed: false,
         reason: 'trial_expired' as AccessDeniedReason,
         trialDaysRemaining: 0,
+      };
+    }
+
+    // Check if subscription period has expired (active but past period end)
+    if (status === 'active' && subscriptionPeriodEnd && subscriptionPeriodEnd < now) {
+      return {
+        ...baseResult,
+        allowed: false,
+        reason: 'subscription_expired' as AccessDeniedReason,
       };
     }
 
@@ -138,15 +149,20 @@ export function useSubscription(): SubscriptionInfo {
     const tier: SubscriptionTier = settings.subscriptionTier || 'free';
     const status: SubscriptionStatus = settings.subscriptionStatus || 'trialing';
     const trialEnd = settings.trialEnd ? new Date(settings.trialEnd) : null;
+    const subscriptionPeriodEnd = settings.subscriptionPeriodEnd
+      ? new Date(settings.subscriptionPeriodEnd)
+      : null;
     const now = new Date();
 
     const trialDaysRemaining = trialEnd
       ? Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
       : null;
 
+    // Check if subscription is active based on status and dates
     const isActive =
-      status === 'active' ||
-      (status === 'trialing' && trialEnd !== null && trialEnd > now);
+      (status === 'active' && (!subscriptionPeriodEnd || subscriptionPeriodEnd > now)) ||
+      (status === 'trialing' && trialEnd !== null && trialEnd > now) ||
+      (status === 'cancelled' && subscriptionPeriodEnd !== null && subscriptionPeriodEnd > now);
 
     // Get usage limits from settings or fall back to tier defaults
     const usageLimits: UsageLimits = settings.usageLimits || TIER_LIMITS[tier];
@@ -158,6 +174,7 @@ export function useSubscription(): SubscriptionInfo {
       trialEnd: settings.trialEnd || null,
       subscriptionStart: settings.subscriptionStart || null,
       subscriptionEnd: settings.subscriptionEnd || null,
+      subscriptionPeriodEnd: settings.subscriptionPeriodEnd || null,
       isActive,
       trialDaysRemaining,
       usageLimits,

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Lock, AlertTriangle, CreditCard, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Lock, AlertTriangle, CreditCard, Clock, Loader2 } from 'lucide-react';
 import {
   useFeatureAccess,
   useSubscription,
@@ -7,6 +7,7 @@ import {
   getFeatureDisplayName,
   AccessDeniedReason,
 } from '../hooks/useFeatureAccess';
+import { redirectToCheckout, type StripeTier } from '../lib/stripe';
 import type { GatedFeature, SubscriptionTier } from '../../types';
 
 interface FeatureGateProps {
@@ -79,7 +80,24 @@ function UpgradePrompt({
   trialDaysRemaining,
   customMessage,
 }: UpgradePromptProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const featureName = getFeatureDisplayName(feature);
+
+  const handleUpgradeClick = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Map subscription tier to Stripe tier
+      const tier: StripeTier = (requiredTier === 'business' || requiredTier === 'enterprise')
+        ? requiredTier as StripeTier
+        : 'professional';
+      await redirectToCheckout(tier);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to start checkout');
+      setIsLoading(false);
+    }
+  };
 
   const getIcon = () => {
     switch (reason) {
@@ -146,14 +164,23 @@ function UpgradePrompt({
         </div>
       )}
 
+      {error && (
+        <p className="mt-3 text-sm text-red-600">{error}</p>
+      )}
+
       <button
-        onClick={() => {
-          // TODO: Navigate to subscription/upgrade page
-          console.log('Navigate to upgrade page');
-        }}
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        onClick={handleUpgradeClick}
+        disabled={isLoading}
+        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
       >
-        {getActionText()}
+        {isLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Redirecting...
+          </>
+        ) : (
+          getActionText()
+        )}
       </button>
 
       {trialDaysRemaining !== null && trialDaysRemaining > 0 && (
@@ -210,6 +237,7 @@ export function FeatureLockBadge({ feature, children, inline = false }: FeatureL
  */
 export function TrialBanner() {
   const subscription = useSubscription();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!subscription.isActive || subscription.status !== 'trialing') {
     return null;
@@ -222,6 +250,16 @@ export function TrialBanner() {
 
   const urgencyClass = daysLeft <= 3 ? 'bg-amber-500' : 'bg-blue-500';
 
+  const handleUpgradeClick = async () => {
+    setIsLoading(true);
+    try {
+      await redirectToCheckout('professional');
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={`${urgencyClass} text-white text-sm py-2 px-4 text-center`}>
       <span className="font-medium">
@@ -230,13 +268,11 @@ export function TrialBanner() {
           : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left in your free trial`}
       </span>
       <button
-        onClick={() => {
-          // TODO: Navigate to upgrade page
-          console.log('Navigate to upgrade page');
-        }}
-        className="ml-3 underline hover:no-underline"
+        onClick={handleUpgradeClick}
+        disabled={isLoading}
+        className="ml-3 underline hover:no-underline disabled:opacity-75"
       >
-        Upgrade now
+        {isLoading ? 'Redirecting...' : 'Upgrade now'}
       </button>
     </div>
   );

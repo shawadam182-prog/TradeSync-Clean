@@ -10,6 +10,7 @@ import {
   ZoomIn, ZoomOut, Maximize2
 } from 'lucide-react';
 import { MaterialsTracker } from './MaterialsTracker';
+import { JobProfitSummary } from './JobProfitSummary';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useToast } from '../src/contexts/ToastContext';
 import { sitePhotosService } from '../src/services/dataService';
@@ -604,6 +605,11 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
 
       {activeTab === 'finance' && (
         <div className="space-y-3 md:space-y-6 animate-in fade-in">
+          {/* Profit Summary for completed jobs */}
+          {project.status === 'completed' && (
+            <JobProfitSummary jobPackId={project.id} quotes={quotes} />
+          )}
+
           <div className="flex justify-between items-center">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Financials</h3>
             <button onClick={onCreateQuote} className="bg-amber-500 text-white px-6 py-2 rounded-xl text-xs font-black uppercase shadow-lg">+ New Doc</button>

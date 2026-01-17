@@ -197,6 +197,7 @@ export interface AppSettings {
   trialEnd?: string;
   subscriptionStart?: string;
   subscriptionEnd?: string;
+  subscriptionPeriodEnd?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   referralCode?: string;
@@ -521,6 +522,7 @@ export interface SubscriptionInfo {
   trialEnd: string | null;
   subscriptionStart: string | null;
   subscriptionEnd: string | null;
+  subscriptionPeriodEnd: string | null;
   isActive: boolean;
   trialDaysRemaining: number | null;
   usageLimits: UsageLimits;
