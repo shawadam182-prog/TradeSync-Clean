@@ -27,6 +27,7 @@ const PayablesPage = lazy(() => import('./components/PayablesPage').then(m => ({
 const FilingCabinetPage = lazy(() => import('./components/FilingCabinetPage').then(m => ({ default: m.FilingCabinetPage })));
 const MaterialsLibrary = lazy(() => import('./components/MaterialsLibrary').then(m => ({ default: m.MaterialsLibrary })));
 const WholesalerAdmin = lazy(() => import('./components/WholesalerAdmin').then(m => ({ default: m.WholesalerAdmin })));
+const SupportRequestsAdmin = lazy(() => import('./components/SupportRequestsAdmin').then(m => ({ default: m.SupportRequestsAdmin })));
 const FutureJobsPage = lazy(() => import('./components/FutureJobsPage').then(m => ({ default: m.FutureJobsPage })));
 
 // Loading fallback component
@@ -53,13 +54,14 @@ type TabType =
   | 'payables'
   | 'settings'
   | 'wholesalers'
+  | 'support'
   | 'future_jobs'
   | 'view'
   | 'jobpack_detail'
   | 'quote_edit';
 
 // Valid main tabs that can be restored after page reload (e.g., returning from camera)
-const RESTORABLE_TABS: readonly TabType[] = ['home', 'jobpacks', 'quotes', 'invoices', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'files', 'materials', 'wholesalers', 'future_jobs'];
+const RESTORABLE_TABS: readonly TabType[] = ['home', 'jobpacks', 'quotes', 'invoices', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'files', 'materials', 'wholesalers', 'support', 'future_jobs'];
 type RestorableTab = typeof RESTORABLE_TABS[number];
 
 const App: React.FC = () => {
@@ -312,6 +314,7 @@ const App: React.FC = () => {
         {activeTab === 'files' && <FilingCabinetPage onBack={() => setActiveTab('home')} />}
         {activeTab === 'materials' && <MaterialsLibrary onBack={() => setActiveTab('home')} />}
         {activeTab === 'wholesalers' && <WholesalerAdmin onBack={() => setActiveTab('home')} />}
+        {activeTab === 'support' && <SupportRequestsAdmin onBack={() => setActiveTab('home')} />}
         {activeTab === 'future_jobs' && <FutureJobsPage onBack={() => setActiveTab('home')} onCreateJob={() => setActiveTab('jobpacks')} />}
         {activeTab === 'customers' && <CustomerManager customers={customers} addCustomer={addCustomer} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} onBack={() => setActiveTab('home')} />}
         {activeTab === 'settings' && <SettingsPage settings={settings} setSettings={setSettings} onSave={updateSettings} onBack={() => setActiveTab('home')} />}

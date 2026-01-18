@@ -8,7 +8,8 @@ import {
   ChevronRight, Building, Upload, X, Image as ImageIcon,
   Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2,
   Calendar, Layout, FileSpreadsheet, FileEdit, List, ArrowLeft,
-  Crown, Zap, Clock, Users, Briefcase, Camera, FileBox, ExternalLink
+  Crown, Zap, Clock, Users, Briefcase, Camera, FileBox, ExternalLink,
+  HelpCircle, MessageSquare, Send
 } from 'lucide-react';
 import { useToast } from '../src/contexts/ToastContext';
 import { handleApiError } from '../src/utils/errorHandler';
@@ -16,6 +17,8 @@ import { userSettingsService } from '../src/services/dataService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
 import { redirectToCheckout, redirectToPortal } from '../src/lib/stripe';
 import { useData } from '../src/contexts/DataContext';
+import { useAuth } from '../src/contexts/AuthContext';
+import { supabase } from '../src/lib/supabase';
 
 interface SettingsPageProps {
   settings: AppSettings;
@@ -24,17 +27,23 @@ interface SettingsPageProps {
   onBack?: () => void;
 }
 
-type SettingsCategory = 'company' | 'quotes' | 'invoices' | 'subscription';
+type SettingsCategory = 'company' | 'quotes' | 'invoices' | 'subscription' | 'help';
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSettings, onSave, onBack }) => {
   const toast = useToast();
   const subscription = useSubscription();
   const { quotes, projects, customers } = useData();
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('company');
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
   const [managingSubscription, setManagingSubscription] = useState(false);
+
+  // Help/Contact form state
+  const [helpTitle, setHelpTitle] = useState('');
+  const [helpMessage, setHelpMessage] = useState('');
+  const [submittingHelp, setSubmittingHelp] = useState(false);
 
   // Calculate current usage for limits display
   const currentInvoiceCount = quotes.filter(q => q.type === 'invoice').length;
@@ -164,6 +173,42 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
     }
   };
 
+  const handleSubmitHelpRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!helpTitle.trim() || !helpMessage.trim()) {
+      toast.error('Missing Information', 'Please provide both a title and message');
+      return;
+    }
+
+    if (!user?.id) {
+      toast.error('Not Logged In', 'Please sign in to submit a request');
+      return;
+    }
+
+    setSubmittingHelp(true);
+    try {
+      const { error } = await supabase.from('support_requests').insert({
+        user_id: user.id,
+        title: helpTitle.trim(),
+        message: helpMessage.trim(),
+        user_email: user.email || null,
+        user_name: settings.companyName || user.email || null
+      });
+
+      if (error) throw error;
+
+      toast.success('Request Submitted', 'We\'ve received your message and will get back to you soon');
+      setHelpTitle('');
+      setHelpMessage('');
+    } catch (error) {
+      console.error('Failed to submit help request:', error);
+      const { message } = handleApiError(error);
+      toast.error('Submission Failed', message);
+    } finally {
+      setSubmittingHelp(false);
+    }
+  };
+
   const CategoryButton = ({ id, label, icon: Icon, color }: { id: SettingsCategory, label: string, icon: any, color: string }) => (
     <button
       onClick={() => setActiveCategory(id)}
@@ -180,7 +225,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
         <div>
           <span className="font-black text-[10px] sm:text-[11px] uppercase tracking-wide sm:tracking-widest block truncate">{label}</span>
           <span className={`text-[8px] sm:text-[9px] font-bold hidden sm:block ${activeCategory === id ? 'text-white/60' : 'text-slate-400'}`}>
-            {id === 'company' ? 'Profile' : id === 'quotes' ? 'Rates' : 'Payment'}
+            {id === 'company' ? 'Profile' : id === 'quotes' ? 'Rates' : id === 'help' ? 'Support' : 'Payment'}
           </span>
         </div>
       </div>
@@ -217,6 +262,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
             <CategoryButton id="company" label="My Company" icon={Building} color="bg-amber-500 text-slate-900" />
             <CategoryButton id="quotes" label="Quote Preferences" icon={FileText} color="bg-blue-500 text-white" />
             <CategoryButton id="invoices" label="Invoice Preferences" icon={ReceiptText} color="bg-emerald-500 text-white" />
+            <CategoryButton id="help" label="Help & Contact" icon={HelpCircle} color="bg-teal-500 text-white" />
           </div>
 
           <div className="pt-10 border-t border-slate-100">
@@ -778,6 +824,99 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                       onChange={e => setSettings({...settings, defaultInvoiceNotes: e.target.value})}
                       placeholder="e.g. Please settle this invoice within 14 days. Bank: ACME Ltd, Account: 01234567, Sort: 00-00-00."
                     />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeCategory === 'help' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
+                <div className="p-10 border-b border-slate-100 bg-gradient-to-r from-teal-50 to-slate-50">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-3 bg-teal-100 text-teal-600 rounded-2xl"><HelpCircle size={24} /></div>
+                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Help & Contact Us</h3>
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium italic">Have a question, feedback, or need assistance? Send us a message and we'll get back to you.</p>
+                </div>
+                <form onSubmit={handleSubmitHelpRequest} className="p-10 space-y-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 italic">Subject / Title</label>
+                    <div className="flex items-center bg-slate-50 border-2 border-slate-100 rounded-[20px] px-5 focus-within:border-teal-400 focus-within:bg-white transition-all">
+                      <MessageSquare size={18} className="text-slate-400 mr-3 shrink-0" />
+                      <input
+                        type="text"
+                        className="w-full bg-transparent border-none py-5 outline-none text-slate-900 font-bold text-sm"
+                        value={helpTitle}
+                        onChange={e => setHelpTitle(e.target.value)}
+                        placeholder="e.g. Question about invoices, Feature request, Bug report..."
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 italic">Your Message</label>
+                    <textarea
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-[32px] p-7 text-slate-900 font-medium text-sm outline-none focus:bg-white focus:border-teal-500 transition-all min-h-[200px] leading-relaxed"
+                      value={helpMessage}
+                      onChange={e => setHelpMessage(e.target.value)}
+                      placeholder="Please describe your question, issue, or feedback in detail. The more information you provide, the better we can assist you."
+                      required
+                    />
+                  </div>
+
+                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">We'll respond to</p>
+                    <p className="text-sm font-bold text-slate-900">{user?.email}</p>
+                    {settings.companyName && (
+                      <p className="text-xs text-slate-500 mt-1">{settings.companyName}</p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submittingHelp || !helpTitle.trim() || !helpMessage.trim()}
+                    className="w-full flex items-center justify-center gap-3 bg-teal-500 text-white p-5 rounded-[24px] font-black hover:bg-teal-600 transition-all shadow-xl shadow-teal-200 uppercase text-xs tracking-widest border-b-4 border-teal-600 active:translate-y-1 active:border-b-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submittingHelp ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    {submittingHelp ? 'Sending...' : 'Send Message'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Quick Links */}
+              <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden p-10">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 mb-6">Quick Tips</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-4 bg-slate-50 p-5 rounded-2xl">
+                    <div className="p-2.5 bg-amber-100 text-amber-600 rounded-xl"><FileText size={18} /></div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900">Creating Quotes</p>
+                      <p className="text-xs text-slate-500 mt-1">Start from a Job Pack to keep everything organised, or create standalone quotes from the Quotes tab.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-slate-50 p-5 rounded-2xl">
+                    <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl"><ReceiptText size={18} /></div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900">Converting to Invoices</p>
+                      <p className="text-xs text-slate-500 mt-1">Once a quote is accepted, use the "Convert to Invoice" option to quickly generate a professional invoice.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-slate-50 p-5 rounded-2xl">
+                    <div className="p-2.5 bg-blue-100 text-blue-600 rounded-xl"><Building2 size={18} /></div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900">Company Details</p>
+                      <p className="text-xs text-slate-500 mt-1">Set up your company info in the settings to have it automatically appear on all your documents.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-slate-50 p-5 rounded-2xl">
+                    <div className="p-2.5 bg-purple-100 text-purple-600 rounded-xl"><Crown size={18} /></div>
+                    <div>
+                      <p className="text-sm font-black text-slate-900">Upgrade for More</p>
+                      <p className="text-xs text-slate-500 mt-1">Professional and Business tiers unlock expense tracking, bank reconciliation, and VAT reporting.</p>
+                    </div>
                   </div>
                 </div>
               </div>

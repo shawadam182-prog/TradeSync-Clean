@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield } from 'lucide-react';
+import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield, MessageSquare } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useAuth } from '../src/contexts/AuthContext';
 import { isAdminUser } from '../src/lib/constants';
@@ -90,6 +90,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
       icon: Shield,
       items: [
         { id: 'wholesalers', label: 'Referrals', icon: QrCode },
+        { id: 'support', label: 'Support Requests', icon: MessageSquare },
       ]
     }] : []),
   ];

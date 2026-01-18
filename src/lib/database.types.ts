@@ -902,6 +902,48 @@ export type Database = {
           },
         ]
       }
+      support_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          id: string
+          message: string
+          resolved_at: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_email: string | null
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          resolved_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_email?: string | null
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_email?: string | null
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           company_address: string | null
