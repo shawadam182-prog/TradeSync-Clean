@@ -892,112 +892,112 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       {/* Multiple Sections / Jobs List */}
       <div className="space-y-3 md:space-y-4">
         {(formData.sections || []).map((section, sectionIdx) => (
-          <div key={section.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
-            <div className="absolute top-0 left-0 w-2 h-full bg-slate-900 transition-all group-hover/section:bg-amber-500"></div>
+          <div key={section.id} className="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-900 transition-all group-hover/section:bg-amber-500"></div>
 
-            <div className="p-2 md:p-3 space-y-2 md:space-y-2.5">
-              <div className="flex justify-between items-center gap-4">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 bg-slate-100 rounded-xl flex items-center justify-center font-black text-xs text-slate-500">{sectionIdx + 1}</div>
-                    <input 
-                      type="text" 
-                      className="bg-transparent text-sm md:text-xl font-black text-slate-900 outline-none focus:text-amber-600 transition-colors w-full" 
-                      value={section.title} 
-                      onChange={e => updateSectionTitle(section.id, e.target.value)} 
+            <div className="p-1.5 md:p-2 space-y-1.5 md:space-y-2">
+              <div className="flex justify-between items-center gap-2">
+                <div className="flex-1 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 bg-slate-100 rounded-lg flex items-center justify-center font-black text-[10px] text-slate-500">{sectionIdx + 1}</div>
+                    <input
+                      type="text"
+                      className="bg-transparent text-xs md:text-base font-black text-slate-900 outline-none focus:text-amber-600 transition-colors w-full leading-tight py-0.5"
+                      value={section.title}
+                      onChange={e => updateSectionTitle(section.id, e.target.value)}
                       placeholder="Job Section Title (e.g. Rewire Kitchen)"
                     />
                   </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic ml-11">Work Specifications & Labour</p>
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic ml-8">Work Specifications & Labour</p>
                 </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => removeSection(section.id)} 
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => removeSection(section.id)}
                     disabled={formData.sections?.length === 1}
-                    className="p-3 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-10"
+                    className="p-1.5 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-10"
                     title="Remove Job Section"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
 
               {/* Material Items - Amazing List Style */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {section.items.map((item) => (
                   item.isHeading ? (
                     // Heading/Divider rendering
-                    <div key={item.id} className="bg-slate-100 px-3 py-1 rounded-lg my-1 flex items-center gap-1.5">
-                      <Type size={12} className="text-slate-400" />
+                    <div key={item.id} className="bg-slate-100 px-2 py-0.5 rounded my-0.5 flex items-center gap-1">
+                      <Type size={10} className="text-slate-400" />
                       <input
                         type="text"
-                        className="bg-transparent text-[10px] font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300"
+                        className="bg-transparent text-[9px] font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300 leading-tight py-0.5"
                         value={item.name}
                         onChange={e => updateItem(section.id, item.id, { name: e.target.value })}
                         placeholder="SECTION HEADING"
                       />
                       <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 size={12}/>
+                        <Trash2 size={10}/>
                       </button>
                     </div>
                   ) : (
                     // Normal material item
-                    <div key={item.id} className="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100 relative group overflow-hidden">
-                      <div className="flex justify-between items-start mb-1">
-                         <div className="flex-1 mr-2">
-                            <input type="text" className="w-full font-bold text-xs text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
-                            <input type="text" className="w-full text-[10px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
+                    <div key={item.id} className="bg-white p-0.5 rounded-md shadow-sm border border-slate-100 relative group overflow-hidden">
+                      <div className="flex justify-between items-start mb-0.5">
+                         <div className="flex-1 mr-1">
+                            <input type="text" className="w-full font-bold text-[10px] text-slate-900 outline-none placeholder:text-slate-300 bg-transparent leading-tight py-0.5" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
+                            <input type="text" className="w-full text-[9px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent leading-tight py-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
                          <div className="flex gap-0.5">
                            {/* Save to Price List */}
                            {item.name && (
                              <button
                                onClick={() => saveItemToLibrary(item)}
-                               className="p-1 bg-slate-50 text-slate-300 rounded-md hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                               className="p-0.5 bg-slate-50 text-slate-300 rounded hover:bg-amber-50 hover:text-amber-500 transition-colors"
                                title="Save to price list"
                              >
-                               <BookmarkPlus size={12}/>
+                               <BookmarkPlus size={10}/>
                              </button>
                            )}
-                           <button onClick={() => removeItem(section.id, item.id)} className="p-1 bg-slate-50 text-slate-300 rounded-md hover:bg-red-50 hover:text-red-500 transition-colors">
-                             <Trash2 size={12}/>
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 bg-slate-50 text-slate-300 rounded hover:bg-red-50 hover:text-red-500 transition-colors">
+                             <Trash2 size={10}/>
                            </button>
                          </div>
                       </div>
 
-                      <div className="flex gap-1.5 bg-slate-50 p-1 rounded-md">
+                      <div className="flex gap-1 bg-slate-50 p-0.5 rounded">
                          {/* Quantity with +/- buttons */}
                          <div className="flex-1">
-                            <label className="text-[7px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-0.5">Qty</label>
-                            <div className="flex items-center bg-white rounded-md shadow-sm border border-slate-100">
+                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block pl-0.5 leading-tight">Qty</label>
+                            <div className="flex items-center bg-white rounded shadow-sm border border-slate-100">
                               <button
                                 onClick={() => decrementQuantity(section.id, item.id)}
-                                className="p-1 hover:bg-slate-50 rounded-l-md transition-colors"
+                                className="p-0.5 hover:bg-slate-50 rounded-l transition-colors"
                               >
-                                <Minus size={10} className="text-slate-400" />
+                                <Minus size={8} className="text-slate-400" />
                               </button>
                               <input
                                 type="number"
-                                className="w-8 bg-transparent text-[11px] font-bold text-center outline-none"
+                                className="w-6 bg-transparent text-[10px] font-bold text-center outline-none py-0.5"
                                 value={item.quantity || ''}
                                 onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
                                 placeholder="0"
                               />
                               <button
                                 onClick={() => incrementQuantity(section.id, item.id)}
-                                className="p-1 hover:bg-slate-50 rounded-r-md transition-colors"
+                                className="p-0.5 hover:bg-slate-50 rounded-r transition-colors"
                               >
-                                <Plus size={10} className="text-slate-400" />
+                                <Plus size={8} className="text-slate-400" />
                               </button>
                             </div>
                          </div>
                          <div className="flex-1">
-                            <label className="text-[7px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-0.5">Price (£)</label>
-                            <input type="number" className="w-full bg-white rounded-md text-[11px] font-bold p-1 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block pl-0.5 leading-tight">Price (£)</label>
+                            <input type="number" className="w-full bg-white rounded text-[10px] font-bold py-0.5 px-1 text-center shadow-sm outline-none focus:ring-1 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
-                            <div className="w-full bg-slate-900 rounded-md p-1 text-center">
-                               <span className="text-white text-[11px] font-bold">£{item.totalPrice.toFixed(2)}</span>
+                            <div className="w-full bg-slate-900 rounded py-0.5 px-1 text-center">
+                               <span className="text-white text-[10px] font-bold">£{item.totalPrice.toFixed(2)}</span>
                             </div>
                          </div>
                       </div>
@@ -1006,84 +1006,84 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 ))}
 
                 {/* Action buttons for materials */}
-                <div className="flex gap-1.5 pt-1.5">
-                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Plus size={14} className="text-amber-500"/> Add Item
+                <div className="flex gap-1 pt-1">
+                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-1 py-1 bg-white border border-slate-200 rounded text-slate-600 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
+                      <Plus size={12} className="text-amber-500"/> Add Item
                    </button>
                    <button
                      onClick={() => {
                        setTargetSectionForMaterial(section.id);
                        setShowMaterialsLibrary(true);
                      }}
-                     className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-600 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-amber-100 active:scale-95 transition-all"
+                     className="flex-1 flex items-center justify-center gap-1 py-1 bg-amber-50 border border-amber-200 rounded text-amber-600 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-amber-100 active:scale-95 transition-all"
                    >
-                     <Package size={14}/> Price List
+                     <Package size={12}/> Price List
                    </button>
                    <button
                      onClick={() => addHeadingToSection(section.id)}
-                     className="flex items-center justify-center gap-1 py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
+                     className="flex items-center justify-center gap-0.5 py-1 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
                    >
-                     <Type size={12}/>
+                     <Type size={10}/>
                    </button>
                 </div>
               </div>
 
               {/* Labour Items Section */}
-              <div className="pt-2 mt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <HardHat size={14} className="text-blue-500" />
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Labour</span>
+              <div className="pt-1 mt-1 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1">
+                    <HardHat size={12} className="text-blue-500" />
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Labour</span>
                   </div>
-                  <div className="text-[10px] text-slate-400">
+                  <div className="text-[9px] text-slate-400">
                     Rate: £{section.labourRate || formData.labourRate || settings.defaultLabourRate}/hr
                   </div>
                 </div>
 
                 {/* Labour Items List */}
                 {(section.labourItems || []).map((labourItem) => (
-                  <div key={labourItem.id} className="bg-blue-50 p-1.5 rounded-lg mb-1.5">
+                  <div key={labourItem.id} className="bg-blue-50 p-0.5 rounded mb-1">
                     {/* Top row: Description and delete button */}
-                    <div className="flex items-center gap-1.5 mb-1">
+                    <div className="flex items-center gap-1 mb-0.5">
                       <input
                         type="text"
                         placeholder="Labour description..."
                         value={labourItem.description}
                         onChange={e => updateLabourItem(section.id, labourItem.id, { description: e.target.value })}
-                        className="flex-1 bg-transparent text-xs font-medium text-slate-900 outline-none placeholder:text-blue-300"
+                        className="flex-1 bg-transparent text-[10px] font-medium text-slate-900 outline-none placeholder:text-blue-300 leading-tight py-0.5"
                       />
                       <button
                         onClick={() => removeLabourItem(section.id, labourItem.id)}
-                        className="p-1 text-slate-300 hover:text-red-500 transition-colors"
+                        className="p-0.5 text-slate-300 hover:text-red-500 transition-colors"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={10} />
                       </button>
                     </div>
                     {/* Bottom row: Hours controls and price */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-0.5 bg-white rounded-md px-1.5 py-1 border border-blue-200">
+                      <div className="flex items-center gap-0.5 bg-white rounded px-1 py-0.5 border border-blue-200">
                         <button
                           onClick={() => decrementLabourHours(section.id, labourItem.id)}
-                          className="p-1 hover:bg-blue-50 rounded transition-colors"
+                          className="p-0.5 hover:bg-blue-50 rounded transition-colors"
                         >
-                          <Minus size={12} className="text-blue-500" />
+                          <Minus size={10} className="text-blue-500" />
                         </button>
                         <input
                           type="number"
                           value={labourItem.hours}
                           onChange={e => updateLabourItem(section.id, labourItem.id, { hours: parseFloat(e.target.value) || 0 })}
-                          className="w-10 text-center font-bold text-xs bg-transparent outline-none"
+                          className="w-8 text-center font-bold text-[10px] bg-transparent outline-none py-0.5"
                           step="0.5"
                         />
-                        <span className="text-[9px] text-slate-400 font-bold">hrs</span>
+                        <span className="text-[8px] text-slate-400 font-bold">hrs</span>
                         <button
                           onClick={() => incrementLabourHours(section.id, labourItem.id)}
-                          className="p-1 hover:bg-blue-50 rounded transition-colors"
+                          className="p-0.5 hover:bg-blue-50 rounded transition-colors"
                         >
-                          <Plus size={12} className="text-blue-500" />
+                          <Plus size={10} className="text-blue-500" />
                         </button>
                       </div>
-                      <span className="font-bold text-blue-600 text-sm">
+                      <span className="font-bold text-blue-600 text-[11px]">
                         £{(labourItem.hours * (labourItem.rate || section.labourRate || formData.labourRate || settings.defaultLabourRate)).toFixed(2)}
                       </span>
                     </div>
@@ -1093,18 +1093,18 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 {/* Add Labour Item Button */}
                 <button
                   onClick={() => addLabourItem(section.id)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 font-bold text-[10px] uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-1.5"
+                  className="w-full flex items-center justify-center gap-1 py-1 bg-blue-50 border border-blue-200 rounded text-blue-600 font-bold text-[9px] uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-1"
                 >
-                  <Plus size={12} /> Add Labour Item
+                  <Plus size={10} /> Add Labour Item
                 </button>
 
                 {/* Labour Summary */}
                 {(section.labourItems && section.labourItems.length > 0) && (
-                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-100">
-                    <span className="text-[10px] text-slate-500">
+                  <div className="flex justify-between items-center mt-1 pt-1 border-t border-blue-100">
+                    <span className="text-[9px] text-slate-500">
                       Total: {getTotalLabourHours(section)} hours × £{section.labourRate || formData.labourRate || settings.defaultLabourRate}
                     </span>
-                    <span className="font-black text-blue-600 text-sm">
+                    <span className="font-black text-blue-600 text-[11px]">
                       £{calculateSectionLabour(section).toFixed(2)}
                     </span>
                   </div>
