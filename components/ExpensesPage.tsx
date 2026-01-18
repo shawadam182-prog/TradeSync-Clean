@@ -538,7 +538,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
           )}
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Expenses</h1>
-            <p className="text-slate-500 text-sm font-medium">Track receipts and business costs <span className="text-red-500 font-bold">[v17-POLL]</span></p>
+            <p className="text-slate-500 text-sm font-medium">Track receipts and business costs</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -659,15 +659,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
               <button onClick={() => { setShowAddModal(false); resetForm(); }} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl"><X size={20} /></button>
             </div>
             <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-              {/* DEBUG PANEL - Shows current form state */}
-              <div className={`p-3 rounded-xl text-sm font-bold ${formData.vendor ? 'bg-green-500' : 'bg-red-500'} text-white`}>
-                {formData.vendor ? (
-                  <>✓ DATA LOADED: {formData.vendor} - £{formData.amount}</>
-                ) : (
-                  <>v17: Waiting for receipt data... (polling every 500ms)</>
-                )}
-              </div>
-
               <div>
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Scan Receipt (Optional)</label>
                 {receiptPreview ? (
@@ -675,12 +666,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                     <img src={receiptPreview} className="w-full h-48 object-cover rounded-2xl" alt="Receipt" />
                     <button onClick={() => { setReceiptPreview(null); setReceiptFile(null); }} className="absolute top-2 right-2 p-2 bg-white rounded-full shadow"><X size={16} /></button>
                     {scanning && (<div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center"><div className="text-center text-white"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /><p className="text-sm font-bold">Scanning receipt...</p></div></div>)}
-                    {/* Debug: Show if state updated */}
-                    {formData.vendor && (
-                      <div className="mt-2 p-2 bg-green-100 border border-green-300 rounded-lg text-xs">
-                        <strong>State updated:</strong> {formData.vendor} - £{formData.amount}
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <label htmlFor="receipt-file-input" className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors cursor-pointer block">
@@ -693,8 +678,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
               <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                 <div className="col-span-2 relative">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Vendor *</label>
-                  {/* DEBUG: Show actual state value */}
-                  {formData.vendor && <div className="text-xs text-green-600 mb-1">Value: "{formData.vendor}"</div>}
                   <input
                     ref={vendorInputRef}
                     type="text"
@@ -737,8 +720,6 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Amount (exc. VAT) *</label>
-                  {/* DEBUG */}
-                  {formData.amount && <div className="text-xs text-green-600 mb-1">Value: "£{formData.amount}"</div>}
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">£</span>
                     <input ref={amountInputRef} type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
