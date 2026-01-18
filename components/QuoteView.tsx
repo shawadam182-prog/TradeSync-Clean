@@ -12,6 +12,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { PaymentRecorder } from './PaymentRecorder';
 import { hapticSuccess } from '../src/hooks/useHaptic';
+import { filingService } from '../src/services/dataService';
 import {
   calculateSectionLabour,
   calculateQuoteTotals,
@@ -106,7 +107,104 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     activeQuote.partPaymentValue
   );
 
-  const handleRecordPayment = (payment: {
+  // Generate PDF as a Blob for filing
+  const generatePDFBlob = async (): Promise<{ blob: Blob; filename: string } | null> => {
+    if (!documentRef.current) return null;
+
+    try {
+      const prefix = activeQuote.type === 'invoice' ? (settings.invoicePrefix || 'INV-') : (settings.quotePrefix || 'EST-');
+      const numStr = (activeQuote.referenceNumber || 1).toString().padStart(4, '0');
+      const cleanTitle = (activeQuote.title || 'invoice').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = `${prefix}${numStr}_${cleanTitle}.pdf`;
+
+      const isMobile = window.innerWidth < 768;
+      const scale = isMobile ? 1.5 : 2;
+
+      const canvas = await html2canvas(documentRef.current, {
+        scale,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: documentRef.current.scrollWidth,
+        windowHeight: documentRef.current.scrollHeight,
+      });
+
+      let imgData: string;
+      try {
+        imgData = canvas.toDataURL('image/png');
+      } catch {
+        imgData = canvas.toDataURL('image/jpeg', 0.8);
+      }
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const scaledHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      let heightLeft = scaledHeight;
+      let position = 0;
+      let pageNum = 0;
+
+      while (heightLeft > 0) {
+        if (pageNum > 0) {
+          pdf.addPage();
+        }
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
+        heightLeft -= pdfHeight;
+        position -= pdfHeight;
+        pageNum++;
+      }
+
+      const blob = pdf.output('blob');
+      return { blob, filename };
+    } catch (err) {
+      console.error('PDF generation for filing failed:', err);
+      return null;
+    }
+  };
+
+  // File paid invoice to Filing Cabinet
+  const filePaidInvoice = async () => {
+    const pdfResult = await generatePDFBlob();
+    if (!pdfResult) return;
+
+    const { blob, filename } = pdfResult;
+    const file = new File([blob], filename, { type: 'application/pdf' });
+
+    // Get tax year from payment date
+    const paymentDate = activeQuote.paymentDate || new Date().toISOString().split('T')[0];
+    const paymentYear = new Date(paymentDate).getFullYear();
+    const paymentMonth = new Date(paymentDate).getMonth();
+    // UK tax year runs April to April
+    const taxYear = paymentMonth < 3 ? `${paymentYear - 1}/${paymentYear}` : `${paymentYear}/${paymentYear + 1}`;
+
+    const prefix = settings.invoicePrefix || 'INV-';
+    const numStr = (activeQuote.referenceNumber || 1).toString().padStart(4, '0');
+    const reference = `${prefix}${numStr}`;
+
+    try {
+      await filingService.upload(file, {
+        name: `${reference} - ${activeQuote.title} (PAID)`,
+        description: `Paid invoice for ${customer?.name || 'Customer'}. Amount: £${totals.grandTotal.toFixed(2)}`,
+        category: 'invoice',
+        document_date: paymentDate,
+        vendor_name: customer?.name,
+        tax_year: taxYear,
+        tags: ['paid', 'invoice', reference],
+      });
+      console.log('Invoice filed to Filing Cabinet successfully');
+    } catch (err) {
+      console.error('Failed to file invoice:', err);
+      // Don't throw - filing is a nice-to-have, don't block the payment recording
+    }
+  };
+
+  const handleRecordPayment = async (payment: {
     amount: number;
     method: 'cash' | 'card' | 'bank_transfer' | 'cheque';
     date: string;
@@ -123,6 +221,14 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     onUpdateQuote(updatedQuote);
     setShowPaymentRecorder(false);
     hapticSuccess();
+
+    // Auto-file to Filing Cabinet when marked as paid
+    if (payment.markAsPaid) {
+      // Small delay to ensure the UI updates with the new status first
+      setTimeout(() => {
+        filePaidInvoice();
+      }, 500);
+    }
   };
 
   const handleDownloadPDF = async () => {
