@@ -101,12 +101,12 @@ Deno.serve(async (req) => {
             stripe_subscription_id: subscriptionId,
             subscription_tier: tier,
             subscription_status: subscription.status === 'trialing' ? 'trialing' : 'active',
-            trial_end: subscription.trial_end
+            trial_end: subscription.trial_end && subscription.trial_end > 0
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
-            subscription_period_end: new Date(
-              subscription.current_period_end * 1000
-            ).toISOString(),
+            subscription_period_end: subscription.current_period_end && subscription.current_period_end > 0
+              ? new Date(subscription.current_period_end * 1000).toISOString()
+              : null,
           });
         }
         break;
@@ -121,12 +121,12 @@ Deno.serve(async (req) => {
           stripe_subscription_id: subscription.id,
           subscription_tier: tier,
           subscription_status: subscription.status === 'trialing' ? 'trialing' : 'active',
-          trial_end: subscription.trial_end
+          trial_end: subscription.trial_end && subscription.trial_end > 0
             ? new Date(subscription.trial_end * 1000).toISOString()
             : null,
-          subscription_period_end: new Date(
-            subscription.current_period_end * 1000
-          ).toISOString(),
+          subscription_period_end: subscription.current_period_end && subscription.current_period_end > 0
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
         });
         break;
       }
@@ -151,12 +151,12 @@ Deno.serve(async (req) => {
         await updateUserSettings(customerId, {
           subscription_tier: tier,
           subscription_status: status,
-          trial_end: subscription.trial_end
+          trial_end: subscription.trial_end && subscription.trial_end > 0
             ? new Date(subscription.trial_end * 1000).toISOString()
             : null,
-          subscription_period_end: new Date(
-            subscription.current_period_end * 1000
-          ).toISOString(),
+          subscription_period_end: subscription.current_period_end && subscription.current_period_end > 0
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
         });
         break;
       }
