@@ -890,12 +890,12 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       </details>
 
       {/* Multiple Sections / Jobs List */}
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3 md:space-y-4">
         {(formData.sections || []).map((section, sectionIdx) => (
-          <div key={section.id} className="bg-white rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
+          <div key={section.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
             <div className="absolute top-0 left-0 w-2 h-full bg-slate-900 transition-all group-hover/section:bg-amber-500"></div>
 
-            <div className="p-4 md:p-6 space-y-3 md:space-y-4">
+            <div className="p-2 md:p-3 space-y-2 md:space-y-2.5">
               <div className="flex justify-between items-center gap-4">
                 <div className="flex-1 space-y-1">
                   <div className="flex items-center gap-3">
@@ -1006,84 +1006,84 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 ))}
 
                 {/* Action buttons for materials */}
-                <div className="flex gap-2 pt-2">
-                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Plus size={16} className="text-amber-500"/> Add Item
+                <div className="flex gap-1.5 pt-1.5">
+                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
+                      <Plus size={14} className="text-amber-500"/> Add Item
                    </button>
                    <button
                      onClick={() => {
                        setTargetSectionForMaterial(section.id);
                        setShowMaterialsLibrary(true);
                      }}
-                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-600 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-amber-100 active:scale-95 transition-all"
+                     className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-600 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-amber-100 active:scale-95 transition-all"
                    >
-                     <Package size={16}/> Price List
+                     <Package size={14}/> Price List
                    </button>
                    <button
                      onClick={() => addHeadingToSection(section.id)}
-                     className="flex items-center justify-center gap-1 py-3 px-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
+                     className="flex items-center justify-center gap-1 py-2 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 font-bold text-[10px] uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
                    >
-                     <Type size={14}/>
+                     <Type size={12}/>
                    </button>
                 </div>
               </div>
 
               {/* Labour Items Section */}
-              <div className="pt-4 mt-4 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <HardHat size={16} className="text-blue-500" />
-                    <span className="text-xs font-black text-slate-600 uppercase tracking-widest">Labour</span>
+              <div className="pt-2 mt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <HardHat size={14} className="text-blue-500" />
+                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Labour</span>
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-[10px] text-slate-400">
                     Rate: £{section.labourRate || formData.labourRate || settings.defaultLabourRate}/hr
                   </div>
                 </div>
 
                 {/* Labour Items List */}
                 {(section.labourItems || []).map((labourItem) => (
-                  <div key={labourItem.id} className="bg-blue-50 p-3 rounded-xl mb-2">
+                  <div key={labourItem.id} className="bg-blue-50 p-1.5 rounded-lg mb-1.5">
                     {/* Top row: Description and delete button */}
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 mb-1">
                       <input
                         type="text"
                         placeholder="Labour description..."
                         value={labourItem.description}
                         onChange={e => updateLabourItem(section.id, labourItem.id, { description: e.target.value })}
-                        className="flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-blue-300"
+                        className="flex-1 bg-transparent text-xs font-medium text-slate-900 outline-none placeholder:text-blue-300"
                       />
                       <button
                         onClick={() => removeLabourItem(section.id, labourItem.id)}
-                        className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"
+                        className="p-1 text-slate-300 hover:text-red-500 transition-colors"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
                     {/* Bottom row: Hours controls and price */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 bg-white rounded-lg px-2 py-1.5 border border-blue-200">
+                      <div className="flex items-center gap-0.5 bg-white rounded-md px-1.5 py-1 border border-blue-200">
                         <button
                           onClick={() => decrementLabourHours(section.id, labourItem.id)}
-                          className="p-1.5 hover:bg-blue-50 rounded transition-colors"
+                          className="p-1 hover:bg-blue-50 rounded transition-colors"
                         >
-                          <Minus size={14} className="text-blue-500" />
+                          <Minus size={12} className="text-blue-500" />
                         </button>
                         <input
                           type="number"
                           value={labourItem.hours}
                           onChange={e => updateLabourItem(section.id, labourItem.id, { hours: parseFloat(e.target.value) || 0 })}
-                          className="w-12 text-center font-bold text-sm bg-transparent outline-none"
+                          className="w-10 text-center font-bold text-xs bg-transparent outline-none"
                           step="0.5"
                         />
-                        <span className="text-[10px] text-slate-400 font-bold">hrs</span>
+                        <span className="text-[9px] text-slate-400 font-bold">hrs</span>
                         <button
                           onClick={() => incrementLabourHours(section.id, labourItem.id)}
-                          className="p-1.5 hover:bg-blue-50 rounded transition-colors"
+                          className="p-1 hover:bg-blue-50 rounded transition-colors"
                         >
-                          <Plus size={14} className="text-blue-500" />
+                          <Plus size={12} className="text-blue-500" />
                         </button>
                       </div>
-                      <span className="font-bold text-blue-600 text-base">
+                      <span className="font-bold text-blue-600 text-sm">
                         £{(labourItem.hours * (labourItem.rate || section.labourRate || formData.labourRate || settings.defaultLabourRate)).toFixed(2)}
                       </span>
                     </div>
@@ -1093,18 +1093,18 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 {/* Add Labour Item Button */}
                 <button
                   onClick={() => addLabourItem(section.id)}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-600 font-bold text-xs uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-2"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-600 font-bold text-[10px] uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-1.5"
                 >
-                  <Plus size={14} /> Add Labour Item
+                  <Plus size={12} /> Add Labour Item
                 </button>
 
                 {/* Labour Summary */}
                 {(section.labourItems && section.labourItems.length > 0) && (
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-blue-100">
-                    <span className="text-xs text-slate-500">
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-100">
+                    <span className="text-[10px] text-slate-500">
                       Total: {getTotalLabourHours(section)} hours × £{section.labourRate || formData.labourRate || settings.defaultLabourRate}
                     </span>
-                    <span className="font-black text-blue-600">
+                    <span className="font-black text-blue-600 text-sm">
                       £{calculateSectionLabour(section).toFixed(2)}
                     </span>
                   </div>
@@ -1137,38 +1137,38 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </div>
 
               {/* Section Totals Summary */}
-              <div className="pt-4 mt-4 border-t border-slate-100">
-                <div className="grid grid-cols-3 gap-3">
+              <div className="pt-2 mt-2 border-t border-slate-100">
+                <div className="grid grid-cols-3 gap-2">
                   {/* Materials Total */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <Package size={12} className="text-slate-500" /> Materials
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
+                      <Package size={10} className="text-slate-500" /> Materials
                     </label>
-                    <div className="bg-slate-100 rounded-xl px-3 py-2.5 text-center">
-                      <span className="text-sm font-black text-slate-600">£{section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
+                    <div className="bg-slate-100 rounded-lg px-2 py-1.5 text-center">
+                      <span className="text-xs font-black text-slate-600">£{section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Labour Total */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <HardHat size={12} className="text-blue-500" /> Labour
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
+                      <HardHat size={10} className="text-blue-500" /> Labour
                     </label>
-                    <div className="bg-blue-50 rounded-xl px-3 py-2.5 text-center">
-                      <span className="text-sm font-black text-blue-600">£{calculateSectionLabour(section).toFixed(2)}</span>
+                    <div className="bg-blue-50 rounded-lg px-2 py-1.5 text-center">
+                      <span className="text-xs font-black text-blue-600">£{calculateSectionLabour(section).toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Section Total (editable override) */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
-                      <PoundSterling size={12} className="text-emerald-500" /> Section
+                  <div className="space-y-0.5">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
+                      <PoundSterling size={10} className="text-emerald-500" /> Section
                     </label>
-                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-xl px-3 py-1.5 focus-within:border-emerald-400 transition-all">
-                      <span className="text-emerald-600 text-xs font-bold mr-0.5">£</span>
+                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-lg px-2 py-1.5 focus-within:border-emerald-400 transition-all">
+                      <span className="text-emerald-600 text-[10px] font-bold mr-0.5">£</span>
                       <input
                         type="number"
-                        className="bg-transparent border-none text-emerald-700 font-black text-xs outline-none w-full"
+                        className="bg-transparent border-none text-emerald-700 font-black text-[10px] outline-none w-full"
                         value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0) + calculateSectionLabour(section)).toFixed(2)}
                         onChange={e => {
                           const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;
@@ -1182,7 +1182,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     </div>
                   </div>
                 </div>
-                <p className="text-[9px] text-slate-400 text-center italic mt-2">Edit section total to override calculated value</p>
+                <p className="text-[8px] text-slate-400 text-center italic mt-1">Edit section total to override calculated value</p>
               </div>
             </div>
           </div>
