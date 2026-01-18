@@ -303,27 +303,54 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                           {subscription.tier}
                         </span>
                         {subscription.status === 'trialing' && (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-blue-100 text-blue-600">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                            subscription.trialDaysRemaining !== null && subscription.trialDaysRemaining <= 3
+                              ? 'bg-amber-100 text-amber-600'
+                              : 'bg-blue-100 text-blue-600'
+                          }`}>
                             Trial
+                          </span>
+                        )}
+                        {subscription.status === 'expired' && (
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-100 text-red-600">
+                            Expired
                           </span>
                         )}
                       </div>
                       <p className="text-2xl font-black text-slate-900 capitalize">{subscription.tier} Plan</p>
                       {subscription.status === 'trialing' && subscription.trialDaysRemaining !== null && (
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className={`text-sm mt-1 ${
+                          subscription.trialDaysRemaining === 0
+                            ? 'text-red-600 font-semibold'
+                            : subscription.trialDaysRemaining <= 3
+                            ? 'text-amber-600'
+                            : 'text-slate-500'
+                        }`}>
                           <Clock size={14} className="inline mr-1" />
-                          {subscription.trialDaysRemaining} day{subscription.trialDaysRemaining !== 1 ? 's' : ''} left in trial
+                          {subscription.trialDaysRemaining === 0
+                            ? 'Your trial ends today!'
+                            : `${subscription.trialDaysRemaining} day${subscription.trialDaysRemaining !== 1 ? 's' : ''} left in trial`}
+                        </p>
+                      )}
+                      {subscription.status === 'expired' && (
+                        <p className="text-sm text-red-600 mt-1 font-medium">
+                          <Clock size={14} className="inline mr-1" />
+                          Your free trial has ended. Upgrade to restore full access.
                         </p>
                       )}
                     </div>
-                    {subscription.tier === 'free' ? (
+                    {subscription.tier === 'free' || subscription.status === 'expired' ? (
                       <button
                         onClick={() => handleUpgrade('professional')}
                         disabled={upgradingTier !== null}
-                        className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-purple-200 disabled:opacity-50"
+                        className={`flex items-center gap-2 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg disabled:opacity-50 ${
+                          subscription.status === 'expired'
+                            ? 'bg-red-500 hover:bg-red-600 shadow-red-200'
+                            : 'bg-purple-500 hover:bg-purple-600 shadow-purple-200'
+                        }`}
                       >
                         {upgradingTier === 'professional' ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
-                        Upgrade to Pro
+                        {subscription.status === 'expired' ? 'Choose a Plan' : 'Upgrade to Pro'}
                       </button>
                     ) : (
                       <button

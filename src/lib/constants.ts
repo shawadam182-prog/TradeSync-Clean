@@ -12,7 +12,17 @@ export const isAdminUser = (userId: string | undefined): boolean => {
 // App configuration
 export const APP_CONFIG = {
   BASE_URL: import.meta.env.VITE_APP_URL || 'https://tradesync.app',
-  TRIAL_DAYS: 7,
+  TRIAL_DURATION_DAYS: 14,
   REFERRAL_VALIDITY_DAYS: 30,
   DEFAULT_COMMISSION: 10.00,
+} as const;
+
+// Free tier limits (same as TIER_LIMITS['free'] but usable without importing types)
+export const FREE_TIER_LIMITS = {
+  customers: 5,
+  jobPacks: 3,
+  quotes: 3,
+  invoices: 3,
+  photosPerMonth: 20,
+  documentsPerMonth: 5,
 } as const;

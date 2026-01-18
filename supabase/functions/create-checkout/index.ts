@@ -98,6 +98,7 @@ Deno.serve(async (req) => {
     }
 
     // Checkout session config
+    // Note: No trial_period_days - users already have in-app trial, billing starts immediately
     const checkoutConfig = {
       customer: stripeCustomerId,
       mode: 'subscription' as const,
@@ -109,7 +110,6 @@ Deno.serve(async (req) => {
         },
       ],
       subscription_data: {
-        trial_period_days: 7,
         metadata: {
           supabase_user_id: user.id,
           tier: tier,
@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       },
     };
 
-    // Create checkout session with 14-day trial
+    // Create checkout session - billing starts immediately (no Stripe trial)
     try {
       const session = await stripe.checkout.sessions.create(checkoutConfig);
       return new Response(

@@ -585,14 +585,22 @@ export type Database = {
           created_at: string | null
           customer_id: string | null
           date: string | null
+          discount_description: string | null
+          discount_type: string | null
+          discount_value: number | null
           display_options: Json | null
           due_date: string | null
           id: string
+          job_address: string | null
           job_pack_id: string | null
           labour_rate: number | null
           markup_percent: number | null
           notes: string | null
           parent_quote_id: string | null
+          part_payment_enabled: boolean | null
+          part_payment_label: string | null
+          part_payment_type: string | null
+          part_payment_value: number | null
           payment_date: string | null
           payment_method: string | null
           reference_number: number | null
@@ -610,14 +618,22 @@ export type Database = {
           created_at?: string | null
           customer_id?: string | null
           date?: string | null
+          discount_description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
           display_options?: Json | null
           due_date?: string | null
           id?: string
+          job_address?: string | null
           job_pack_id?: string | null
           labour_rate?: number | null
           markup_percent?: number | null
           notes?: string | null
           parent_quote_id?: string | null
+          part_payment_enabled?: boolean | null
+          part_payment_label?: string | null
+          part_payment_type?: string | null
+          part_payment_value?: number | null
           payment_date?: string | null
           payment_method?: string | null
           reference_number?: number | null
@@ -635,14 +651,22 @@ export type Database = {
           created_at?: string | null
           customer_id?: string | null
           date?: string | null
+          discount_description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
           display_options?: Json | null
           due_date?: string | null
           id?: string
+          job_address?: string | null
           job_pack_id?: string | null
           labour_rate?: number | null
           markup_percent?: number | null
           notes?: string | null
           parent_quote_id?: string | null
+          part_payment_enabled?: boolean | null
+          part_payment_label?: string | null
+          part_payment_type?: string | null
+          part_payment_value?: number | null
           payment_date?: string | null
           payment_method?: string | null
           reference_number?: number | null
@@ -959,6 +983,7 @@ export type Database = {
           default_labour_rate: number | null
           default_quote_notes: string | null
           default_tax_rate: number | null
+          document_template: string | null
           enable_cis: boolean | null
           enable_vat: boolean | null
           footer_logos: string[] | null
@@ -968,9 +993,23 @@ export type Database = {
           quote_prefix: string | null
           referral_code: string | null
           show_breakdown: boolean | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_end: string | null
+          subscription_period_end: string | null
+          subscription_start: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          tax_year_start_day: number | null
+          tax_year_start_month: number | null
           trial_end: string | null
           trial_start: string | null
           updated_at: string | null
+          usage_limits: Json | null
           user_id: string
           vat_number: string | null
         }
@@ -988,6 +1027,7 @@ export type Database = {
           default_labour_rate?: number | null
           default_quote_notes?: string | null
           default_tax_rate?: number | null
+          document_template?: string | null
           enable_cis?: boolean | null
           enable_vat?: boolean | null
           footer_logos?: string[] | null
@@ -997,9 +1037,23 @@ export type Database = {
           quote_prefix?: string | null
           referral_code?: string | null
           show_breakdown?: boolean | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end?: string | null
+          subscription_period_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          tax_year_start_day?: number | null
+          tax_year_start_month?: number | null
           trial_end?: string | null
           trial_start?: string | null
           updated_at?: string | null
+          usage_limits?: Json | null
           user_id: string
           vat_number?: string | null
         }
@@ -1017,6 +1071,7 @@ export type Database = {
           default_labour_rate?: number | null
           default_quote_notes?: string | null
           default_tax_rate?: number | null
+          document_template?: string | null
           enable_cis?: boolean | null
           enable_vat?: boolean | null
           footer_logos?: string[] | null
@@ -1026,9 +1081,23 @@ export type Database = {
           quote_prefix?: string | null
           referral_code?: string | null
           show_breakdown?: boolean | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end?: string | null
+          subscription_period_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          tax_year_start_day?: number | null
+          tax_year_start_month?: number | null
           trial_end?: string | null
           trial_start?: string | null
           updated_at?: string | null
+          usage_limits?: Json | null
           user_id?: string
           vat_number?: string | null
         }
@@ -1287,6 +1356,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscription_status: {
+        Row: {
+          is_active: boolean | null
+          referral_code: string | null
+          subscription_end: string | null
+          subscription_start: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          trial_days_remaining: number | null
+          trial_end: string | null
+          trial_start: string | null
+          usage_limits: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          is_active?: never
+          referral_code?: string | null
+          subscription_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          trial_days_remaining?: never
+          trial_end?: string | null
+          trial_start?: string | null
+          usage_limits?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          is_active?: never
+          referral_code?: string | null
+          subscription_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          trial_days_remaining?: never
+          trial_end?: string | null
+          trial_start?: string | null
+          usage_limits?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       vat_summary: {
         Row: {
           input_vat: number | null
@@ -1322,6 +1445,14 @@ export type Database = {
         Args: { p_type: string; p_user_id: string }
         Returns: number
       }
+      has_subscription_access: {
+        Args: {
+          required_tier: Database["public"]["Enums"]["subscription_tier"]
+          user_uuid: string
+        }
+        Returns: boolean
+      }
+      is_trial_active: { Args: { user_uuid: string }; Returns: boolean }
       mark_payable_paid: {
         Args: {
           p_paid_date?: string
@@ -1361,7 +1492,13 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "cancelled"
+        | "past_due"
+        | "expired"
+      subscription_tier: "free" | "professional" | "business"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1488,6 +1625,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_status: [
+        "trialing",
+        "active",
+        "cancelled",
+        "past_due",
+        "expired",
+      ],
+      subscription_tier: ["free", "professional", "business"],
+    },
   },
 } as const

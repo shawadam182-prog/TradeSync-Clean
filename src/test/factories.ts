@@ -429,9 +429,10 @@ export function createMockSettingsForTier(
 }
 
 // Create settings for a trialing user
+// Default: business tier (full access during trial) with 14 days remaining
 export function createMockSettingsTrialing(
-  tier: SubscriptionTier = 'professional',
-  daysRemaining: number = 7,
+  tier: SubscriptionTier = 'business',
+  daysRemaining: number = 14,
   overrides: Partial<AppSettings> = {}
 ): AppSettings {
   const now = new Date();

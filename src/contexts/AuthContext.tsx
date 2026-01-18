@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { getReferralCode, clearReferralCode } from '../hooks/useReferralCapture';
+import { APP_CONFIG } from '../lib/constants';
 
 interface AuthContextType {
   user: User | null;
@@ -57,29 +58,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password,
     });
 
-    // If signup successful and we have a referral code, store it
-    if (!error && data.user && referralCode) {
+    // If signup successful, initialize trial with business tier (full access)
+    if (!error && data.user) {
       try {
-        // Update user_settings with referral code after a short delay
-        // (to allow the auth trigger to create the settings record first)
+        // Calculate trial dates
+        const now = new Date();
+        const trialEnd = new Date(now.getTime() + APP_CONFIG.TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000);
+
+        // Use upsert to handle both new and existing settings records
+        // This also handles race conditions with any DB triggers
         setTimeout(async () => {
           const { error: settingsError } = await supabase
             .from('user_settings')
-            .update({
-              referral_code: referralCode,
-              trial_start: new Date().toISOString(),
-            })
-            .eq('user_id', data.user!.id);
+            .upsert({
+              user_id: data.user!.id,
+              referral_code: referralCode || null,
+              trial_start: now.toISOString(),
+              trial_end: trialEnd.toISOString(),
+              subscription_tier: 'business',      // Full access during trial
+              subscription_status: 'trialing',
+            }, { onConflict: 'user_id' });
 
           if (settingsError) {
-            console.error('Failed to attach referral code:', settingsError);
+            console.error('Failed to initialize trial settings:', settingsError);
           } else {
-            console.log(`Referral code ${referralCode} attached to user`);
-            clearReferralCode(); // Clear after successful attachment
+            console.log(`Trial initialized for user: ${data.user!.id}, ends: ${trialEnd.toISOString()}`);
+            if (referralCode) {
+              console.log(`Referral code ${referralCode} attached to user`);
+              clearReferralCode();
+            }
           }
         }, 1000);
       } catch (err) {
-        console.error('Error attaching referral:', err);
+        console.error('Error initializing trial:', err);
       }
     }
 

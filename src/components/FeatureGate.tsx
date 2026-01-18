@@ -248,7 +248,8 @@ export function TrialBanner() {
     return null; // Only show when 7 days or less remaining
   }
 
-  const urgencyClass = daysLeft <= 3 ? 'bg-amber-500' : 'bg-blue-500';
+  // Urgency colors: red for final day, amber for 1-3 days, blue for 4-7 days
+  const urgencyClass = daysLeft === 0 ? 'bg-red-500' : daysLeft <= 3 ? 'bg-amber-500' : 'bg-blue-500';
 
   const handleUpgradeClick = async () => {
     setIsLoading(true);
@@ -273,6 +274,52 @@ export function TrialBanner() {
         className="ml-3 underline hover:no-underline disabled:opacity-75"
       >
         {isLoading ? 'Redirecting...' : 'Upgrade now'}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Trial expired banner component shown when trial has ended.
+ */
+export function TrialExpiredBanner() {
+  const subscription = useSubscription();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Show if status is 'expired' OR if trialing but trial_end has passed
+  const isExpired = subscription.status === 'expired' ||
+    (subscription.status === 'trialing' &&
+     subscription.trialEnd !== null &&
+     new Date(subscription.trialEnd) < new Date());
+
+  if (!isExpired) {
+    return null;
+  }
+
+  const handleUpgradeClick = async () => {
+    setIsLoading(true);
+    try {
+      await redirectToCheckout('professional');
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-red-500 text-white text-sm py-3 px-4 text-center">
+      <span className="font-semibold">
+        Your free trial has ended.
+      </span>
+      <span className="ml-1">
+        Upgrade to continue using all features.
+      </span>
+      <button
+        onClick={handleUpgradeClick}
+        disabled={isLoading}
+        className="ml-3 bg-white text-red-600 px-4 py-1 rounded-lg font-semibold hover:bg-red-50 disabled:opacity-75 transition-colors"
+      >
+        {isLoading ? 'Redirecting...' : 'Choose a Plan'}
       </button>
     </div>
   );

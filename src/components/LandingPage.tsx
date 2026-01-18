@@ -274,7 +274,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onSignUp }) =
               <div className="flex items-center justify-center lg:justify-start gap-6 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
                   <Check className="text-teal-500" size={18} />
-                  7-day free trial
+                  14-day free trial
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="text-teal-500" size={18} />

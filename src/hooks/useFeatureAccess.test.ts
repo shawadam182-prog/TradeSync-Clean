@@ -245,6 +245,30 @@ describe('useFeatureAccess', () => {
         expect(result.current.trialDaysRemaining).toBe(7);
       });
 
+      it('allows full business tier access during trial (new 14-day trial flow)', () => {
+        // New trial flow: users get business tier for 14 days
+        setMockSettings({
+          subscriptionTier: 'business',
+          subscriptionStatus: 'trialing',
+          trialEnd: daysFromNow(14),
+        });
+
+        // Should have access to ALL features during trial
+        const bankImport = renderHook(() => useFeatureAccess('bankImport'));
+        expect(bankImport.result.current.allowed).toBe(true);
+        expect(bankImport.result.current.currentTier).toBe('business');
+
+        const vatReports = renderHook(() => useFeatureAccess('vatReports'));
+        expect(vatReports.result.current.allowed).toBe(true);
+
+        const expenses = renderHook(() => useFeatureAccess('expenses'));
+        expect(expenses.result.current.allowed).toBe(true);
+
+        const filingCabinet = renderHook(() => useFeatureAccess('filingCabinet'));
+        expect(filingCabinet.result.current.allowed).toBe(true);
+        expect(filingCabinet.result.current.trialDaysRemaining).toBe(14);
+      });
+
       it('blocks access with expired trialEnd and returns trial_expired reason', () => {
         setMockSettings({
           subscriptionTier: 'professional',

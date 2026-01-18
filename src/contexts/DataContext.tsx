@@ -456,6 +456,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
 
+        // Check trial expiry and auto-downgrade to free tier
+        if (appSettings.subscriptionStatus === 'trialing' && appSettings.trialEnd) {
+          const trialEndDate = new Date(appSettings.trialEnd);
+          if (trialEndDate < new Date()) {
+            console.log('Trial expired, downgrading to free tier');
+            // Update local state immediately
+            appSettings.subscriptionTier = 'free';
+            appSettings.subscriptionStatus = 'expired';
+            // Persist to database (fire-and-forget)
+            userSettingsService.update({
+              subscription_tier: 'free',
+              subscription_status: 'expired',
+            }).catch(err => console.error('Failed to persist trial expiry:', err));
+          }
+        }
+
         setSettings(appSettings);
       }
 
