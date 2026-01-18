@@ -459,6 +459,55 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
       </div>
 
       <div className="flex flex-col gap-4 print:hidden">
+        {/* Status Action Buttons for Quotes */}
+        {activeQuote.type !== 'invoice' && (
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            {activeQuote.status === 'draft' && (
+              <button
+                onClick={() => {
+                  onUpdateStatus('sent');
+                  hapticSuccess();
+                }}
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-colors"
+              >
+                <Share2 size={14} /> Mark as Sent
+              </button>
+            )}
+            {activeQuote.status === 'sent' && (
+              <>
+                <button
+                  onClick={() => {
+                    onUpdateStatus('accepted');
+                    hapticSuccess();
+                  }}
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500 text-white text-xs font-bold shadow-lg shadow-green-500/30 hover:bg-green-600 transition-colors"
+                >
+                  <Check size={14} /> Customer Accepted
+                </button>
+                <button
+                  onClick={() => {
+                    onUpdateStatus('declined');
+                    hapticSuccess();
+                  }}
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30 hover:bg-red-600 transition-colors"
+                >
+                  <X size={14} /> Customer Declined
+                </button>
+              </>
+            )}
+            {activeQuote.status === 'accepted' && !activeQuote.status.includes('invoiced') && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-100 text-green-700 text-xs font-bold">
+                <Check size={14} /> Accepted - Ready to Invoice
+              </div>
+            )}
+            {activeQuote.status === 'declined' && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-100 text-red-700 text-xs font-bold">
+                <X size={14} /> Quote Declined
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Secondary Actions Row */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
             <button
