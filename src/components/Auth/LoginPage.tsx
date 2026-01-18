@@ -113,14 +113,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToLanding }) => {
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 text-base border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 text-[15px] border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -131,14 +131,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToLanding }) => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 text-base border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 text-[15px] border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -150,14 +150,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToLanding }) => {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full pl-12 pr-4 py-3.5 text-base border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+                    className="w-full pl-10 pr-4 py-3.5 text-[15px] border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors placeholder:text-slate-400"
                   />
                 </div>
               </div>
