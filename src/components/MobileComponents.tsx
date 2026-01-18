@@ -53,7 +53,7 @@ export const MobileButton: React.FC<MobileButtonProps> = ({
   const baseClasses = 'min-h-[40px] sm:min-h-[44px] px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-lg sm:rounded-xl font-black text-[10px] sm:text-xs md:text-sm uppercase tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 transition-transform touch-target';
 
   const variantClasses = {
-    primary: 'bg-amber-500 text-white shadow-lg shadow-amber-500/20 disabled:bg-amber-300',
+    primary: 'bg-teal-500 text-white shadow-lg shadow-teal-500/20 disabled:bg-teal-300',
     secondary: 'bg-white border-2 border-slate-200 text-slate-700 disabled:opacity-50',
     danger: 'bg-red-500 text-white shadow-lg shadow-red-500/20 disabled:bg-red-300',
   };
@@ -219,7 +219,7 @@ export const MobileInput: React.FC<MobileInputProps> = ({
         className={`
           w-full min-h-[38px] sm:min-h-[40px] bg-slate-50 border-2 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3
           text-sm font-bold text-slate-900 outline-none
-          focus:border-amber-400 focus:bg-white
+          focus:border-teal-400 focus:bg-white
           disabled:opacity-50 disabled:cursor-not-allowed
           ${error ? 'border-red-300' : 'border-slate-100'}
         `}
@@ -266,7 +266,7 @@ export const MobileTextarea: React.FC<MobileTextareaProps> = ({
         className="
           w-full min-h-[60px] sm:min-h-[80px] md:min-h-[100px] bg-slate-50 border-2 border-slate-100 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3
           text-sm font-medium text-slate-900 outline-none resize-none
-          focus:border-amber-400 focus:bg-white
+          focus:border-teal-400 focus:bg-white
         "
       />
     </div>
@@ -337,16 +337,17 @@ interface QuickActionProps {
   onClick: () => void;
   icon: ReactNode;
   label: string;
-  color: 'blue' | 'amber' | 'emerald' | 'purple' | 'red';
+  color: 'blue' | 'teal' | 'emerald' | 'purple' | 'red' | 'slate';
 }
 
 export const QuickAction: React.FC<QuickActionProps> = ({ onClick, icon, label, color }) => {
   const colorClasses = {
     blue: 'bg-blue-500 shadow-blue-500/20',
-    amber: 'bg-amber-500 shadow-amber-500/20',
+    teal: 'bg-teal-500 shadow-teal-500/20',
     emerald: 'bg-emerald-500 shadow-emerald-500/20',
     purple: 'bg-purple-500 shadow-purple-500/20',
     red: 'bg-red-500 shadow-red-500/20',
+    slate: 'bg-slate-900 shadow-slate-900/20',
   };
 
   const handleClick = () => {

@@ -673,8 +673,8 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
              <div className="relative" ref={dropdownRef}>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Client</label>
                 <div className="flex items-center gap-2">
-                   <input type="text" className="w-full font-medium text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-amber-500 transition-colors placeholder:text-slate-300" value={customerSearch} onFocus={() => setShowCustomerDropdown(true)} onChange={e => setCustomerSearch(e.target.value)} placeholder="Select client" />
-                   <button onClick={() => setIsAddingCustomer(true)} className="p-1 bg-slate-50 text-amber-600 rounded-md"><UserPlus size={14}/></button>
+                   <input type="text" className="w-full font-medium text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-teal-500 transition-colors placeholder:text-slate-300" value={customerSearch} onFocus={() => setShowCustomerDropdown(true)} onChange={e => setCustomerSearch(e.target.value)} placeholder="Select client" />
+                   <button onClick={() => setIsAddingCustomer(true)} className="p-1 bg-slate-50 text-teal-600 rounded-md"><UserPlus size={14}/></button>
                 </div>
                 {showCustomerDropdown && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
@@ -691,14 +691,14 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                   {formData.type === 'invoice' ? 'Invoice Date' : 'Date'}
                 </label>
-                <input type="date" className="w-full font-medium text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-amber-500 transition-colors" value={formData.date || ''} onChange={e => setFormData({...formData, date: e.target.value})} />
+                <input type="date" className="w-full font-medium text-slate-900 border-b border-slate-100 pb-2 outline-none focus:border-teal-500 transition-colors" value={formData.date || ''} onChange={e => setFormData({...formData, date: e.target.value})} />
              </div>
 
              {/* Job Address (if different from client address) */}
              <div className="col-span-1 md:col-span-2 mt-2">
                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                   <MapPin size={12} className="text-amber-500" />
+                   <MapPin size={12} className="text-teal-500" />
                    Job Site Address <span className="text-slate-300 font-normal normal-case">(if different from client)</span>
                  </label>
                  <AddressAutocomplete
@@ -758,8 +758,8 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     isListeningCustomer
                       ? 'bg-red-500 text-white border-red-600 animate-pulse'
                       : isProcessingCustomer
-                      ? 'bg-amber-500 text-white border-amber-600'
-                      : 'bg-white text-amber-600 border-amber-100 hover:bg-amber-50'
+                      ? 'bg-teal-500 text-white border-teal-600'
+                      : 'bg-white text-teal-600 border-teal-100 hover:bg-teal-50'
                   }`}
                 >
                   {isProcessingCustomer ? <Loader2 size={10} className="md:w-3 md:h-3 animate-spin" /> : isListeningCustomer ? <MicOff size={10} className="md:w-3 md:h-3" /> : <Sparkles size={10} className="md:w-3 md:h-3" />}
@@ -776,7 +776,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                   <input
                     type="text"
                     autoComplete="name"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={newCustomer.name || ''}
                     placeholder="e.g. John Smith"
                     onChange={e => setNewCustomer({...newCustomer, name: e.target.value})}
@@ -791,7 +791,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                   <input
                     type="text"
                     autoComplete="organization"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={newCustomer.company || ''}
                     placeholder="e.g. Smith & Co Roofing"
                     onChange={e => setNewCustomer({...newCustomer, company: e.target.value})}
@@ -807,7 +807,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     type="email"
                     inputMode="email"
                     autoComplete="email"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={newCustomer.email || ''}
                     placeholder="john@example.com"
                     onChange={e => setNewCustomer({...newCustomer, email: e.target.value})}
@@ -823,7 +823,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     type="tel"
                     inputMode="tel"
                     autoComplete="tel"
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                     value={newCustomer.phone || ''}
                     placeholder="07123 456789"
                     onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})}
@@ -848,7 +848,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               )}
 
               <div className="flex gap-4 pt-4">
-                <button onClick={handleQuickAddCustomer} className="flex-1 bg-amber-500 text-white font-black py-5 rounded-[24px] hover:bg-amber-600 transition-all shadow-xl shadow-amber-200 uppercase tracking-widest text-xs">Register Contact</button>
+                <button onClick={handleQuickAddCustomer} className="flex-1 bg-teal-500 text-white font-black py-5 rounded-[24px] hover:bg-teal-600 transition-all shadow-xl shadow-teal-200 uppercase tracking-widest text-xs">Register Contact</button>
                 <button onClick={() => setIsAddingCustomer(false)} className="px-12 bg-slate-50 text-slate-500 font-black py-5 rounded-[24px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Cancel</button>
               </div>
             </div>
@@ -857,30 +857,30 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       )}
 
       {/* Global AI Magic Builder targeting sections */}
-      <details className="group bg-amber-500/5 border border-amber-500/10 p-2 md:p-4 rounded-[20px] shadow-sm">
+      <details className="group bg-teal-500/5 border border-teal-500/10 p-2 md:p-4 rounded-[20px] shadow-sm">
         <summary className="flex items-center justify-between cursor-pointer list-none">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-amber-100 rounded-lg text-amber-600"><Sparkles size={14} /></div>
-            <h3 className="text-[10px] font-black uppercase tracking-[0.1em] text-amber-700 italic">AI Magic Builder</h3>
+            <div className="p-1.5 bg-teal-100 rounded-lg text-teal-600"><Sparkles size={14} /></div>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.1em] text-teal-700 italic">AI Magic Builder</h3>
           </div>
-          <ChevronDown size={16} className="text-amber-400 transition-transform group-open:rotate-180" />
+          <ChevronDown size={16} className="text-teal-400 transition-transform group-open:rotate-180" />
         </summary>
 
-        <div className="mt-3 pt-3 border-t border-amber-100/50">
+        <div className="mt-3 pt-3 border-t border-teal-100/50">
           <div className="flex items-center gap-2 mb-2">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target:</span>
-              <select className="bg-white border border-amber-100 rounded-lg text-[9px] font-black uppercase px-2 py-1 outline-none text-amber-600 cursor-pointer flex-1" value={targetSectionId || ''} onChange={e => setTargetSectionId(e.target.value)}>
+              <select className="bg-white border border-teal-100 rounded-lg text-[9px] font-black uppercase px-2 py-1 outline-none text-teal-600 cursor-pointer flex-1" value={targetSectionId || ''} onChange={e => setTargetSectionId(e.target.value)}>
                 {(formData.sections || []).map((s, idx) => <option key={s.id} value={s.id}>{s.title || `Job ${idx+1}`}</option>)}
               </select>
           </div>
           <div className="relative mb-2">
-            <textarea className="w-full bg-white border border-amber-100 rounded-xl p-3 min-h-[60px] text-xs font-bold text-slate-900 outline-none focus:border-amber-400 transition-all placeholder:text-amber-300/60 shadow-inner" placeholder="Describe items..." value={aiInput} onChange={e => setAiInput(e.target.value)} />
-            <button onClick={() => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start()} className={`absolute right-2 bottom-2 p-1.5 rounded-lg shadow-sm transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-amber-500 text-white hover:bg-amber-600'}`}>
+            <textarea className="w-full bg-white border border-teal-100 rounded-xl p-3 min-h-[60px] text-xs font-bold text-slate-900 outline-none focus:border-teal-400 transition-all placeholder:text-teal-300/60 shadow-inner" placeholder="Describe items..." value={aiInput} onChange={e => setAiInput(e.target.value)} />
+            <button onClick={() => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start()} className={`absolute right-2 bottom-2 p-1.5 rounded-lg shadow-sm transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-teal-500 text-white hover:bg-teal-600'}`}>
               {isListening ? <MicOff size={14} /> : <Mic size={14} />}
             </button>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e: any) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = (ev) => setAttachedImage(ev.target?.result as string); r.readAsDataURL(f); } }; i.click(); }} className="flex-1 bg-white border border-amber-100 text-amber-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-amber-50 transition-all shadow-sm flex items-center justify-center gap-1.5">
+            <button onClick={() => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.onchange = (e: any) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload = (ev) => setAttachedImage(ev.target?.result as string); r.readAsDataURL(f); } }; i.click(); }} className="flex-1 bg-white border border-teal-100 text-teal-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-teal-50 transition-all shadow-sm flex items-center justify-center gap-1.5">
               <Camera size={12} /> {attachedImage ? 'Photo Attached' : 'Photo'}
             </button>
             <button onClick={runAIAnalysis} disabled={loading || (!aiInput && !attachedImage)} className="flex-1 bg-slate-900 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl hover:bg-black disabled:opacity-30 flex items-center justify-center gap-1.5 transition-all">

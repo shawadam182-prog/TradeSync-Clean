@@ -274,7 +274,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
           </button>
           <button
             onClick={openAddModal}
-            className="flex items-center gap-2 bg-amber-500 text-slate-900 px-5 py-2 rounded-xl font-black text-sm hover:bg-amber-400 transition-colors"
+            className="flex items-center gap-2 bg-teal-500 text-white px-5 py-2 rounded-xl font-black text-sm hover:bg-teal-400 transition-colors"
           >
             <Plus size={18} />
             Add Bill
@@ -311,7 +311,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
             placeholder="Search bills..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
         <div className="flex gap-2">
@@ -339,7 +339,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
             </p>
             <button
               onClick={openAddModal}
-              className="mt-4 text-amber-600 font-bold text-sm hover:underline"
+              className="mt-4 text-teal-600 font-bold text-sm hover:underline"
             >
               Add your first bill
             </button>
@@ -466,7 +466,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                   value={formData.vendor_name}
                   onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
                   placeholder="e.g. Screwfix, Travis Perkins"
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   required
                   list="vendor-suggestions"
                 />
@@ -490,7 +490,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                       step="0.01"
                       value={formData.amount}
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -506,7 +506,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                       step="0.01"
                       value={formData.vat_amount}
                       onChange={(e) => setFormData({ ...formData, vat_amount: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -523,7 +523,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                     value={formData.invoice_number}
                     onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
                     placeholder="Optional"
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -533,7 +533,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   >
                     {CATEGORIES.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.label}</option>
@@ -552,7 +552,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                     type="date"
                     value={formData.invoice_date}
                     onChange={(e) => setFormData({ ...formData, invoice_date: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -564,7 +564,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                     type="date"
                     value={formData.due_date}
                     onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -579,7 +579,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="What's this bill for?"
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
               </div>
 
@@ -593,7 +593,7 @@ export const PayablesPage: React.FC<PayablesPageProps> = ({ onBack }) => {
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={2}
                   placeholder="Any additional notes..."
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
                 />
               </div>
 

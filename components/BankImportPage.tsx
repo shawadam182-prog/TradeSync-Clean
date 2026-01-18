@@ -315,10 +315,10 @@ export const BankImportPage: React.FC<BankImportPageProps> = ({ onBack }) => {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors group"
+            className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-teal-500 hover:bg-teal-50 transition-colors group"
           >
-            <Upload className="w-10 h-10 text-slate-400 group-hover:text-amber-500 mx-auto mb-3 transition-colors" />
-            <p className="font-bold text-slate-600 group-hover:text-amber-600 mb-1">Click to upload CSV</p>
+            <Upload className="w-10 h-10 text-slate-400 group-hover:text-teal-500 mx-auto mb-3 transition-colors" />
+            <p className="font-bold text-slate-600 group-hover:text-teal-600 mb-1">Click to upload CSV</p>
             <p className="text-xs text-slate-400">Supports most UK banks: Starling, Monzo, Lloyds, Barclays, NatWest</p>
           </button>
 
@@ -350,11 +350,11 @@ export const BankImportPage: React.FC<BankImportPageProps> = ({ onBack }) => {
                   onClick={() => handleBankSelect(id)}
                   className={`p-4 rounded-2xl border-2 transition-all text-left ${
                     selectedBank === id
-                      ? 'border-amber-500 bg-amber-50'
+                      ? 'border-teal-500 bg-teal-50'
                       : 'border-slate-100 hover:border-slate-200'
                   }`}
                 >
-                  <p className={`font-bold text-sm ${selectedBank === id ? 'text-amber-700' : 'text-slate-700'}`}>
+                  <p className={`font-bold text-sm ${selectedBank === id ? 'text-teal-700' : 'text-slate-700'}`}>
                     {preset.name}
                   </p>
                 </button>
@@ -457,7 +457,7 @@ export const BankImportPage: React.FC<BankImportPageProps> = ({ onBack }) => {
             <button
               onClick={handleImport}
               disabled={parsedTransactions.length === 0 || importing}
-              className="flex-1 px-6 py-4 bg-amber-500 text-slate-900 rounded-2xl font-black hover:bg-amber-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-4 bg-teal-500 text-slate-900 rounded-2xl font-black hover:bg-teal-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {importing ? (
                 <>
@@ -495,7 +495,7 @@ export const BankImportPage: React.FC<BankImportPageProps> = ({ onBack }) => {
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-amber-500 text-slate-900 rounded-2xl font-black hover:bg-amber-400 transition-colors"
+              className="px-6 py-3 bg-teal-500 text-slate-900 rounded-2xl font-black hover:bg-teal-400 transition-colors"
             >
               View Transactions
             </button>

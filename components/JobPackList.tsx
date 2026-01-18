@@ -288,7 +288,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <input
                         type="text"
                         autoComplete="name"
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-10 md:pr-12 text-slate-950 font-bold text-sm outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-lg sm:rounded-xl px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-10 md:pr-12 text-slate-950 font-bold text-sm outline-none focus:bg-white focus:border-teal-500 transition-all"
                         value={newCustomer.name || ''}
                         placeholder="e.g. John Smith"
                         onChange={e => setNewCustomer({...newCustomer, name: e.target.value})}
@@ -296,7 +296,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <button
                         type="button"
                         onClick={() => startListening('name')}
-                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'name' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                       >
                         <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                       </button>
@@ -312,7 +312,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <input
                         type="text"
                         autoComplete="organization"
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                         value={newCustomer.company || ''}
                         placeholder="e.g. Smith & Co Roofing"
                         onChange={e => setNewCustomer({...newCustomer, company: e.target.value})}
@@ -320,7 +320,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <button
                         type="button"
                         onClick={() => startListening('company')}
-                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'company' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                       >
                         <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                       </button>
@@ -337,7 +337,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                         type="email"
                         inputMode="email"
                         autoComplete="email"
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                         value={newCustomer.email || ''}
                         placeholder="john@example.com"
                         onChange={e => setNewCustomer({...newCustomer, email: e.target.value})}
@@ -345,7 +345,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <button
                         type="button"
                         onClick={() => startListening('email')}
-                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'email' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                       >
                         <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                       </button>
@@ -362,7 +362,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                         type="tel"
                         inputMode="tel"
                         autoComplete="tel"
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-amber-500 transition-all"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-10 md:pr-12 text-slate-950 font-bold text-sm md:text-base outline-none focus:bg-white focus:border-teal-500 transition-all"
                         value={newCustomer.phone || ''}
                         placeholder="07123 456789"
                         onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})}
@@ -370,7 +370,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                       <button
                         type="button"
                         onClick={() => startListening('phone')}
-                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                        className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-lg transition-all ${isListeningField === 'phone' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                       >
                         <Mic size={14} className="md:w-[18px] md:h-[18px]" />
                       </button>
@@ -384,7 +384,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                     </label>
                     <div className="relative">
                       <textarea
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-amber-500 transition-all"
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-teal-500 transition-all"
                         placeholder="Street, Town, Postcode..."
                         value={newCustomer.address || ''}
                         onChange={e => {
@@ -399,7 +399,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                         <button
                           type="button"
                           onClick={() => startListening('address')}
-                          className={`p-1 md:p-2 rounded-lg transition-all ${isListeningField === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-amber-500 bg-transparent'}`}
+                          className={`p-1 md:p-2 rounded-lg transition-all ${isListeningField === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
                           title="Voice input"
                         >
                           <Mic size={14} className="md:w-[18px] md:h-[18px]" />
@@ -464,12 +464,12 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                 <div className="space-y-3 md:space-y-6">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Project Title (Optional)</label>
-                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-amber-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
+                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
                   </div>
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Assign To Client *</label>
                     <div className="flex gap-2">
-                      <select className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-amber-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
+                      <select className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
                         <option value="">Select a client...</option>
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>)}
                       </select>

@@ -595,7 +595,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input type="text" placeholder="Search vendors..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
           <button onClick={() => setFilterCategory(null)}
@@ -668,7 +668,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                     {scanning && (<div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center"><div className="text-center text-white"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /><p className="text-sm font-bold">Scanning receipt...</p></div></div>)}
                   </div>
                 ) : (
-                  <label htmlFor="receipt-file-input" className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-amber-500 hover:bg-amber-50 transition-colors cursor-pointer block">
+                  <label htmlFor="receipt-file-input" className="w-full p-4 md:p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-teal-500 hover:bg-teal-50 transition-colors cursor-pointer block">
                     <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-600">Tap to scan receipt</p>
                     <p className="text-xs text-slate-400">AI will auto-fill the details</p>
@@ -685,7 +685,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                     onChange={(e) => setFormData(prev => ({ ...prev, vendor: e.target.value }))}
                     onFocus={() => formData.vendor.length >= 2 && vendorSuggestions.length > 0 && setShowVendorDropdown(true)}
                     placeholder="e.g. Screwfix, Travis Perkins"
-                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 md:py-3 border border-slate-200 rounded-lg sm:rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 md:py-3 border border-slate-200 rounded-lg sm:rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     autoComplete="off"
                   />
                   {/* Vendor Autocomplete Dropdown */}
@@ -723,7 +723,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">£</span>
                     <input ref={amountInputRef} type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                      placeholder="0.00" className="w-full pl-8 pr-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                      placeholder="0.00" className="w-full pl-8 pr-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
                   </div>
                 </div>
                 <div>
@@ -731,18 +731,18 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">£</span>
                     <input ref={vatInputRef} type="number" step="0.01" value={formData.vat_amount} onChange={(e) => setFormData(prev => ({ ...prev, vat_amount: e.target.value }))}
-                      placeholder="0.00" className="w-full pl-8 pr-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                      placeholder="0.00" className="w-full pl-8 pr-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
                   </div>
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Date</label>
                   <input ref={dateInputRef} type="date" value={formData.expense_date} onChange={(e) => setFormData(prev => ({ ...prev, expense_date: e.target.value }))}
-                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payment Method</label>
                   <select value={formData.payment_method} onChange={(e) => setFormData(prev => ({ ...prev, payment_method: e.target.value }))}
-                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent">
                     {PAYMENT_METHODS.map(pm => (<option key={pm.id} value={pm.id}>{pm.label}</option>))}
                   </select>
                 </div>
@@ -762,7 +762,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                   </div>
                   {categories.length > 8 && (
                     <select value={formData.category} onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full mt-2 px-4 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                      className="w-full mt-2 px-4 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent">
                       {categories.map(cat => (<option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>))}
                     </select>
                   )}
@@ -770,7 +770,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                 <div className="col-span-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Link to Job (Optional)</label>
                   <select value={formData.job_pack_id} onChange={(e) => setFormData(prev => ({ ...prev, job_pack_id: e.target.value }))}
-                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent">
                     <option value="">No job linked</option>
                     {projects.map(p => (<option key={p.id} value={p.id}>{p.title}</option>))}
                   </select>
@@ -779,7 +779,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Description (Optional)</label>
                   <textarea ref={descriptionInputRef} value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="What was this expense for?" rows={2}
-                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none" />
+                    className="w-full px-4 py-2 md:py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none" />
                 </div>
               </div>
             </div>

@@ -200,7 +200,7 @@ export const MaterialsLibrary: React.FC<MaterialsLibraryProps> = ({
         </div>
         <button
           onClick={() => setView('import')}
-          className="flex items-center gap-2 px-4 py-3 bg-amber-500 text-slate-900 rounded-2xl font-black hover:bg-amber-400 transition-colors"
+          className="flex items-center gap-2 px-4 py-3 bg-teal-500 text-white rounded-2xl font-black hover:bg-teal-400 transition-colors"
         >
           <Upload size={18} />
           Import CSV
@@ -244,7 +244,7 @@ export const MaterialsLibrary: React.FC<MaterialsLibraryProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, code, or description..."
-              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+              className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             />
           </div>
 
@@ -253,7 +253,7 @@ export const MaterialsLibrary: React.FC<MaterialsLibraryProps> = ({
             <select
               value={selectedSupplier}
               onChange={(e) => setSelectedSupplier(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-medium text-sm"
+              className="appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 font-medium text-sm"
             >
               <option value="all">All Suppliers</option>
               {suppliers.map(s => (
@@ -268,7 +268,7 @@ export const MaterialsLibrary: React.FC<MaterialsLibraryProps> = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-medium text-sm capitalize"
+              className="appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 font-medium text-sm capitalize"
             >
               <option value="all">All Categories</option>
               {categories.map(c => (

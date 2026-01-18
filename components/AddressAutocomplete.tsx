@@ -260,7 +260,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2.5 md:px-4 md:py-4 md:pr-44 text-slate-950 font-bold text-sm md:text-base placeholder:text-xs md:placeholder:text-sm outline-none focus:bg-white focus:border-amber-500 transition-all ${className}`}
+          className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2.5 md:px-4 md:py-4 md:pr-44 text-slate-950 font-bold text-sm md:text-base placeholder:text-xs md:placeholder:text-sm outline-none focus:bg-white focus:border-teal-500 transition-all ${className}`}
           placeholder={placeholder}
           value={value}
           onChange={handleInputChange}
@@ -286,7 +286,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
               className={`p-2 rounded-lg transition-all ${
                 isListening
                   ? 'bg-red-500 text-white'
-                  : 'text-slate-300 hover:text-amber-500 bg-transparent'
+                  : 'text-slate-300 hover:text-teal-500 bg-transparent'
               }`}
               title="Voice input"
             >
@@ -381,7 +381,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             className={`p-1.5 rounded-lg transition-all ${
               isListening
                 ? 'bg-red-500 text-white'
-                : 'text-slate-400 hover:text-amber-500 bg-slate-100'
+                : 'text-slate-400 hover:text-teal-500 bg-slate-100'
             }`}
             title="Voice input"
           >

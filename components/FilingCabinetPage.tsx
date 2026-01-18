@@ -265,7 +265,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
           placeholder="Search documents..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
         />
       </div>
 
@@ -278,7 +278,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
           </p>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="mt-4 text-amber-600 font-bold text-sm hover:underline"
+            className="mt-4 text-teal-600 font-bold text-sm hover:underline"
           >
             Upload your first document
           </button>
@@ -426,7 +426,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                   type="text"
                   value={uploadForm.name}
                   onChange={(e) => setUploadForm({ ...uploadForm, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -440,7 +440,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                   <select
                     value={uploadForm.category}
                     onChange={(e) => setUploadForm({ ...uploadForm, category: e.target.value as DocumentCategory })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   >
                     {CATEGORIES.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.label}</option>
@@ -455,7 +455,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                     type="text"
                     value={uploadForm.vendor_name}
                     onChange={(e) => setUploadForm({ ...uploadForm, vendor_name: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -470,7 +470,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                     type="date"
                     value={uploadForm.document_date}
                     onChange={(e) => setUploadForm({ ...uploadForm, document_date: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -481,7 +481,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                     type="date"
                     value={uploadForm.expiry_date}
                     onChange={(e) => setUploadForm({ ...uploadForm, expiry_date: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -494,7 +494,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                 <select
                   value={uploadForm.tax_year}
                   onChange={(e) => setUploadForm({ ...uploadForm, tax_year: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 >
                   <option value="">Select tax year</option>
                   <option value="2025-2026">2025-2026</option>
@@ -512,7 +512,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
                   value={uploadForm.description}
                   onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
                   rows={2}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
                 />
               </div>
 

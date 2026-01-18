@@ -184,7 +184,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
         <div className="flex-1 overflow-y-auto p-3 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
             </div>
           ) : (
             <div className="space-y-3">
@@ -197,7 +197,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                   <div
                     key={cat.id}
                     className={`flex items-center gap-3 p-4 rounded-2xl border transition-colors ${
-                      isEditing ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-slate-50'
+                      isEditing ? 'border-teal-300 bg-teal-50' : 'border-slate-200 bg-slate-50'
                     }`}
                   >
                     {isEditing ? (
@@ -208,7 +208,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                             placeholder="Category name"
                             autoFocus
                           />
@@ -220,8 +220,8 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                                 onClick={() => setEditIcon(name)}
                                 className={`p-2 rounded-lg transition-colors ${
                                   editIcon === name
-                                    ? 'bg-amber-500 text-white'
-                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'
+                                    ? 'bg-teal-500 text-white'
+                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-teal-300'
                                 }`}
                               >
                                 <Icon size={18} />
@@ -277,7 +277,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                           <button
                             onClick={() => handleEdit(cat)}
                             disabled={isProtected}
-                            className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="p-2 text-slate-400 hover:text-teal-500 hover:bg-teal-50 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                             title={isProtected ? 'Cannot edit "Other" category' : 'Edit category'}
                           >
                             <Edit2 size={18} />
@@ -299,13 +299,13 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
 
               {/* Add New Category Form */}
               {showNewForm ? (
-                <div className="p-4 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50">
+                <div className="p-4 rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50">
                   <div className="space-y-3">
                     <input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       placeholder="New category name"
                       autoFocus
                     />
@@ -317,8 +317,8 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                           onClick={() => setNewIcon(name)}
                           className={`p-2 rounded-lg transition-colors ${
                             newIcon === name
-                              ? 'bg-amber-500 text-white'
-                              : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'
+                              ? 'bg-teal-500 text-white'
+                              : 'bg-white border border-slate-200 text-slate-600 hover:border-teal-300'
                           }`}
                         >
                           <Icon size={18} />
@@ -342,7 +342,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                       <button
                         onClick={handleAdd}
                         disabled={saving || !newName.trim()}
-                        className="flex-1 py-2 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 disabled:opacity-50 transition-colors"
+                        className="flex-1 py-2 bg-teal-500 text-white font-bold rounded-xl hover:bg-teal-600 disabled:opacity-50 transition-colors"
                       >
                         {saving ? (
                           <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -365,7 +365,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
               ) : (
                 <button
                   onClick={() => setShowNewForm(true)}
-                  className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 font-bold flex items-center justify-center gap-2 hover:border-amber-400 hover:text-amber-600 transition-colors"
+                  className="w-full p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 font-bold flex items-center justify-center gap-2 hover:border-teal-400 hover:text-teal-600 transition-colors"
                 >
                   <Plus size={20} />
                   Add New Category
