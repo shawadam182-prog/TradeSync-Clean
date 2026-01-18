@@ -8,13 +8,13 @@ import {
   ChevronRight, Building, Upload, X, Image as ImageIcon,
   Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2,
   Calendar, Layout, FileSpreadsheet, FileEdit, List, ArrowLeft,
-  Crown, Zap, Clock, Users, Briefcase, Camera, FileBox
+  Crown, Zap, Clock, Users, Briefcase, Camera, FileBox, ExternalLink
 } from 'lucide-react';
 import { useToast } from '../src/contexts/ToastContext';
 import { handleApiError } from '../src/utils/errorHandler';
 import { userSettingsService } from '../src/services/dataService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
-import { redirectToCheckout } from '../src/lib/stripe';
+import { redirectToCheckout, redirectToPortal } from '../src/lib/stripe';
 import { useData } from '../src/contexts/DataContext';
 
 interface SettingsPageProps {
@@ -34,6 +34,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [upgradingTier, setUpgradingTier] = useState<string | null>(null);
+  const [managingSubscription, setManagingSubscription] = useState(false);
 
   // Calculate current usage for limits display
   const currentInvoiceCount = quotes.filter(q => q.type === 'invoice').length;
@@ -51,6 +52,18 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
       const { message } = handleApiError(error);
       toast.error('Upgrade Failed', message);
       setUpgradingTier(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setManagingSubscription(true);
+    try {
+      await redirectToPortal();
+    } catch (error) {
+      console.error('Portal error:', error);
+      const { message } = handleApiError(error);
+      toast.error('Unable to Open Portal', message);
+      setManagingSubscription(false);
     }
   };
 
@@ -257,7 +270,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                         </p>
                       )}
                     </div>
-                    {subscription.tier === 'free' && (
+                    {subscription.tier === 'free' ? (
                       <button
                         onClick={() => handleUpgrade('professional')}
                         disabled={upgradingTier !== null}
@@ -265,6 +278,15 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                       >
                         {upgradingTier === 'professional' ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
                         Upgrade to Pro
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleManageSubscription}
+                        disabled={managingSubscription}
+                        className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+                      >
+                        {managingSubscription ? <Loader2 size={16} className="animate-spin" /> : <ExternalLink size={16} />}
+                        Manage Subscription
                       </button>
                     )}
                   </div>
