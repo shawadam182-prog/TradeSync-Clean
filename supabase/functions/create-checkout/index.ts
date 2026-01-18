@@ -7,11 +7,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Price IDs for each tier
+// Price IDs for each tier (Live Mode)
 const PRICE_IDS: Record<string, string> = {
-  professional: 'price_1SqhooGiHvsip9mT0mKie8Mm',
-  business: 'price_1SqhqEGiHvsip9mTn0LulCGq',
-  enterprise: 'price_1SqhrfGiHvsip9mT0nUZKsF0',
+  professional: 'price_1SqyvEK6gNizuAaGquTjgPXM',
+  business: 'price_1SqywGK6gNizuAaGnTi0Pek8',
+  enterprise: 'price_1SqywzK6gNizuAaGmBTYOfKl',
 };
 
 Deno.serve(async (req) => {

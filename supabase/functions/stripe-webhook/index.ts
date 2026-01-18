@@ -7,11 +7,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
 };
 
-// Map price IDs to subscription tiers
+// Map price IDs to subscription tiers (Live Mode)
 const PRICE_TO_TIER: Record<string, string> = {
-  'price_1SqhooGiHvsip9mT0mKie8Mm': 'professional',
-  'price_1SqhqEGiHvsip9mTn0LulCGq': 'business',
-  'price_1SqhrfGiHvsip9mT0nUZKsF0': 'enterprise',
+  'price_1SqyvEK6gNizuAaGquTjgPXM': 'professional',
+  'price_1SqywGK6gNizuAaGnTi0Pek8': 'business',
+  'price_1SqywzK6gNizuAaGmBTYOfKl': 'enterprise',
 };
 
 Deno.serve(async (req) => {

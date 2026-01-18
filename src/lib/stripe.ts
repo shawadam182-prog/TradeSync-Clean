@@ -1,10 +1,10 @@
 import { supabase } from './supabase';
 
-// Stripe Price IDs (Test Mode)
+// Stripe Price IDs (Live Mode)
 export const STRIPE_PRICES = {
-  professional: 'price_1SqhooGiHvsip9mT0mKie8Mm',
-  business: 'price_1SqhqEGiHvsip9mTn0LulCGq',
-  enterprise: 'price_1SqhrfGiHvsip9mT0nUZKsF0',
+  professional: 'price_1SqyvEK6gNizuAaGquTjgPXM',
+  business: 'price_1SqywGK6gNizuAaGnTi0Pek8',
+  enterprise: 'price_1SqywzK6gNizuAaGmBTYOfKl',
 } as const;
 
 export type StripeTier = keyof typeof STRIPE_PRICES;
