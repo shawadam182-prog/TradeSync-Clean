@@ -425,8 +425,8 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
         </div>
       </div>
 
-      <div className="px-2 pb-4 overflow-x-auto no-scrollbar">
-        <div className="flex bg-slate-100 p-1 rounded-xl w-max">
+      <div className="px-2 pb-4">
+        <div className="flex bg-slate-100 p-1 rounded-xl w-full">
           {[
             { id: 'log', label: 'Log', icon: StickyNote },
             { id: 'photos', label: 'Photos', icon: ImageIcon },
@@ -437,7 +437,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-2 py-2 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap flex-1 justify-center ${
                 activeTab === tab.id
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
@@ -463,9 +463,9 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
                >
                  <Eraser size={12}/> Clear Pad
                </button>
-               <button 
+               <button
                 onClick={toggleRecording}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-amber-500 text-white shadow-lg shadow-amber-200'}`}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[9px] font-black uppercase transition-all ${isRecording ? 'bg-red-500 text-white' : 'bg-teal-500 text-white shadow-lg shadow-teal-200'}`}
                >
                 {isRecording ? <MicOff size={12}/> : <Mic size={12}/>}
                 {isRecording ? 'Listening' : 'Dictate'}
