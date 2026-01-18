@@ -4,7 +4,7 @@ import { Customer } from '../types';
 import {
   Search, UserPlus, Phone, Mail, MapPin, Trash2, Edit2, X,
   AlertCircle, CheckCircle2, Mic, MicOff, Sparkles, Loader2,
-  Building, User as UserIcon, Pencil, Navigation, Briefcase
+  Building, User as UserIcon, Pencil, Navigation, Briefcase, ChevronDown
 } from 'lucide-react';
 import { parseCustomerVoiceInput } from '../src/services/geminiService';
 import { useToast } from '../src/contexts/ToastContext';
@@ -38,6 +38,19 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
   const recognitionRef = useRef<any>(null);
 
   const [interimTranscript, setInterimTranscript] = useState('');
+  const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedCustomers(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -448,60 +461,79 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
                 <p className="text-slate-400 font-black uppercase tracking-widest text-sm italic">No contacts found.</p>
               </div>
             ) : (
-              filteredCustomers.map(customer => (
-                <div key={customer.id} className="bg-white p-6 rounded-[32px] border-2 border-slate-100 hover:border-teal-500 transition-all group relative shadow-sm hover:shadow-xl hover:-translate-y-1">
-                  <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                    <button 
-                      onClick={() => startEdit(customer)} 
-                      className="p-2.5 bg-slate-900 text-teal-500 rounded-xl hover:bg-black transition-all shadow-md"
-                      title="Edit Contact"
+              filteredCustomers.map(customer => {
+                const isExpanded = expandedCustomers.has(customer.id);
+                return (
+                  <div key={customer.id} className="bg-white rounded-2xl border border-slate-100 hover:border-teal-500 transition-all group relative shadow-sm">
+                    {/* Condensed header row */}
+                    <div
+                      className="flex items-center gap-3 p-3 cursor-pointer"
+                      onClick={() => toggleExpand(customer.id)}
                     >
-                      <Pencil size={16} />
-                    </button>
-                    <button 
-                      onClick={() => deleteCustomer(customer.id, customer.name)} 
-                      className="p-2.5 bg-white border border-slate-100 text-slate-300 hover:text-red-500 rounded-xl transition-all shadow-sm"
-                      title="Delete Contact"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  
-                  <div className="h-12 w-12 bg-slate-900 text-teal-500 rounded-2xl flex items-center justify-center font-black text-lg mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                    {customer.name.charAt(0)}
-                  </div>
+                      <div className="h-10 w-10 bg-slate-900 text-teal-500 rounded-xl flex items-center justify-center font-black text-base shrink-0">
+                        {customer.name.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-950 text-sm leading-tight truncate">{customer.name}</h3>
+                        {customer.company && <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wider truncate">{customer.company}</p>}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); startEdit(customer); }}
+                          className="p-2 text-slate-300 hover:text-teal-500 hover:bg-slate-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          title="Edit Contact"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteCustomer(customer.id, customer.name); }}
+                          className="p-2 text-slate-300 hover:text-red-500 hover:bg-slate-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          title="Delete Contact"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                        <ChevronDown
+                          size={18}
+                          className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      </div>
+                    </div>
 
-                  <h3 className="font-black text-slate-950 text-xl leading-tight mb-1">{customer.name}</h3>
-                  {customer.company && <p className="text-xs font-black text-teal-600 uppercase tracking-widest italic">{customer.company}</p>}
-                  
-                  <div className="space-y-3 pt-6 mt-6 border-t border-slate-50">
-                    <div className="flex items-center gap-3 text-slate-500 text-xs font-bold italic">
-                      <Mail size={14} className="text-slate-300 shrink-0" /> 
-                      <span className="truncate">{customer.email || 'No Email'}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-slate-500 text-xs font-bold italic">
-                      <Phone size={14} className="text-slate-300 shrink-0" /> 
-                      {customer.phone || 'No Phone'}
-                    </div>
-                    {customer.address ? (
-                      <a 
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-start gap-3 text-teal-600 hover:text-teal-700 text-xs font-bold italic group/link transition-colors"
-                      >
-                        <Navigation size={14} className="text-teal-500 shrink-0 mt-0.5 group-hover/link:animate-bounce" />
-                        <span className="leading-relaxed hover:underline decoration-teal-500/30 underline-offset-2">{customer.address}</span>
-                      </a>
-                    ) : (
-                      <div className="flex items-start gap-3 text-slate-400 text-xs font-bold italic">
-                        <MapPin size={14} className="text-slate-300 shrink-0 mt-0.5" /> 
-                        <span className="leading-relaxed">No Address Logged</span>
+                    {/* Expandable details */}
+                    {isExpanded && (
+                      <div className="px-3 pb-3 pt-0 space-y-2 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="pt-2 space-y-1.5">
+                          <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                            <Mail size={12} className="text-slate-300 shrink-0" />
+                            <span className="truncate">{customer.email || 'No email'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                            <Phone size={12} className="text-slate-300 shrink-0" />
+                            {customer.phone || 'No phone'}
+                          </div>
+                          {customer.address ? (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-start gap-2 text-teal-600 hover:text-teal-700 text-xs font-medium"
+                            >
+                              <Navigation size={12} className="text-teal-500 shrink-0 mt-0.5" />
+                              <span className="leading-relaxed hover:underline">{customer.address}</span>
+                            </a>
+                          ) : (
+                            <div className="flex items-start gap-2 text-slate-400 text-xs font-medium">
+                              <MapPin size={12} className="text-slate-300 shrink-0 mt-0.5" />
+                              <span>No address</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </>
