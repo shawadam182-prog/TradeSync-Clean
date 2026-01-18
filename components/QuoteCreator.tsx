@@ -943,61 +943,63 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                   ) : (
                     // Normal material item
                     <div key={item.id} className="bg-white p-0.5 rounded-md shadow-sm border border-slate-100 relative group overflow-hidden">
-                      <div className="flex justify-between items-start mb-0.5">
-                         <div className="flex-1 mr-1">
-                            <input type="text" className="w-full font-bold text-[10px] text-slate-900 outline-none placeholder:text-slate-300 bg-transparent leading-tight py-0.5" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
-                            <input type="text" className="w-full text-[9px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent leading-tight py-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
+                      <div className="flex justify-between items-center gap-1 mb-0.5">
+                         <div className="flex-1 min-w-0">
+                            <input type="text" className="w-full font-bold text-[10px] text-slate-900 outline-none placeholder:text-slate-300 bg-transparent leading-none p-0 m-0" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
+                            <input type="text" className="w-full text-[8px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent leading-none p-0 m-0 mt-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
-                         <div className="flex gap-0.5">
+                         <div className="flex gap-0.5 shrink-0">
                            {/* Save to Price List */}
                            {item.name && (
                              <button
                                onClick={() => saveItemToLibrary(item)}
-                               className="p-0.5 bg-slate-50 text-slate-300 rounded hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                               className="p-1 bg-slate-50 text-slate-300 rounded hover:bg-amber-50 hover:text-amber-500 transition-colors touch-manipulation"
                                title="Save to price list"
                              >
                                <BookmarkPlus size={10}/>
                              </button>
                            )}
-                           <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 bg-slate-50 text-slate-300 rounded hover:bg-red-50 hover:text-red-500 transition-colors">
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-1 bg-slate-50 text-slate-300 rounded hover:bg-red-50 hover:text-red-500 transition-colors touch-manipulation">
                              <Trash2 size={10}/>
                            </button>
                          </div>
                       </div>
 
-                      <div className="flex gap-1 bg-slate-50 p-0.5 rounded">
+                      <div className="flex gap-0.5 bg-slate-50 p-0.5 rounded">
                          {/* Quantity with +/- buttons */}
                          <div className="flex-1">
-                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block pl-0.5 leading-tight">Qty</label>
+                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5">Qty</label>
                             <div className="flex items-center bg-white rounded shadow-sm border border-slate-100">
                               <button
+                                type="button"
                                 onClick={() => decrementQuantity(section.id, item.id)}
-                                className="p-0.5 hover:bg-slate-50 rounded-l transition-colors"
+                                className="px-1.5 py-1 hover:bg-slate-50 rounded-l transition-colors touch-manipulation active:bg-slate-100"
                               >
-                                <Minus size={8} className="text-slate-400" />
+                                <Minus size={10} className="text-slate-400" />
                               </button>
                               <input
                                 type="number"
-                                className="w-6 bg-transparent text-[10px] font-bold text-center outline-none py-0.5"
+                                className="w-7 bg-transparent text-[10px] font-bold text-center outline-none"
                                 value={item.quantity || ''}
                                 onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
                                 placeholder="0"
                               />
                               <button
+                                type="button"
                                 onClick={() => incrementQuantity(section.id, item.id)}
-                                className="p-0.5 hover:bg-slate-50 rounded-r transition-colors"
+                                className="px-1.5 py-1 hover:bg-slate-50 rounded-r transition-colors touch-manipulation active:bg-slate-100"
                               >
-                                <Plus size={8} className="text-slate-400" />
+                                <Plus size={10} className="text-slate-400" />
                               </button>
                             </div>
                          </div>
                          <div className="flex-1">
-                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block pl-0.5 leading-tight">Price (£)</label>
-                            <input type="number" className="w-full bg-white rounded text-[10px] font-bold py-0.5 px-1 text-center shadow-sm outline-none focus:ring-1 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5">Price (£)</label>
+                            <input type="number" className="w-full bg-white rounded text-[10px] font-bold py-1 px-0.5 text-center shadow-sm outline-none focus:ring-1 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
-                            <div className="w-full bg-slate-900 rounded py-0.5 px-1 text-center">
-                               <span className="text-white text-[10px] font-bold">£{item.totalPrice.toFixed(2)}</span>
+                            <div className="w-full bg-slate-900 rounded py-1 px-0.5 text-center">
+                               <span className="text-white text-[10px] font-bold leading-none">£{item.totalPrice.toFixed(2)}</span>
                             </div>
                          </div>
                       </div>
