@@ -426,7 +426,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
       </div>
 
       <div className="px-2 pb-4">
-        <div className="flex bg-slate-100 p-1 rounded-xl w-full">
+        <div className="flex flex-wrap gap-2 bg-slate-100 p-1 rounded-xl w-full">
           {[
             { id: 'log', label: 'Log', icon: StickyNote },
             { id: 'photos', label: 'Photos', icon: ImageIcon },
@@ -437,7 +437,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1.5 px-2 py-2 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap flex-1 justify-center ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
@@ -612,7 +612,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
 
           <div className="flex justify-between items-center">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Financials</h3>
-            <button onClick={onCreateQuote} className="bg-amber-500 text-white px-6 py-2 rounded-xl text-xs font-black uppercase shadow-lg">+ New Doc</button>
+            <button onClick={onCreateQuote} className="bg-teal-500 text-white px-6 py-2 rounded-xl text-xs font-black uppercase shadow-lg shadow-teal-200">+ New Doc</button>
           </div>
           <div className="bg-white rounded-3xl border-2 border-slate-100 overflow-hidden">
             <table className="w-full text-left">
