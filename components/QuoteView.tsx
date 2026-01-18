@@ -348,41 +348,28 @@ Please find attached ${docType} as discussed.${partPaymentLine}
 Thanks,
 ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${settings?.email ? `\n${settings.email}` : ''}`;
 
-      // Get PDF as blob for Web Share API
-      const pdfBlob = pdf.output('blob');
-      const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+      // IMPORTANT: Web Share API CANNOT set email recipient - this is a platform limitation
+      // So we use a smarter approach: download PDF, then open email app with mailto:
 
-      // Try Web Share API first (works on mobile and can share files)
-      // Note: Share files ONLY without text - combining them fails on many devices
-      if (navigator.share && navigator.canShare) {
-        const shareData = { files: [pdfFile] };
-        if (navigator.canShare(shareData)) {
-          try {
-            await navigator.share(shareData);
-            // Share was successful
-            return;
-          } catch (shareErr) {
-            // User cancelled or share failed, fall through to email helper
-            if ((shareErr as Error).name === 'AbortError') {
-              return; // User cancelled, don't show email helper
-            }
-            console.log('Web Share failed, falling back to download:', shareErr);
-          }
-        }
-      }
-
-      // Fall back to downloading PDF and showing email helper modal
+      // Step 1: Save the PDF to downloads
       pdf.save(filename);
 
-      // Show the email helper modal with all the details
-      setEmailHelper({
-        show: true,
-        subject,
-        body,
-        email: customerEmail,
-        filename,
-        copied: false,
-      });
+      // Step 2: Open email app with pre-filled recipient, subject, and body
+      // Add note about the attachment
+      const bodyWithNote = `${body}\n\n---\nPDF attached: ${filename}`;
+      const mailtoLink = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyWithNote)}`;
+
+      // Small delay to ensure PDF download starts before switching to email app
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Open email app
+      window.location.href = mailtoLink;
+
+      // Note: The email app will open with:
+      // - TO: customer email
+      // - SUBJECT: filled in
+      // - BODY: filled in
+      // User just needs to tap the attachment button and select the PDF from Downloads
     } catch (err) {
       console.error('Email share failed:', err);
       alert('Could not prepare email. Please try downloading the PDF instead.');
