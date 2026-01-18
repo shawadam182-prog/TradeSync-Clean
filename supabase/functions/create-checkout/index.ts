@@ -97,11 +97,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Create checkout session with 14-day trial
-    const session = await stripe.checkout.sessions.create({
+    // Checkout session config
+    const checkoutConfig = {
       customer: stripeCustomerId,
-      mode: 'subscription',
-      payment_method_types: ['card'],
+      mode: 'subscription' as const,
+      payment_method_types: ['card'] as const,
       line_items: [
         {
           price: PRICE_IDS[tier],
@@ -121,12 +121,49 @@ Deno.serve(async (req) => {
         supabase_user_id: user.id,
         tier: tier,
       },
-    });
+    };
 
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    // Create checkout session with 14-day trial
+    try {
+      const session = await stripe.checkout.sessions.create(checkoutConfig);
+      return new Response(
+        JSON.stringify({ url: session.url }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (checkoutError) {
+      // If customer doesn't exist in Stripe, create a new one and retry
+      if (checkoutError.message?.includes('No such customer')) {
+        console.log('Customer not found in Stripe, creating new customer for user:', user.id);
+
+        const customer = await stripe.customers.create({
+          email: user.email,
+          metadata: {
+            supabase_user_id: user.id,
+          },
+        });
+
+        // Update database with new customer ID
+        await supabaseAdmin
+          .from('user_settings')
+          .update({
+            stripe_customer_id: customer.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
+
+        // Retry checkout with new customer
+        const session = await stripe.checkout.sessions.create({
+          ...checkoutConfig,
+          customer: customer.id,
+        });
+
+        return new Response(
+          JSON.stringify({ url: session.url }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      throw checkoutError;
+    }
   } catch (error) {
     console.error('Create checkout error:', error);
     return new Response(
