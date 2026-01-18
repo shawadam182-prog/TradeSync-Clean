@@ -353,19 +353,20 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
       const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
       // Try Web Share API first (works on mobile and can share files)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        try {
-          await navigator.share({
-            files: [pdfFile],
-            title: subject,
-            text: body,
-          });
-          // Share was successful
-          return;
-        } catch (shareErr) {
-          // User cancelled or share failed, fall through to email helper
-          if ((shareErr as Error).name === 'AbortError') {
-            return; // User cancelled, don't show email helper
+      // Note: Share files ONLY without text - combining them fails on many devices
+      if (navigator.share && navigator.canShare) {
+        const shareData = { files: [pdfFile] };
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            // Share was successful
+            return;
+          } catch (shareErr) {
+            // User cancelled or share failed, fall through to email helper
+            if ((shareErr as Error).name === 'AbortError') {
+              return; // User cancelled, don't show email helper
+            }
+            console.log('Web Share failed, falling back to download:', shareErr);
           }
         }
       }
