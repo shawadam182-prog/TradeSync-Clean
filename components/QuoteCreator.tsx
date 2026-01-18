@@ -923,81 +923,81 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </div>
 
               {/* Material Items - Amazing List Style */}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {section.items.map((item) => (
                   item.isHeading ? (
                     // Heading/Divider rendering
-                    <div key={item.id} className="bg-slate-100 px-4 py-1.5 rounded-lg my-1.5 flex items-center gap-2">
-                      <Type size={14} className="text-slate-400" />
+                    <div key={item.id} className="bg-slate-100 px-3 py-1 rounded-lg my-1 flex items-center gap-1.5">
+                      <Type size={12} className="text-slate-400" />
                       <input
                         type="text"
-                        className="bg-transparent text-xs font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300"
+                        className="bg-transparent text-[10px] font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300"
                         value={item.name}
                         onChange={e => updateItem(section.id, item.id, { name: e.target.value })}
                         placeholder="SECTION HEADING"
                       />
-                      <button onClick={() => removeItem(section.id, item.id)} className="p-1 text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 size={14}/>
+                      <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 text-slate-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={12}/>
                       </button>
                     </div>
                   ) : (
                     // Normal material item
-                    <div key={item.id} className="bg-white p-2 rounded-xl shadow-sm border border-slate-100 relative group overflow-hidden">
-                      <div className="flex justify-between items-start mb-2">
-                         <div className="flex-1 mr-3">
-                            <input type="text" className="w-full font-bold text-sm text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
-                            <input type="text" className="w-full text-[11px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent mt-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
+                    <div key={item.id} className="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100 relative group overflow-hidden">
+                      <div className="flex justify-between items-start mb-1">
+                         <div className="flex-1 mr-2">
+                            <input type="text" className="w-full font-bold text-xs text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
+                            <input type="text" className="w-full text-[10px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
-                         <div className="flex gap-1">
+                         <div className="flex gap-0.5">
                            {/* Save to Price List */}
                            {item.name && (
                              <button
                                onClick={() => saveItemToLibrary(item)}
-                               className="p-1.5 bg-slate-50 text-slate-300 rounded-lg hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                               className="p-1 bg-slate-50 text-slate-300 rounded-md hover:bg-amber-50 hover:text-amber-500 transition-colors"
                                title="Save to price list"
                              >
-                               <BookmarkPlus size={14}/>
+                               <BookmarkPlus size={12}/>
                              </button>
                            )}
-                           <button onClick={() => removeItem(section.id, item.id)} className="p-1.5 bg-slate-50 text-slate-300 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
-                             <Trash2 size={14}/>
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-1 bg-slate-50 text-slate-300 rounded-md hover:bg-red-50 hover:text-red-500 transition-colors">
+                             <Trash2 size={12}/>
                            </button>
                          </div>
                       </div>
 
-                      <div className="flex gap-2 bg-slate-50 p-1.5 rounded-lg">
+                      <div className="flex gap-1.5 bg-slate-50 p-1 rounded-md">
                          {/* Quantity with +/- buttons */}
                          <div className="flex-1">
-                            <label className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-1">Qty</label>
+                            <label className="text-[7px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-0.5">Qty</label>
                             <div className="flex items-center bg-white rounded-md shadow-sm border border-slate-100">
                               <button
                                 onClick={() => decrementQuantity(section.id, item.id)}
-                                className="p-1.5 hover:bg-slate-50 rounded-l-md transition-colors"
+                                className="p-1 hover:bg-slate-50 rounded-l-md transition-colors"
                               >
-                                <Minus size={12} className="text-slate-400" />
+                                <Minus size={10} className="text-slate-400" />
                               </button>
                               <input
                                 type="number"
-                                className="w-10 bg-transparent text-xs font-bold text-center outline-none"
+                                className="w-8 bg-transparent text-[11px] font-bold text-center outline-none"
                                 value={item.quantity || ''}
                                 onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
                                 placeholder="0"
                               />
                               <button
                                 onClick={() => incrementQuantity(section.id, item.id)}
-                                className="p-1.5 hover:bg-slate-50 rounded-r-md transition-colors"
+                                className="p-1 hover:bg-slate-50 rounded-r-md transition-colors"
                               >
-                                <Plus size={12} className="text-slate-400" />
+                                <Plus size={10} className="text-slate-400" />
                               </button>
                             </div>
                          </div>
                          <div className="flex-1">
-                            <label className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-1">Price (£)</label>
-                            <input type="number" className="w-full bg-white rounded-md text-xs font-bold p-1.5 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <label className="text-[7px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-0.5">Price (£)</label>
+                            <input type="number" className="w-full bg-white rounded-md text-[11px] font-bold p-1 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
-                            <div className="w-full bg-slate-900 rounded-md p-1.5 text-center">
-                               <span className="text-white text-xs font-bold">£{item.totalPrice.toFixed(2)}</span>
+                            <div className="w-full bg-slate-900 rounded-md p-1 text-center">
+                               <span className="text-white text-[11px] font-bold">£{item.totalPrice.toFixed(2)}</span>
                             </div>
                          </div>
                       </div>
