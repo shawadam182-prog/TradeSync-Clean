@@ -260,7 +260,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2.5 md:px-4 md:py-4 pr-32 md:pr-44 text-slate-950 font-bold text-sm md:text-base placeholder:text-xs md:placeholder:text-sm outline-none focus:bg-white focus:border-amber-500 transition-all ${className}`}
+          className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2.5 md:px-4 md:py-4 md:pr-44 text-slate-950 font-bold text-sm md:text-base placeholder:text-xs md:placeholder:text-sm outline-none focus:bg-white focus:border-amber-500 transition-all ${className}`}
           placeholder={placeholder}
           value={value}
           onChange={handleInputChange}
@@ -269,8 +269,8 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           autoComplete="off"
         />
 
-        {/* Action buttons */}
-        <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5 z-10">
+        {/* Action buttons - hidden on mobile, shown inside input on desktop */}
+        <div className="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 gap-0.5 z-10">
           {/* Voice input button */}
           {onVoiceStart && (
             <button
@@ -283,14 +283,14 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
                   onVoiceStart();
                 }
               }}
-              className={`p-1 md:p-2 rounded-lg transition-all ${
+              className={`p-2 rounded-lg transition-all ${
                 isListening
                   ? 'bg-red-500 text-white'
                   : 'text-slate-300 hover:text-amber-500 bg-transparent'
               }`}
               title="Voice input"
             >
-              <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+              <Mic size={18} />
             </button>
           )}
 
@@ -299,13 +299,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             type="button"
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
-            className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
+            className="p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
             title="Use current location"
           >
             {isLocating ? (
-              <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" />
+              <Loader2 size={18} className="animate-spin" />
             ) : (
-              <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />
+              <LocateFixed size={18} />
             )}
           </button>
 
@@ -314,13 +314,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             type="button"
             onClick={handleVerifyAddress}
             disabled={!value.trim() || isVerifying}
-            className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
+            className="p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
             title="AI verify & format address"
           >
             {isVerifying ? (
-              <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" />
+              <Loader2 size={18} className="animate-spin" />
             ) : (
-              <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />
+              <MapPinned size={18} />
             )}
           </button>
 
@@ -329,13 +329,12 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             type="button"
             onClick={openInMaps}
             disabled={!value.trim()}
-            className="p-1 md:p-2 rounded-lg transition-all text-green-600 hover:text-green-700 disabled:opacity-30 bg-transparent"
+            className="p-2 rounded-lg transition-all text-green-600 hover:text-green-700 disabled:opacity-30 bg-transparent"
             title="Open in Google Maps"
           >
-            <Navigation size={14} className="md:w-[18px] md:h-[18px]" />
+            <Navigation size={18} />
           </button>
         </div>
-
         {/* Suggestions dropdown */}
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute z-50 left-0 right-0 mt-1 bg-white border-2 border-slate-100 rounded-2xl shadow-2xl overflow-hidden">
@@ -363,6 +362,73 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             <span className="text-sm text-slate-500">Searching...</span>
           </div>
         )}
+      </div>
+
+      {/* Action buttons - shown below input on mobile only */}
+      <div className="flex md:hidden justify-end gap-1 mt-1.5">
+        {/* Voice input button */}
+        {onVoiceStart && (
+          <button
+            type="button"
+            onClick={() => {
+              hapticTap();
+              if (isListening) {
+                onVoiceEnd?.();
+              } else {
+                onVoiceStart();
+              }
+            }}
+            className={`p-1.5 rounded-lg transition-all ${
+              isListening
+                ? 'bg-red-500 text-white'
+                : 'text-slate-400 hover:text-amber-500 bg-slate-100'
+            }`}
+            title="Voice input"
+          >
+            <Mic size={14} />
+          </button>
+        )}
+
+        {/* GPS location button */}
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          disabled={isLocating}
+          className="p-1.5 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-slate-100"
+          title="Use current location"
+        >
+          {isLocating ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <LocateFixed size={14} />
+          )}
+        </button>
+
+        {/* AI verify button */}
+        <button
+          type="button"
+          onClick={handleVerifyAddress}
+          disabled={!value.trim() || isVerifying}
+          className="p-1.5 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-slate-100"
+          title="AI verify & format address"
+        >
+          {isVerifying ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <MapPinned size={14} />
+          )}
+        </button>
+
+        {/* Open in Maps button */}
+        <button
+          type="button"
+          onClick={openInMaps}
+          disabled={!value.trim()}
+          className="p-1.5 rounded-lg transition-all text-green-600 hover:text-green-700 disabled:opacity-30 bg-slate-100"
+          title="Open in Google Maps"
+        >
+          <Navigation size={14} />
+        </button>
       </div>
     </div>
   );
