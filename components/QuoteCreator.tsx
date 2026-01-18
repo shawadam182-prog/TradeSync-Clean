@@ -605,7 +605,14 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
         </div>
         <div className="flex gap-2">
            <button
-             onClick={() => { hapticTap(); onSave(formData as Quote); }}
+             onClick={() => {
+               hapticTap();
+               // If it's a new invoice, change status from 'draft' to 'sent'
+               const quoteToSave = !existingQuote && formData.type === 'invoice' && formData.status === 'draft'
+                 ? { ...formData, status: 'sent' } as Quote
+                 : formData as Quote;
+               onSave(quoteToSave);
+             }}
              className="text-teal-600 font-bold text-sm px-3 py-1.5 bg-teal-50 rounded-lg"
            >
              Save
@@ -916,11 +923,11 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </div>
 
               {/* Material Items - Amazing List Style */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {section.items.map((item) => (
                   item.isHeading ? (
                     // Heading/Divider rendering
-                    <div key={item.id} className="bg-slate-100 px-4 py-2 rounded-lg my-2 flex items-center gap-2">
+                    <div key={item.id} className="bg-slate-100 px-4 py-1.5 rounded-lg my-1.5 flex items-center gap-2">
                       <Type size={14} className="text-slate-400" />
                       <input
                         type="text"
@@ -935,62 +942,62 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     </div>
                   ) : (
                     // Normal material item
-                    <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative group overflow-hidden">
-                      <div className="flex justify-between items-start mb-3">
-                         <div className="flex-1 mr-4">
-                            <input type="text" className="w-full font-bold text-base text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
-                            <input type="text" className="w-full text-xs text-slate-500 outline-none placeholder:text-slate-300 bg-transparent mt-1" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
+                    <div key={item.id} className="bg-white p-2 rounded-xl shadow-sm border border-slate-100 relative group overflow-hidden">
+                      <div className="flex justify-between items-start mb-2">
+                         <div className="flex-1 mr-3">
+                            <input type="text" className="w-full font-bold text-sm text-slate-900 outline-none placeholder:text-slate-300 bg-transparent" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
+                            <input type="text" className="w-full text-[11px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent mt-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
                          <div className="flex gap-1">
                            {/* Save to Price List */}
                            {item.name && (
                              <button
                                onClick={() => saveItemToLibrary(item)}
-                               className="p-2 bg-slate-50 text-slate-300 rounded-lg hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                               className="p-1.5 bg-slate-50 text-slate-300 rounded-lg hover:bg-amber-50 hover:text-amber-500 transition-colors"
                                title="Save to price list"
                              >
-                               <BookmarkPlus size={16}/>
+                               <BookmarkPlus size={14}/>
                              </button>
                            )}
-                           <button onClick={() => removeItem(section.id, item.id)} className="p-2 bg-slate-50 text-slate-300 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
-                             <Trash2 size={16}/>
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-1.5 bg-slate-50 text-slate-300 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors">
+                             <Trash2 size={14}/>
                            </button>
                          </div>
                       </div>
 
-                      <div className="flex gap-3 bg-slate-50 p-2 rounded-lg">
+                      <div className="flex gap-2 bg-slate-50 p-1.5 rounded-lg">
                          {/* Quantity with +/- buttons */}
                          <div className="flex-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1 pl-1">Qty</label>
+                            <label className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-1">Qty</label>
                             <div className="flex items-center bg-white rounded-md shadow-sm border border-slate-100">
                               <button
                                 onClick={() => decrementQuantity(section.id, item.id)}
-                                className="p-2 hover:bg-slate-50 rounded-l-md transition-colors"
+                                className="p-1.5 hover:bg-slate-50 rounded-l-md transition-colors"
                               >
-                                <Minus size={14} className="text-slate-400" />
+                                <Minus size={12} className="text-slate-400" />
                               </button>
                               <input
                                 type="number"
-                                className="w-12 bg-transparent text-sm font-bold text-center outline-none"
+                                className="w-10 bg-transparent text-xs font-bold text-center outline-none"
                                 value={item.quantity || ''}
                                 onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
                                 placeholder="0"
                               />
                               <button
                                 onClick={() => incrementQuantity(section.id, item.id)}
-                                className="p-2 hover:bg-slate-50 rounded-r-md transition-colors"
+                                className="p-1.5 hover:bg-slate-50 rounded-r-md transition-colors"
                               >
-                                <Plus size={14} className="text-slate-400" />
+                                <Plus size={12} className="text-slate-400" />
                               </button>
                             </div>
                          </div>
                          <div className="flex-1">
-                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1 pl-1">Price (£)</label>
-                            <input type="number" className="w-full bg-white rounded-md text-sm font-bold p-2 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <label className="text-[8px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5 pl-1">Price (£)</label>
+                            <input type="number" className="w-full bg-white rounded-md text-xs font-bold p-1.5 text-center shadow-sm outline-none focus:ring-2 focus:ring-amber-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
-                            <div className="w-full bg-slate-900 rounded-md p-2 text-center">
-                               <span className="text-white text-sm font-bold">£{item.totalPrice.toFixed(2)}</span>
+                            <div className="w-full bg-slate-900 rounded-md p-1.5 text-center">
+                               <span className="text-white text-xs font-bold">£{item.totalPrice.toFixed(2)}</span>
                             </div>
                          </div>
                       </div>
@@ -1157,11 +1164,11 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-1">
                       <PoundSterling size={12} className="text-emerald-500" /> Section
                     </label>
-                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-xl px-2 py-1.5 focus-within:border-emerald-400 transition-all">
-                      <span className="text-emerald-600 text-sm font-bold">£</span>
+                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-xl px-3 py-1.5 focus-within:border-emerald-400 transition-all">
+                      <span className="text-emerald-600 text-xs font-bold mr-0.5">£</span>
                       <input
                         type="number"
-                        className="bg-transparent border-none text-emerald-700 font-black text-sm outline-none w-full text-center"
+                        className="bg-transparent border-none text-emerald-700 font-black text-xs outline-none w-full"
                         value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0) + calculateSectionLabour(section)).toFixed(2)}
                         onChange={e => {
                           const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;
@@ -1308,7 +1315,14 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
           <p className="text-2xl font-black">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <button
-          onClick={() => { hapticSuccess(); onSave(formData as Quote); }}
+          onClick={() => {
+            hapticSuccess();
+            // If it's a new invoice, change status from 'draft' to 'sent'
+            const quoteToSave = !existingQuote && formData.type === 'invoice' && formData.status === 'draft'
+              ? { ...formData, status: 'sent' } as Quote
+              : formData as Quote;
+            onSave(quoteToSave);
+          }}
           className="bg-teal-500 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-teal-400 transition-colors shadow-lg"
         >
           Save {formData.type}
