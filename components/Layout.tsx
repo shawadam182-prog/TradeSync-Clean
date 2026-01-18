@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield, MessageSquare, TrendingUp, Activity, Download } from 'lucide-react';
+import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield, MessageSquare, TrendingUp, Activity, Download, Clock } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useAuth } from '../src/contexts/AuthContext';
 import { useData } from '../src/contexts/DataContext';
@@ -63,6 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
         { id: 'schedule', label: 'Schedule', icon: CalendarDays, tier: 'starter' },
         { id: 'quotes', label: 'Quotes', icon: FileText, tier: 'starter' },
         { id: 'invoices', label: 'Invoices', icon: ReceiptText, tier: 'starter' },
+        { id: 'aged_receivables', label: 'Receivables', icon: Clock, tier: 'professional' },
         { id: 'customers', label: 'Customers', icon: Users, tier: 'starter' },
       ]
     },
