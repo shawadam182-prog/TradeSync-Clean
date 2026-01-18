@@ -1281,19 +1281,22 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       )}
 
       {/* Totals Summary */}
-      <div className="bg-slate-900 text-white p-5 md:p-6 rounded-[32px] shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-110 transition-transform"><PoundSterling size={100} /></div>
-        <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-          <div><div className="flex items-center gap-2 mb-2 text-slate-500"><span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Consolidated Total</span><div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div></div><p className="text-4xl md:text-5xl font-black tracking-tighter">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p></div>
-          <div className="text-right text-[11px] font-bold space-y-1.5 w-full md:w-auto">
-            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Materials Total</span><span className="text-slate-300 italic">£{totals.materialsTotal.toFixed(2)}</span></div>
-            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Labour Total</span><span className="text-slate-300 italic">£{totals.labourTotal.toFixed(2)}</span></div>
-            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-slate-500 uppercase tracking-widest">Net Sections</span><span className="text-slate-300 italic">£{totals.subtotal.toFixed(2)}</span></div>
-            <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-teal-500 uppercase tracking-widest">Markup</span><span className="text-teal-500/80">£{totals.markup.toFixed(2)}</span></div>
-            {totals.discount > 0 && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-emerald-400 uppercase tracking-widest">Discount</span><span className="text-emerald-400/80">-£{totals.discount.toFixed(2)}</span></div>}
-            {settings.enableVat && <div className="flex justify-between md:justify-end gap-3 md:gap-6 border-b border-slate-800 pb-2"><span className="text-blue-400 uppercase tracking-widest">VAT</span><span className="text-blue-400/80">£{totals.tax.toFixed(2)}</span></div>}
-            {settings.enableCis && <div className="flex justify-between md:justify-end gap-6"><span className="text-red-400 uppercase tracking-widest">CIS</span><span className="text-red-400/80">-£{totals.cis.toFixed(2)}</span></div>}
+      <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 md:p-5 rounded-2xl shadow-xl border border-slate-700">
+        <div className="flex justify-between items-center gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-teal-400"></div>
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Document Total</span>
           </div>
+          <span className="text-2xl md:text-3xl font-black tracking-tight">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+        <div className="space-y-1 text-[10px] font-medium">
+          <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-slate-400">Materials</span><span className="text-slate-200">£{totals.materialsTotal.toFixed(2)}</span></div>
+          <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-slate-400">Labour</span><span className="text-slate-200">£{totals.labourTotal.toFixed(2)}</span></div>
+          <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-slate-400">Subtotal</span><span className="text-slate-200">£{totals.subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-teal-400">Markup</span><span className="text-teal-300">£{totals.markup.toFixed(2)}</span></div>
+          {totals.discount > 0 && <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-emerald-400">Discount</span><span className="text-emerald-300">-£{totals.discount.toFixed(2)}</span></div>}
+          {settings.enableVat && <div className="flex justify-between gap-4 py-1 border-b border-slate-700/50"><span className="text-blue-400">VAT</span><span className="text-blue-300">£{totals.tax.toFixed(2)}</span></div>}
+          {settings.enableCis && <div className="flex justify-between gap-4 py-1"><span className="text-red-400">CIS</span><span className="text-red-300">-£{totals.cis.toFixed(2)}</span></div>}
         </div>
       </div>
       </div>
