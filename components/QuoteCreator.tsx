@@ -892,94 +892,100 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       {/* Multiple Sections / Jobs List */}
       <div className="space-y-3 md:space-y-4">
         {(formData.sections || []).map((section, sectionIdx) => (
-          <div key={section.id} className="bg-white rounded-xl border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-900 transition-all group-hover/section:bg-teal-500"></div>
+          <div key={section.id} className="bg-white rounded-xl md:rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden transition-all group/section hover:shadow-xl">
+            <div className="absolute top-0 left-0 w-1.5 md:w-2 h-full bg-slate-900 transition-all group-hover/section:bg-teal-500"></div>
 
-            <div className="p-1.5 md:p-2 space-y-1.5 md:space-y-2">
-              <div className="flex justify-between items-center gap-2">
-                <div className="flex-1 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 bg-slate-100 rounded-lg flex items-center justify-center font-black text-[10px] text-slate-500">{sectionIdx + 1}</div>
+            <div className="p-1.5 md:p-5 space-y-1.5 md:space-y-4">
+              <div className="flex justify-between items-center gap-2 md:gap-4">
+                <div className="flex-1 space-y-0.5 md:space-y-1">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="h-6 w-6 md:h-10 md:w-10 bg-slate-100 rounded-lg md:rounded-xl flex items-center justify-center font-black text-[10px] md:text-base text-slate-500">{sectionIdx + 1}</div>
                     <input
                       type="text"
-                      className="bg-transparent text-xs md:text-base font-black text-slate-900 outline-none focus:text-teal-600 transition-colors w-full leading-tight py-0.5"
+                      className="bg-transparent text-xs md:text-xl font-black text-slate-900 outline-none focus:text-teal-600 transition-colors w-full leading-tight md:leading-normal py-0.5 md:py-1"
                       value={section.title}
                       onChange={e => updateSectionTitle(section.id, e.target.value)}
                       placeholder="Job Section Title (e.g. Rewire Kitchen)"
                     />
                   </div>
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic ml-8">Work Specifications & Labour</p>
+                  <p className="text-[8px] md:text-xs font-black text-slate-400 uppercase tracking-widest italic ml-8 md:ml-[52px]">Work Specifications & Labour</p>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 md:gap-2">
                   <button
                     onClick={() => removeSection(section.id)}
                     disabled={formData.sections?.length === 1}
-                    className="p-1.5 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-10"
+                    className="p-1.5 md:p-2 text-slate-300 hover:text-red-500 transition-colors disabled:opacity-10"
                     title="Remove Job Section"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={14} className="md:hidden" />
+                    <Trash2 size={20} className="hidden md:block" />
                   </button>
                 </div>
               </div>
 
               {/* Material Items - Amazing List Style */}
-              <div className="space-y-1">
+              <div className="space-y-1 md:space-y-3">
                 {section.items.map((item) => (
                   item.isHeading ? (
                     // Heading/Divider rendering
-                    <div key={item.id} className="bg-slate-100 px-2 py-0.5 rounded my-0.5 flex items-center gap-1">
-                      <Type size={10} className="text-slate-400" />
+                    <div key={item.id} className="bg-slate-100 px-2 md:px-4 py-0.5 md:py-2 rounded md:rounded-lg my-0.5 md:my-2 flex items-center gap-1 md:gap-3">
+                      <Type size={10} className="text-slate-400 md:hidden" />
+                      <Type size={16} className="text-slate-400 hidden md:block" />
                       <input
                         type="text"
-                        className="bg-transparent text-[9px] font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300 leading-tight py-0.5"
+                        className="bg-transparent text-[9px] md:text-sm font-black uppercase tracking-widest text-slate-500 flex-1 outline-none placeholder:text-slate-300 leading-tight md:leading-normal py-0.5 md:py-1"
                         value={item.name}
                         onChange={e => updateItem(section.id, item.id, { name: e.target.value })}
                         placeholder="SECTION HEADING"
                       />
-                      <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 size={10}/>
+                      <button onClick={() => removeItem(section.id, item.id)} className="p-0.5 md:p-1.5 text-slate-300 hover:text-red-500 transition-colors md:hover:bg-red-50 md:rounded-lg">
+                        <Trash2 size={10} className="md:hidden"/>
+                        <Trash2 size={16} className="hidden md:block"/>
                       </button>
                     </div>
                   ) : (
                     // Normal material item
-                    <div key={item.id} className="bg-white p-0.5 rounded-md shadow-sm border border-slate-100 relative group overflow-hidden">
-                      <div className="flex justify-between items-center gap-1 mb-0.5">
+                    <div key={item.id} className="bg-white p-0.5 md:p-3 rounded-md md:rounded-xl shadow-sm border border-slate-100 md:border-slate-200 relative group overflow-hidden">
+                      <div className="flex justify-between items-center gap-1 md:gap-3 mb-0.5 md:mb-2">
                          <div className="flex-1 min-w-0">
-                            <input type="text" className="w-full h-4 font-bold text-[10px] text-slate-900 outline-none placeholder:text-slate-300 bg-transparent leading-none p-0 m-0" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
-                            <input type="text" className="w-full h-3 text-[8px] text-slate-500 outline-none placeholder:text-slate-300 bg-transparent leading-none p-0 m-0 mt-0.5" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
+                            <input type="text" className="w-full h-4 md:h-auto font-bold text-[10px] md:text-base text-slate-900 outline-none placeholder:text-slate-300 bg-transparent leading-none md:leading-normal p-0 m-0 md:pb-1 md:border-b md:border-transparent md:focus:border-teal-400 md:transition-colors" value={item.name} onChange={e => updateItem(section.id, item.id, { name: e.target.value })} placeholder="Item Name" />
+                            <input type="text" className="w-full h-3 md:h-auto text-[8px] md:text-sm text-slate-500 outline-none placeholder:text-slate-300 bg-transparent leading-none md:leading-normal p-0 m-0 mt-0.5 md:mt-1" value={item.description} onChange={e => updateItem(section.id, item.id, { description: e.target.value })} placeholder="Description (optional)" />
                          </div>
-                         <div className="flex gap-0.5 shrink-0">
+                         <div className="flex gap-0.5 md:gap-2 shrink-0">
                            {/* Save to Price List */}
                            {item.name && (
                              <button
                                onClick={() => saveItemToLibrary(item)}
-                               className="p-1 bg-slate-50 text-slate-300 rounded hover:bg-teal-50 hover:text-teal-500 transition-colors touch-manipulation"
+                               className="p-1 md:p-2 bg-slate-50 text-slate-300 rounded md:rounded-lg hover:bg-teal-50 hover:text-teal-500 transition-colors touch-manipulation"
                                title="Save to price list"
                              >
-                               <BookmarkPlus size={10}/>
+                               <BookmarkPlus size={10} className="md:hidden"/>
+                               <BookmarkPlus size={16} className="hidden md:block"/>
                              </button>
                            )}
-                           <button onClick={() => removeItem(section.id, item.id)} className="p-1 bg-slate-50 text-slate-300 rounded hover:bg-red-50 hover:text-red-500 transition-colors touch-manipulation">
-                             <Trash2 size={10}/>
+                           <button onClick={() => removeItem(section.id, item.id)} className="p-1 md:p-2 bg-slate-50 text-slate-300 rounded md:rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors touch-manipulation">
+                             <Trash2 size={10} className="md:hidden"/>
+                             <Trash2 size={16} className="hidden md:block"/>
                            </button>
                          </div>
                       </div>
 
-                      <div className="flex gap-0.5 bg-slate-50 p-0.5 rounded">
+                      <div className="flex gap-0.5 md:gap-3 bg-slate-50 p-0.5 md:p-3 rounded md:rounded-xl">
                          {/* Quantity with +/- buttons */}
                          <div className="flex-1">
-                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5">Qty</label>
-                            <div className="flex items-center bg-white rounded shadow-sm border border-slate-100 h-6">
+                            <label className="text-[6px] md:text-xs font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5 md:mb-1.5">Qty</label>
+                            <div className="flex items-center bg-white rounded md:rounded-lg shadow-sm border border-slate-100 md:border-slate-200 h-6 md:h-11">
                               <button
                                 type="button"
                                 onClick={() => decrementQuantity(section.id, item.id)}
-                                className="px-1.5 h-full hover:bg-slate-50 rounded-l transition-colors touch-manipulation active:bg-slate-100"
+                                className="px-1.5 md:px-3 h-full hover:bg-slate-50 rounded-l md:rounded-l-lg transition-colors touch-manipulation active:bg-slate-100"
                               >
-                                <Minus size={10} className="text-slate-400" />
+                                <Minus size={10} className="text-slate-400 md:hidden" />
+                                <Minus size={16} className="text-slate-400 hidden md:block" />
                               </button>
                               <input
                                 type="number"
-                                className="w-10 h-full bg-transparent text-sm font-black text-center outline-none text-slate-900"
+                                className="w-10 md:w-16 h-full bg-transparent text-sm md:text-lg font-black text-center outline-none text-slate-900"
                                 value={item.quantity || ''}
                                 onChange={e => updateItem(section.id, item.id, { quantity: parseFloat(e.target.value) || 0 })}
                                 placeholder="0"
@@ -987,19 +993,21 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                               <button
                                 type="button"
                                 onClick={() => incrementQuantity(section.id, item.id)}
-                                className="px-1.5 h-full hover:bg-slate-50 rounded-r transition-colors touch-manipulation active:bg-slate-100"
+                                className="px-1.5 md:px-3 h-full hover:bg-slate-50 rounded-r md:rounded-r-lg transition-colors touch-manipulation active:bg-slate-100"
                               >
-                                <Plus size={10} className="text-slate-400" />
+                                <Plus size={10} className="text-slate-400 md:hidden" />
+                                <Plus size={16} className="text-slate-400 hidden md:block" />
                               </button>
                             </div>
                          </div>
                          <div className="flex-1">
-                            <label className="text-[6px] font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5">Price (£)</label>
-                            <input type="number" className="w-full h-6 bg-white rounded text-[10px] font-bold px-0.5 text-center shadow-sm outline-none focus:ring-1 focus:ring-teal-100 border border-slate-100" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
+                            <label className="text-[6px] md:text-xs font-bold text-slate-400 uppercase tracking-wider block leading-none mb-0.5 md:mb-1.5">Price (£)</label>
+                            <input type="number" className="w-full h-6 md:h-11 bg-white rounded md:rounded-lg text-[10px] md:text-lg font-bold px-0.5 md:px-3 text-center shadow-sm outline-none focus:ring-1 focus:ring-teal-100 md:focus:ring-2 md:focus:ring-teal-200 border border-slate-100 md:border-slate-200" value={item.unitPrice || ''} onChange={e => updateItem(section.id, item.id, { unitPrice: parseFloat(e.target.value) || 0 })} placeholder="0.00" />
                          </div>
                          <div className="flex-1 flex flex-col justify-end">
-                            <div className="w-full h-6 bg-slate-900 rounded px-0.5 text-center flex items-center justify-center">
-                               <span className="text-white text-[10px] font-bold leading-none">£{item.totalPrice.toFixed(2)}</span>
+                            <label className="hidden md:block text-xs font-bold text-slate-400 uppercase tracking-wider leading-none mb-1.5">Total</label>
+                            <div className="w-full h-6 md:h-11 bg-slate-900 rounded md:rounded-lg px-0.5 md:px-3 text-center flex items-center justify-center">
+                               <span className="text-white text-[10px] md:text-lg font-bold leading-none">£{item.totalPrice.toFixed(2)}</span>
                             </div>
                          </div>
                       </div>
@@ -1008,86 +1016,90 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 ))}
 
                 {/* Action buttons for materials */}
-                <div className="flex gap-1 pt-1">
-                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-1 py-1 bg-white border border-slate-200 rounded text-slate-600 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
-                      <Plus size={12} className="text-teal-500"/> Add Item
+                <div className="flex gap-1 md:gap-2 pt-1 md:pt-3">
+                   <button onClick={() => addMaterialToSection(section.id)} className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-1 md:py-3 bg-white border border-slate-200 rounded md:rounded-xl text-slate-600 font-bold text-[9px] md:text-sm uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all">
+                      <Plus size={12} className="text-teal-500 md:hidden"/><Plus size={18} className="text-teal-500 hidden md:block"/> Add Item
                    </button>
                    <button
                      onClick={() => {
                        setTargetSectionForMaterial(section.id);
                        setShowMaterialsLibrary(true);
                      }}
-                     className="flex-1 flex items-center justify-center gap-1 py-1 bg-teal-50 border border-teal-200 rounded text-teal-600 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-teal-100 active:scale-95 transition-all"
+                     className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-1 md:py-3 bg-teal-50 border border-teal-200 rounded md:rounded-xl text-teal-600 font-bold text-[9px] md:text-sm uppercase tracking-wider shadow-sm hover:bg-teal-100 active:scale-95 transition-all"
                    >
-                     <Package size={12}/> Price List
+                     <Package size={12} className="md:hidden"/><Package size={18} className="hidden md:block"/> Price List
                    </button>
                    <button
                      onClick={() => addHeadingToSection(section.id)}
-                     className="flex items-center justify-center gap-0.5 py-1 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 font-bold text-[9px] uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
+                     className="flex items-center justify-center gap-0.5 md:gap-1.5 py-1 md:py-3 px-2 md:px-4 bg-slate-50 border border-slate-200 rounded md:rounded-xl text-slate-500 font-bold text-[9px] md:text-sm uppercase tracking-wider shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
                    >
-                     <Type size={10}/>
+                     <Type size={10} className="md:hidden"/><Type size={16} className="hidden md:block"/>
                    </button>
                 </div>
               </div>
 
               {/* Labour Items Section */}
-              <div className="pt-1 mt-1 border-t border-slate-100">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1">
-                    <HardHat size={12} className="text-blue-500" />
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Labour</span>
+              <div className="pt-1 md:pt-4 mt-1 md:mt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-1 md:mb-3">
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <HardHat size={12} className="text-blue-500 md:hidden" />
+                    <HardHat size={18} className="text-blue-500 hidden md:block" />
+                    <span className="text-[9px] md:text-sm font-black text-slate-600 uppercase tracking-widest">Labour</span>
                   </div>
-                  <div className="text-[9px] text-slate-400">
+                  <div className="text-[9px] md:text-sm text-slate-400">
                     Rate: £{section.labourRate || formData.labourRate || settings.defaultLabourRate}/hr
                   </div>
                 </div>
 
                 {/* Labour Items List */}
                 {(section.labourItems || []).map((labourItem) => (
-                  <div key={labourItem.id} className="bg-blue-50 p-0.5 rounded mb-1">
+                  <div key={labourItem.id} className="bg-blue-50 p-0.5 md:p-3 rounded md:rounded-xl mb-1 md:mb-2">
                     {/* Top row: Description and delete button */}
-                    <div className="flex items-center gap-1 mb-0.5">
+                    <div className="flex items-center gap-1 md:gap-3 mb-0.5 md:mb-2">
                       <input
                         type="text"
                         placeholder="Labour description..."
                         value={labourItem.description}
                         onChange={e => updateLabourItem(section.id, labourItem.id, { description: e.target.value })}
-                        className="flex-1 bg-transparent text-[10px] font-medium text-slate-900 outline-none placeholder:text-blue-300 leading-tight py-0.5"
+                        className="flex-1 bg-transparent text-[10px] md:text-base font-medium text-slate-900 outline-none placeholder:text-blue-300 leading-tight md:leading-normal py-0.5 md:py-1 md:border-b md:border-transparent md:focus:border-blue-400 md:transition-colors"
                       />
                       <button
                         onClick={() => removeLabourItem(section.id, labourItem.id)}
-                        className="p-0.5 text-slate-300 hover:text-red-500 transition-colors"
+                        className="p-0.5 md:p-2 text-slate-300 hover:text-red-500 transition-colors md:bg-white md:rounded-lg md:hover:bg-red-50"
                       >
-                        <Trash2 size={10} />
+                        <Trash2 size={10} className="md:hidden" />
+                        <Trash2 size={16} className="hidden md:block" />
                       </button>
                     </div>
                     {/* Bottom row: Hours controls and price */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-0.5 bg-white rounded px-1 py-0.5 border border-blue-200 h-6">
+                    <div className="flex items-center justify-between gap-2 md:gap-4">
+                      <div className="flex items-center gap-0.5 md:gap-1 bg-white rounded md:rounded-lg px-1 md:px-2 py-0.5 md:py-1 border border-blue-200 h-6 md:h-11">
                         <button
                           type="button"
                           onClick={() => decrementLabourHours(section.id, labourItem.id)}
-                          className="px-1 h-full hover:bg-blue-50 rounded transition-colors touch-manipulation active:bg-blue-100"
+                          className="px-1 md:px-2 h-full hover:bg-blue-50 rounded transition-colors touch-manipulation active:bg-blue-100"
                         >
-                          <Minus size={10} className="text-blue-500" />
+                          <Minus size={10} className="text-blue-500 md:hidden" />
+                          <Minus size={16} className="text-blue-500 hidden md:block" />
                         </button>
                         <input
                           type="number"
                           value={labourItem.hours}
                           onChange={e => updateLabourItem(section.id, labourItem.id, { hours: parseFloat(e.target.value) || 0 })}
-                          className="w-12 h-full text-center font-black text-xs bg-transparent outline-none text-slate-900"
+                          className="w-12 md:w-16 h-full text-center font-black text-xs md:text-lg bg-transparent outline-none text-slate-900"
                           step="0.5"
                         />
-                        <span className="text-[8px] text-slate-400 font-bold">hrs</span>
+                        <span className="text-[8px] md:text-sm text-slate-400 font-bold">hrs</span>
                         <button
                           type="button"
                           onClick={() => incrementLabourHours(section.id, labourItem.id)}
-                          className="px-1 h-full hover:bg-blue-50 rounded transition-colors touch-manipulation active:bg-blue-100"
+                          className="px-1 md:px-2 h-full hover:bg-blue-50 rounded transition-colors touch-manipulation active:bg-blue-100"
                         >
-                          <Plus size={10} className="text-blue-500" />
+                          <Plus size={10} className="text-blue-500 md:hidden" />
+                          <Plus size={16} className="text-blue-500 hidden md:block" />
                         </button>
                       </div>
-                      <span className="font-bold text-blue-600 text-[11px]">
+                      <span className="font-bold text-blue-600 text-[11px] md:text-lg">
                         £{(labourItem.hours * (labourItem.rate || section.labourRate || formData.labourRate || settings.defaultLabourRate)).toFixed(2)}
                       </span>
                     </div>
@@ -1097,18 +1109,18 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                 {/* Add Labour Item Button */}
                 <button
                   onClick={() => addLabourItem(section.id)}
-                  className="w-full flex items-center justify-center gap-1 py-1 bg-blue-50 border border-blue-200 rounded text-blue-600 font-bold text-[9px] uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-1"
+                  className="w-full flex items-center justify-center gap-1 md:gap-2 py-1 md:py-3 bg-blue-50 border border-blue-200 rounded md:rounded-xl text-blue-600 font-bold text-[9px] md:text-sm uppercase tracking-wider hover:bg-blue-100 active:scale-95 transition-all mt-1 md:mt-2"
                 >
-                  <Plus size={10} /> Add Labour Item
+                  <Plus size={10} className="md:hidden" /><Plus size={18} className="hidden md:block" /> Add Labour Item
                 </button>
 
                 {/* Labour Summary */}
                 {(section.labourItems && section.labourItems.length > 0) && (
-                  <div className="flex justify-between items-center mt-1 pt-1 border-t border-blue-100">
-                    <span className="text-[9px] text-slate-500">
+                  <div className="flex justify-between items-center mt-1 md:mt-3 pt-1 md:pt-3 border-t border-blue-100">
+                    <span className="text-[9px] md:text-sm text-slate-500">
                       Total: {getTotalLabourHours(section)} hours × £{section.labourRate || formData.labourRate || settings.defaultLabourRate}
                     </span>
-                    <span className="font-black text-blue-600 text-[11px]">
+                    <span className="font-black text-blue-600 text-[11px] md:text-lg">
                       £{calculateSectionLabour(section).toFixed(2)}
                     </span>
                   </div>
@@ -1141,38 +1153,38 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
               </div>
 
               {/* Section Totals Summary */}
-              <div className="pt-2 mt-2 border-t border-slate-100">
-                <div className="grid grid-cols-3 gap-2">
+              <div className="pt-2 md:pt-4 mt-2 md:mt-4 border-t border-slate-100">
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
                   {/* Materials Total */}
-                  <div className="space-y-0.5">
-                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
-                      <Package size={10} className="text-slate-500" /> Materials
+                  <div className="space-y-0.5 md:space-y-1.5">
+                    <label className="text-[8px] md:text-xs font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5 md:gap-1.5">
+                      <Package size={10} className="text-slate-500 md:hidden" /><Package size={14} className="text-slate-500 hidden md:block" /> Materials
                     </label>
-                    <div className="bg-slate-100 rounded-lg px-2 py-1.5 text-center">
-                      <span className="text-xs font-black text-slate-600">£{section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
+                    <div className="bg-slate-100 rounded-lg md:rounded-xl px-2 md:px-4 py-1.5 md:py-3 text-center">
+                      <span className="text-xs md:text-lg font-black text-slate-600">£{section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0).toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Labour Total */}
-                  <div className="space-y-0.5">
-                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
-                      <HardHat size={10} className="text-blue-500" /> Labour
+                  <div className="space-y-0.5 md:space-y-1.5">
+                    <label className="text-[8px] md:text-xs font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5 md:gap-1.5">
+                      <HardHat size={10} className="text-blue-500 md:hidden" /><HardHat size={14} className="text-blue-500 hidden md:block" /> Labour
                     </label>
-                    <div className="bg-blue-50 rounded-lg px-2 py-1.5 text-center">
-                      <span className="text-xs font-black text-blue-600">£{calculateSectionLabour(section).toFixed(2)}</span>
+                    <div className="bg-blue-50 rounded-lg md:rounded-xl px-2 md:px-4 py-1.5 md:py-3 text-center">
+                      <span className="text-xs md:text-lg font-black text-blue-600">£{calculateSectionLabour(section).toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Section Total (editable override) */}
-                  <div className="space-y-0.5">
-                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
-                      <PoundSterling size={10} className="text-emerald-500" /> Section
+                  <div className="space-y-0.5 md:space-y-1.5">
+                    <label className="text-[8px] md:text-xs font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5 md:gap-1.5">
+                      <PoundSterling size={10} className="text-emerald-500 md:hidden" /><PoundSterling size={14} className="text-emerald-500 hidden md:block" /> Section
                     </label>
-                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-lg px-1 py-1.5 focus-within:border-emerald-400 transition-all">
-                      <span className="text-emerald-600 text-[10px] font-bold mr-0.5">£</span>
+                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-lg md:rounded-xl px-1 md:px-3 py-1.5 md:py-2.5 focus-within:border-emerald-400 transition-all">
+                      <span className="text-emerald-600 text-[10px] md:text-base font-bold mr-0.5 md:mr-1">£</span>
                       <input
                         type="number"
-                        className="bg-transparent border-none text-emerald-700 font-black text-[10px] outline-none w-full"
+                        className="bg-transparent border-none text-emerald-700 font-black text-[10px] md:text-lg outline-none w-full"
                         value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0) + calculateSectionLabour(section)).toFixed(2)}
                         onChange={e => {
                           const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;
@@ -1186,7 +1198,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     </div>
                   </div>
                 </div>
-                <p className="text-[8px] text-slate-400 text-center italic mt-1">Edit section total to override calculated value</p>
+                <p className="text-[8px] md:text-xs text-slate-400 text-center italic mt-1 md:mt-2">Edit section total to override calculated value</p>
               </div>
             </div>
           </div>
