@@ -804,6 +804,67 @@ export const Home: React.FC<HomeProps> = ({
         document.body
       )}
 
+      {/* FINANCIAL SNAPSHOT Section */}
+      <div>
+        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Financial Snapshot</h3>
+
+        {/* Revenue Overview with Period Selector */}
+        <FinancialOverview quotes={quotes} settings={settings} />
+
+        {/* Invoice Summary Card */}
+        {(todayStats.outstandingInvoices > 0 || todayStats.overdueInvoices > 0) && (
+          <div
+            onClick={() => { hapticTap(); onNavigateToInvoices?.(); }}
+            className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm mt-3 md:mt-4 cursor-pointer hover:shadow-lg transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${todayStats.overdueInvoices > 0 ? 'bg-red-500' : 'bg-teal-500'} text-white`}>
+                  {todayStats.overdueInvoices > 0 ? <AlertTriangle size={18} className="md:w-6 md:h-6" /> : <FileText size={18} className="md:w-6 md:h-6" />}
+                </div>
+                <div>
+                  <h4 className="font-black text-slate-900 text-sm md:text-lg">Invoice Summary</h4>
+                  <p className="text-[10px] md:text-xs text-slate-500 font-medium italic">
+                    {todayStats.overdueInvoices > 0 ? 'Action required' : 'Awaiting payment'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-500 transition-colors">
+                <span className="text-xs font-bold hidden sm:inline">View All</span>
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              <div className="bg-teal-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                  <Clock size={12} className="sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 text-teal-600 shrink-0" />
+                  <span className="text-[10px] sm:text-[11px] md:text-xs font-black text-teal-600 uppercase truncate">Owed</span>
+                </div>
+                <p className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 truncate">
+                  {todayStats.outstandingTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-slate-500 font-bold mt-1 truncate">
+                  {todayStats.outstandingInvoices} awaiting
+                </p>
+              </div>
+              <div className={`rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 ${todayStats.overdueInvoices > 0 ? 'bg-red-50' : 'bg-slate-50'}`}>
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                  <AlertTriangle size={12} className={`sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 shrink-0 ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`} />
+                  <span className={`text-[10px] sm:text-[11px] md:text-xs font-black uppercase truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`}>Overdue</span>
+                </div>
+                <p className={`text-lg sm:text-xl md:text-3xl font-black truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-300'}`}>
+                  {todayStats.overdueTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
+                </p>
+                <p className={`text-[10px] sm:text-[11px] md:text-xs font-bold mt-1 truncate ${todayStats.overdueInvoices > 0 ? 'text-red-500' : 'text-slate-400'}`}>
+                  {todayStats.overdueInvoices > 0 ? `${todayStats.overdueInvoices} past due` : 'None'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* TODAY'S SCHEDULE Section Header */}
       <div>
         <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Today's Schedule</h3>
@@ -1024,67 +1085,6 @@ export const Home: React.FC<HomeProps> = ({
             ))}
           </div>
         </div>
-      </div>
-
-      {/* FINANCIAL SNAPSHOT Section */}
-      <div>
-        <h3 className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2 md:mb-3 px-1">Financial Snapshot</h3>
-
-        {/* Revenue Overview with Period Selector */}
-        <FinancialOverview quotes={quotes} settings={settings} />
-
-        {/* Invoice Summary Card */}
-        {(todayStats.outstandingInvoices > 0 || todayStats.overdueInvoices > 0) && (
-          <div
-            onClick={() => { hapticTap(); onNavigateToInvoices?.(); }}
-            className="bg-white rounded-2xl md:rounded-[32px] border border-slate-200 p-4 md:p-6 shadow-sm mt-3 md:mt-4 cursor-pointer hover:shadow-lg transition-all group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${todayStats.overdueInvoices > 0 ? 'bg-red-500' : 'bg-teal-500'} text-white`}>
-                  {todayStats.overdueInvoices > 0 ? <AlertTriangle size={18} className="md:w-6 md:h-6" /> : <FileText size={18} className="md:w-6 md:h-6" />}
-                </div>
-                <div>
-                  <h4 className="font-black text-slate-900 text-sm md:text-lg">Invoice Summary</h4>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-medium italic">
-                    {todayStats.overdueInvoices > 0 ? 'Action required' : 'Awaiting payment'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-500 transition-colors">
-                <span className="text-xs font-bold hidden sm:inline">View All</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-              <div className="bg-teal-50 rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4">
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                  <Clock size={12} className="sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 text-teal-600 shrink-0" />
-                  <span className="text-[10px] sm:text-[11px] md:text-xs font-black text-teal-600 uppercase truncate">Owed</span>
-                </div>
-                <p className="text-lg sm:text-xl md:text-3xl font-black text-slate-900 truncate">
-                  {todayStats.outstandingTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-slate-500 font-bold mt-1 truncate">
-                  {todayStats.outstandingInvoices} awaiting
-                </p>
-              </div>
-              <div className={`rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 ${todayStats.overdueInvoices > 0 ? 'bg-red-50' : 'bg-slate-50'}`}>
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                  <AlertTriangle size={12} className={`sm:w-[14px] sm:h-[14px] md:w-4 md:h-4 shrink-0 ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`} />
-                  <span className={`text-[10px] sm:text-[11px] md:text-xs font-black uppercase truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-400'}`}>Overdue</span>
-                </div>
-                <p className={`text-lg sm:text-xl md:text-3xl font-black truncate ${todayStats.overdueInvoices > 0 ? 'text-red-600' : 'text-slate-300'}`}>
-                  {todayStats.overdueTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}
-                </p>
-                <p className={`text-[10px] sm:text-[11px] md:text-xs font-bold mt-1 truncate ${todayStats.overdueInvoices > 0 ? 'text-red-500' : 'text-slate-400'}`}>
-                  {todayStats.overdueInvoices > 0 ? `${todayStats.overdueInvoices} past due` : 'None'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-8">
