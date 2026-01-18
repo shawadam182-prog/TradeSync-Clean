@@ -38,10 +38,14 @@ interface InvoicesListProps {
   onBack?: () => void;
 }
 
+// Tab filter types
+type InvoiceFilterTab = 'all' | 'draft' | 'unpaid' | 'overdue' | 'cancelled';
+
 export const InvoicesList: React.FC<InvoicesListProps> = ({
   quotes, customers, settings, onViewQuote, onCreateInvoice, onDeleteInvoice, onBack
 }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState<InvoiceFilterTab>('all');
   const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
   const toast = useToast();
 
@@ -82,7 +86,32 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
     return subtotal + markup + tax;
   };
 
+  // Filter by tab status first
+  const filterByTab = (invoice: Quote): boolean => {
+    switch (activeTab) {
+      case 'draft':
+        return invoice.status === 'draft';
+      case 'unpaid':
+        // Unpaid: sent or accepted, not paid, not draft, not declined, and not overdue
+        return invoice.status !== 'paid' &&
+               invoice.status !== 'draft' &&
+               invoice.status !== 'declined' &&
+               !isOverdue(invoice);
+      case 'overdue':
+        return isOverdue(invoice);
+      case 'cancelled':
+        return invoice.status === 'declined';
+      case 'all':
+      default:
+        return true;
+    }
+  };
+
   const filtered = quotes.filter(q => {
+    // First apply tab filter
+    if (!filterByTab(q)) return false;
+
+    // Then apply search filter
     const searchLower = searchTerm.toLowerCase();
     const customer = customers.find(c => c.id === q.customerId);
     return (
@@ -91,6 +120,15 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
       (customer?.company?.toLowerCase().includes(searchLower) ?? false)
     );
   });
+
+  // Count invoices for each tab (for badges)
+  const tabCounts = {
+    all: quotes.length,
+    draft: quotes.filter(q => q.status === 'draft').length,
+    unpaid: quotes.filter(q => q.status !== 'paid' && q.status !== 'draft' && q.status !== 'declined' && !isOverdue(q)).length,
+    overdue: quotes.filter(q => isOverdue(q)).length,
+    cancelled: quotes.filter(q => q.status === 'declined').length,
+  };
 
   return (
     <div className="space-y-6">
@@ -120,11 +158,44 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
         }
       />
 
+      {/* Status Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+        {(['all', 'draft', 'unpaid', 'overdue', 'cancelled'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => {
+              hapticTap();
+              setActiveTab(tab);
+            }}
+            className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${
+              activeTab === tab
+                ? tab === 'overdue'
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/20'
+                  : 'bg-slate-900 text-white shadow-lg'
+                : 'bg-white text-slate-600 border-2 border-slate-100 hover:border-slate-200'
+            }`}
+          >
+            {tab}
+            {tabCounts[tab] > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                activeTab === tab
+                  ? 'bg-white/20'
+                  : tab === 'overdue' && tabCounts.overdue > 0
+                    ? 'bg-red-100 text-red-600'
+                    : 'bg-slate-100'
+              }`}>
+                {tabCounts[tab]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-        <input 
-          type="text" 
-          placeholder="Search invoices..." 
+        <input
+          type="text"
+          placeholder="Search invoices..."
           className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
@@ -135,7 +206,13 @@ export const InvoicesList: React.FC<InvoicesListProps> = ({
         {filtered.length === 0 ? (
           <div className="py-20 text-center bg-white rounded-[32px] border-2 border-dashed border-slate-100 opacity-60">
             <ReceiptText size={48} className="mx-auto text-slate-200 mb-4" />
-            <p className="text-slate-400 font-black uppercase tracking-widest text-sm italic">No invoices recorded yet.</p>
+            <p className="text-slate-400 font-black uppercase tracking-widest text-sm italic">
+              {activeTab === 'all' && 'No invoices recorded yet.'}
+              {activeTab === 'draft' && 'No draft invoices.'}
+              {activeTab === 'unpaid' && 'No unpaid invoices.'}
+              {activeTab === 'overdue' && 'No overdue invoices.'}
+              {activeTab === 'cancelled' && 'No cancelled invoices.'}
+            </p>
           </div>
         ) : (
           filtered.map((invoice) => {
