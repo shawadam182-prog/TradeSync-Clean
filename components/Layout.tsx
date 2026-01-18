@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield, MessageSquare } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useAuth } from '../src/contexts/AuthContext';
+import { useData } from '../src/contexts/DataContext';
 import { isAdminUser } from '../src/lib/constants';
 
 interface LayoutProps {
@@ -28,11 +29,27 @@ interface NavGroup {
 
 export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, onSignOut }) => {
   const { user } = useAuth();
+  const { settings } = useData();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [moreMenuGroup, setMoreMenuGroup] = useState<string | null>(null);
 
   const isAdmin = isAdminUser(user?.id);
+
+  // Get display tier name
+  const getTierDisplay = () => {
+    if (settings.subscriptionStatus === 'trialing') {
+      return 'Trial';
+    }
+    const tierNames: Record<string, string> = {
+      free: 'Free',
+      starter: 'Starter',
+      professional: 'Professional',
+      business: 'Business',
+      enterprise: 'Enterprise',
+    };
+    return tierNames[settings.subscriptionTier] || 'Free';
+  };
 
   const navGroups: NavGroup[] = [
     {
@@ -193,7 +210,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center font-black text-slate-900 text-xs">JS</div>
             <div className="text-sm">
               <p className="font-bold text-white">Main Contractor</p>
-              <p className="text-slate-500 text-[10px] font-black uppercase">Standard Tier</p>
+              <p className="text-slate-500 text-[10px] font-black uppercase">{getTierDisplay()} Tier</p>
             </div>
           </div>
         </div>
