@@ -43,7 +43,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToLanding }) => {
         if (error) {
           setError(error.message);
         } else {
-          setMessage('Check your email for a confirmation link!');
+          // User is automatically signed in (email confirmation disabled)
+          // The AuthContext will handle the session change
+          setMessage('Account created! Signing you in...');
         }
       }
     } catch (err) {
