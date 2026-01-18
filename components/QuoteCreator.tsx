@@ -590,7 +590,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-32 bg-slate-50 min-h-screen">
+    <div className="max-w-4xl mx-auto pb-40 md:pb-32 bg-slate-50 min-h-screen">
       {/* Unified Header */}
       <div className="sticky top-0 z-40 bg-white border-b border-slate-100 p-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
@@ -1299,7 +1299,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
       </div>
 
       {/* Sticky Totals Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900 text-white p-4 flex justify-between items-center shadow-2xl z-30 border-t border-slate-800">
+      <div className="fixed bottom-[50px] md:bottom-0 left-0 right-0 bg-slate-900 text-white p-4 flex justify-between items-center shadow-2xl z-40 border-t border-slate-800">
         <div>
           <span className="text-[10px] text-slate-400 uppercase tracking-widest">Document Total</span>
           <p className="text-2xl font-black">£{totals.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
