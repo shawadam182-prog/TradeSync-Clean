@@ -1075,7 +1075,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                           type="number"
                           value={labourItem.hours}
                           onChange={e => updateLabourItem(section.id, labourItem.id, { hours: parseFloat(e.target.value) || 0 })}
-                          className="w-10 h-full text-center font-black text-sm bg-transparent outline-none text-slate-900"
+                          className="w-12 h-full text-center font-black text-xs bg-transparent outline-none text-slate-900"
                           step="0.5"
                         />
                         <span className="text-[8px] text-slate-400 font-bold">hrs</span>
@@ -1168,11 +1168,11 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
                     <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-0.5 flex items-center gap-0.5">
                       <PoundSterling size={10} className="text-emerald-500" /> Section
                     </label>
-                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-lg px-2 py-1.5 focus-within:border-emerald-400 transition-all">
-                      <span className="text-emerald-600 text-xs font-bold mr-0.5">£</span>
+                    <div className="flex items-center bg-emerald-50 border-2 border-emerald-200 rounded-lg px-1 py-1.5 focus-within:border-emerald-400 transition-all">
+                      <span className="text-emerald-600 text-[10px] font-bold mr-0.5">£</span>
                       <input
                         type="number"
-                        className="bg-transparent border-none text-emerald-700 font-black text-xs outline-none w-full"
+                        className="bg-transparent border-none text-emerald-700 font-black text-[10px] outline-none w-full"
                         value={section.subsectionPrice !== undefined ? section.subsectionPrice : (section.items.filter(i => !i.isHeading).reduce((s, i) => s + i.totalPrice, 0) + calculateSectionLabour(section)).toFixed(2)}
                         onChange={e => {
                           const subsectionPrice = e.target.value === '' ? undefined : parseFloat(e.target.value) || 0;

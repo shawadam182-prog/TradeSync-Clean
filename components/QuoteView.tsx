@@ -815,24 +815,24 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
               {/* Part Payment Highlight Box */}
               {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
-                <div className="bg-blue-500 text-white p-5 rounded-2xl mt-4">
+                <div className="bg-white border border-teal-200 p-5 rounded-2xl mt-4 shadow-sm">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                         {activeQuote.partPaymentLabel || 'Amount Due Now'}
                       </p>
-                      <p className="text-2xl font-black">
+                      <p className="text-2xl font-black text-teal-600">
                         £{partPaymentAmount.toFixed(2)}
                       </p>
                       {activeQuote.partPaymentType === 'percentage' && (
-                        <p className="text-xs text-blue-200 mt-1">
+                        <p className="text-[10px] font-bold text-slate-400 mt-1">
                           ({activeQuote.partPaymentValue}% of £{totals.grandTotal.toFixed(2)})
                         </p>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Balance Due</p>
-                      <p className="text-lg font-bold text-blue-100">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance Due</p>
+                      <p className="text-lg font-black text-slate-700">
                         £{(totals.grandTotal - partPaymentAmount).toFixed(2)}
                       </p>
                     </div>
