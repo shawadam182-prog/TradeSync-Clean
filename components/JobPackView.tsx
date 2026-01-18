@@ -426,7 +426,7 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
       </div>
 
       <div className="px-2 pb-4">
-        <div className="flex flex-wrap gap-2 bg-slate-100 p-1 rounded-xl w-full">
+        <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl w-full">
           {[
             { id: 'log', label: 'Log', icon: StickyNote },
             { id: 'photos', label: 'Photos', icon: ImageIcon },
@@ -437,13 +437,13 @@ export const JobPackView: React.FC<JobPackViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[9px] font-bold transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              <tab.icon size={14} /> {tab.label}
+              <tab.icon size={12} /> {tab.label}
             </button>
           ))}
         </div>
