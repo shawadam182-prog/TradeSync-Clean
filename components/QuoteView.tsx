@@ -284,11 +284,11 @@ ${settings?.email ? `📧 ${settings.email}` : ''}`;
       const customerName = customer?.name || 'there';
       const customerEmail = customer?.email || '';
 
-      // Use lower scale on mobile to prevent memory issues
-      const isMobile = window.innerWidth < 768;
-      const scale = isMobile ? 1.5 : 2;
+      // MOBILE: Use very low scale to prevent memory corruption
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const scale = isMobile ? 1 : 2;
 
-      // Generate PDF
+      // Generate canvas from the document
       const canvas = await html2canvas(documentRef.current, {
         scale,
         useCORS: true,
@@ -298,13 +298,10 @@ ${settings?.email ? `📧 ${settings.email}` : ''}`;
         windowHeight: documentRef.current.scrollHeight,
       });
 
-      // Use PNG for better compatibility
-      let imgData: string;
-      try {
-        imgData = canvas.toDataURL('image/png');
-      } catch {
-        imgData = canvas.toDataURL('image/jpeg', 0.8);
-      }
+      // Use JPEG on mobile for smaller file size and better compatibility
+      const imgData = isMobile
+        ? canvas.toDataURL('image/jpeg', 0.85)
+        : canvas.toDataURL('image/png');
 
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -325,13 +322,13 @@ ${settings?.email ? `📧 ${settings.email}` : ''}`;
         if (pageNum > 0) {
           pdf.addPage();
         }
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledHeight);
+        pdf.addImage(imgData, isMobile ? 'JPEG' : 'PNG', 0, position, pdfWidth, scaledHeight);
         heightLeft -= pdfHeight;
         position -= pdfHeight;
         pageNum++;
       }
 
-      // Build email content with part payment info
+      // Build email content
       let partPaymentLine = '';
       if (activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue) {
         const partAmount = activeQuote.partPaymentType === 'percentage'
@@ -348,28 +345,38 @@ Please find attached ${docType} as discussed.${partPaymentLine}
 Thanks,
 ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${settings?.email ? `\n${settings.email}` : ''}`;
 
-      // IMPORTANT: Web Share API CANNOT set email recipient - this is a platform limitation
-      // So we use a smarter approach: download PDF, then open email app with mailto:
+      // MOBILE: Use Web Share API to attach PDF directly to email
+      if (isMobile && navigator.share && navigator.canShare) {
+        // Create PDF blob using arraybuffer for better mobile compatibility
+        const pdfArrayBuffer = pdf.output('arraybuffer');
+        const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf', lastModified: Date.now() });
 
-      // Step 1: Save the PDF to downloads
+        const shareData = {
+          files: [pdfFile],
+          title: subject,
+          text: `To: ${customerEmail}\n\n${body}`,
+        };
+
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            return; // Success - email app opened with PDF attached
+          } catch (shareErr) {
+            if ((shareErr as Error).name === 'AbortError') {
+              return; // User cancelled
+            }
+            console.log('Web Share failed:', shareErr);
+            // Fall through to download approach
+          }
+        }
+      }
+
+      // DESKTOP/FALLBACK: Download PDF and open mailto
       pdf.save(filename);
-
-      // Step 2: Open email app with pre-filled recipient, subject, and body
-      // Add note about the attachment
-      const bodyWithNote = `${body}\n\n---\nPDF attached: ${filename}`;
-      const mailtoLink = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyWithNote)}`;
-
-      // Small delay to ensure PDF download starts before switching to email app
+      const mailtoLink = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       await new Promise(resolve => setTimeout(resolve, 300));
-
-      // Open email app
       window.location.href = mailtoLink;
-
-      // Note: The email app will open with:
-      // - TO: customer email
-      // - SUBJECT: filled in
-      // - BODY: filled in
-      // User just needs to tap the attachment button and select the PDF from Downloads
     } catch (err) {
       console.error('Email share failed:', err);
       alert('Could not prepare email. Please try downloading the PDF instead.');
