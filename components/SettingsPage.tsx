@@ -870,13 +870,67 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                     </div>
                   </div>
 
+                  {/* Bank Details Section */}
+                  <div className="space-y-5 pt-6 border-t border-slate-100">
+                    <div className="flex items-center gap-2 px-1">
+                      <Landmark size={16} className="text-emerald-500" />
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Bank Details for Payments</label>
+                    </div>
+                    <p className="text-[10px] text-slate-500 italic px-1">These details will appear as a payment section on your invoices.</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Account Holder Name</label>
+                        <input
+                          type="text"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-[16px] p-4 outline-none text-slate-900 font-bold text-sm focus:border-emerald-400 focus:bg-white transition-all"
+                          value={settings.bankAccountName || ''}
+                          onChange={e => setSettings({ ...settings, bankAccountName: e.target.value })}
+                          placeholder="e.g. ACME Construction Ltd"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Bank Name</label>
+                        <input
+                          type="text"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-[16px] p-4 outline-none text-slate-900 font-bold text-sm focus:border-emerald-400 focus:bg-white transition-all"
+                          value={settings.bankName || ''}
+                          onChange={e => setSettings({ ...settings, bankName: e.target.value })}
+                          placeholder="e.g. Barclays"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Account Number</label>
+                        <input
+                          type="text"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-[16px] p-4 outline-none text-slate-900 font-bold text-sm focus:border-emerald-400 focus:bg-white transition-all"
+                          value={settings.bankAccountNumber || ''}
+                          onChange={e => setSettings({ ...settings, bankAccountNumber: e.target.value })}
+                          placeholder="12345678"
+                          maxLength={8}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Sort Code</label>
+                        <input
+                          type="text"
+                          className="w-full bg-slate-50 border-2 border-slate-100 rounded-[16px] p-4 outline-none text-slate-900 font-bold text-sm focus:border-emerald-400 focus:bg-white transition-all"
+                          value={settings.bankSortCode || ''}
+                          onChange={e => setSettings({ ...settings, bankSortCode: e.target.value })}
+                          placeholder="12-34-56"
+                          maxLength={8}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 px-1">
                       <Settings2 size={16} className="text-emerald-500" />
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Invoice Footer & Payment Terms</label>
                     </div>
-                    <textarea 
-                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-[32px] p-7 text-slate-900 font-medium text-sm outline-none focus:bg-white focus:border-emerald-500 transition-all min-h-[200px] leading-relaxed" 
+                    <textarea
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-[32px] p-7 text-slate-900 font-medium text-sm outline-none focus:bg-white focus:border-emerald-500 transition-all min-h-[200px] leading-relaxed"
                       value={settings.defaultInvoiceNotes}
                       onChange={e => setSettings({...settings, defaultInvoiceNotes: e.target.value})}
                       placeholder="e.g. Please settle this invoice within 14 days. Bank: ACME Ltd, Account: 01234567, Sort: 00-00-00."

@@ -187,6 +187,11 @@ export interface AppSettings {
   showBreakdown: boolean;
   defaultDisplayOptions: QuoteDisplayOptions;
   documentTemplate?: DocumentTemplate;
+  // Bank details for payment instructions
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankSortCode?: string;
+  bankName?: string;
   // Tax year setting (month 1-12, day 1-31) - UK default is April 6
   taxYearStartMonth?: number;
   taxYearStartDay?: number;

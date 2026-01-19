@@ -1064,6 +1064,46 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               )}
             </div>
 
+            {/* Bank Details Section - Only for invoices */}
+            {activeQuote.type === 'invoice' && (
+              settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
+            ) && (
+              <div className="mt-6 pt-6 border-t border-slate-200">
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Landmark size={16} className="text-emerald-600" />
+                    <h4 className="text-xs font-black text-emerald-900 uppercase tracking-widest">Payment Details</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                    {settings.bankAccountName && (
+                      <div>
+                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Account Name</p>
+                        <p className="text-[11px] font-bold text-slate-900">{settings.bankAccountName}</p>
+                      </div>
+                    )}
+                    {settings.bankName && (
+                      <div>
+                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Bank</p>
+                        <p className="text-[11px] font-bold text-slate-900">{settings.bankName}</p>
+                      </div>
+                    )}
+                    {settings.bankAccountNumber && (
+                      <div>
+                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Account Number</p>
+                        <p className="text-[11px] font-bold text-slate-900">{settings.bankAccountNumber}</p>
+                      </div>
+                    )}
+                    {settings.bankSortCode && (
+                      <div>
+                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Sort Code</p>
+                        <p className="text-[11px] font-bold text-slate-900">{settings.bankSortCode}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {displayOptions.showNotes && activeQuote?.notes && (
                 <div className="text-[8px] leading-snug opacity-60 mt-1">
                   {activeQuote.notes}

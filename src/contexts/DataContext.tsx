@@ -20,7 +20,7 @@ import {
 } from '../services/dataService';
 import { offlineService } from '../services/offlineStorage';
 import { syncManager } from '../services/syncManager';
-import type { Customer, Quote, JobPack, ScheduleEntry, AppSettings } from '../../types';
+import type { Customer, Quote, JobPack, ScheduleEntry, AppSettings, DocumentTemplate } from '../../types';
 
 // Default settings
 const DEFAULT_SETTINGS: AppSettings = {
@@ -291,6 +291,12 @@ function dbSettingsToApp(dbSettings: any): AppSettings {
     costBoxColor: (dbSettings.cost_box_color as 'slate' | 'amber' | 'blue') || 'slate',
     showBreakdown: dbSettings.show_breakdown ?? true,
     defaultDisplayOptions: dbSettings.default_display_options || DEFAULT_SETTINGS.defaultDisplayOptions,
+    documentTemplate: (dbSettings.document_template as DocumentTemplate) || 'classic',
+    // Bank details for payment instructions
+    bankAccountName: dbSettings.bank_account_name || undefined,
+    bankAccountNumber: dbSettings.bank_account_number || undefined,
+    bankSortCode: dbSettings.bank_sort_code || undefined,
+    bankName: dbSettings.bank_name || undefined,
     // Tax year settings (UK default: April 6)
     taxYearStartMonth: dbSettings.tax_year_start_month || 4,
     taxYearStartDay: dbSettings.tax_year_start_day || 6,
@@ -756,6 +762,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cost_box_color: updates.costBoxColor,
       show_breakdown: updates.showBreakdown,
       default_display_options: updates.defaultDisplayOptions as any,
+      document_template: updates.documentTemplate || null,
+      bank_account_name: updates.bankAccountName || null,
+      bank_account_number: updates.bankAccountNumber || null,
+      bank_sort_code: updates.bankSortCode || null,
+      bank_name: updates.bankName || null,
       tax_year_start_month: updates.taxYearStartMonth,
       tax_year_start_day: updates.taxYearStartDay,
     });
