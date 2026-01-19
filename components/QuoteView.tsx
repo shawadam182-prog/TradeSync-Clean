@@ -524,7 +524,66 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
   const currentThemeClass = costBoxThemes[settings.costBoxColor || 'slate'];
 
-  const CustomiseToggle = ({ label, optionKey, activeColor }: { label: string, optionKey: keyof QuoteDisplayOptions, activeColor: string }) => (
+  // Template configuration for different PDF layouts
+  const templateStyles = {
+    classic: {
+      container: 'rounded-xl',
+      header: 'p-4',
+      titleBar: 'border-y border-slate-200 bg-slate-50 px-4 py-2.5',
+      clientSection: 'px-4 py-3 bg-slate-50',
+      sectionPadding: 'px-4 py-3',
+      sectionSpacing: 'space-y-3',
+      sectionTitle: 'text-sm font-bold text-slate-900 uppercase tracking-wide',
+      materialHeader: 'flex items-center gap-1.5 border-b border-slate-100 pb-1',
+      tableText: 'text-[11px]',
+      footerRounding: 'rounded-b-xl',
+      borderStyle: 'border-slate-200'
+    },
+    modern: {
+      container: 'rounded-2xl',
+      header: 'p-6',
+      titleBar: 'border-y-2 border-slate-100 bg-gradient-to-r from-slate-50 to-white px-6 py-4',
+      clientSection: 'px-6 py-5 bg-gradient-to-br from-slate-50 to-white',
+      sectionPadding: 'px-6 py-5',
+      sectionSpacing: 'space-y-4',
+      sectionTitle: 'text-base font-black text-slate-900 tracking-tight',
+      materialHeader: 'flex items-center gap-2 border-b-2 border-slate-100 pb-2 mb-1',
+      tableText: 'text-[12px]',
+      footerRounding: 'rounded-b-2xl',
+      borderStyle: 'border-slate-100'
+    },
+    minimal: {
+      container: 'rounded-lg',
+      header: 'p-3',
+      titleBar: 'border-b border-slate-100 px-3 py-2',
+      clientSection: 'px-3 py-2',
+      sectionPadding: 'px-3 py-2',
+      sectionSpacing: 'space-y-2',
+      sectionTitle: 'text-xs font-bold text-slate-800',
+      materialHeader: 'flex items-center gap-1 pb-1',
+      tableText: 'text-[10px]',
+      footerRounding: 'rounded-b-lg',
+      borderStyle: 'border-slate-100'
+    },
+    detailed: {
+      container: 'rounded-xl',
+      header: 'p-4 bg-slate-50 border-b-2 border-slate-200',
+      titleBar: 'border-y-2 border-slate-300 bg-slate-100 px-4 py-3',
+      clientSection: 'px-4 py-3 bg-slate-50 border-b border-slate-200',
+      sectionPadding: 'px-4 py-3 border-b border-slate-100',
+      sectionSpacing: 'space-y-3',
+      sectionTitle: 'text-sm font-black text-slate-900 uppercase tracking-wider',
+      materialHeader: 'flex items-center gap-2 border-b-2 border-slate-200 pb-1.5 bg-slate-50 px-2 py-1',
+      tableText: 'text-[11px]',
+      footerRounding: 'rounded-b-xl',
+      borderStyle: 'border-slate-300'
+    }
+  };
+
+  const activeTemplate = settings.documentTemplate || 'classic';
+  const templateStyle = templateStyles[activeTemplate];
+
+  const CustomiseToggle = ({ label, optionKey, activeColor }: { label, optionKey: keyof QuoteDisplayOptions, activeColor: string }) => (
     <button
       onClick={() => toggleOption(optionKey)}
       className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${
@@ -691,9 +750,9 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         )}
       </div>
 
-      <div ref={documentRef} className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden print:border-none print:shadow-none print:rounded-none">
+      <div ref={documentRef} className={`bg-white ${templateStyle.container} shadow-xl border ${templateStyle.borderStyle} overflow-hidden print:border-none print:shadow-none print:rounded-none`}>
         {/* Company Header */}
-        <div className="p-4 flex justify-between items-start">
+        <div className={`${templateStyle.header} flex justify-between items-start`}>
           {/* Logo & Company Info */}
           <div className="flex items-start gap-3">
             {displayOptions.showLogo && settings.companyLogo && (
@@ -735,12 +794,12 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         </div>
 
         {/* Project Title Bar */}
-        <div className="border-y border-slate-200 bg-slate-50 px-4 py-2.5">
-          <h1 className="text-sm font-bold text-slate-800 tracking-wide">{activeQuote?.title || 'Proposed Works'}</h1>
+        <div className={templateStyle.titleBar}>
+          <h1 className={templateStyle.sectionTitle}>{activeQuote?.title || 'Proposed Works'}</h1>
         </div>
 
         {/* Client and Job Address Section */}
-        <div className="px-4 py-3 bg-slate-50">
+        <div className={templateStyle.clientSection}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* To: Client Address */}
             <div>
@@ -780,16 +839,16 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             : section.labourHours || 0;
 
           return (
-            <div key={section.id} className={`px-4 py-3 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} space-y-3`}>
+            <div key={section.id} className={`${templateStyle.sectionPadding} ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} ${templateStyle.sectionSpacing}`}>
               <div className="flex items-center gap-2.5">
-                 <span className="text-xs font-bold text-slate-400">{idx + 1}.</span>
-                 <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{section.title}</h4>
+                 <span className={`${templateStyle.tableText} font-bold text-slate-400`}>{idx + 1}.</span>
+                 <h4 className={templateStyle.sectionTitle}>{section.title}</h4>
               </div>
 
               {/* Materials Block */}
               {displayOptions.showMaterials && (rawMaterialsTotal > 0 || (section.items || []).length > 0) && (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1">
+                  <div className={templateStyle.materialHeader}>
                     <Package size={12} className="text-amber-500" />
                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials</span>
                   </div>
@@ -942,39 +1001,39 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           );
         })}
 
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white px-4 py-4 rounded-b-xl">
+        <div className={`${currentThemeClass} px-4 py-4 ${templateStyle.footerRounding} shadow-sm`}>
           <div className="flex flex-col gap-3">
             <div className="space-y-1">
               {displayOptions.showTotalsBreakdown && (
                 <>
-                  <div className="flex justify-between text-[10px] text-slate-400"><span>Subtotal</span><span className="text-slate-200">£{totals.clientSubtotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-[10px] opacity-70"><span>Subtotal</span><span className="opacity-90">£{totals.clientSubtotal.toFixed(2)}</span></div>
                   {/* Discount */}
                   {totals.discountAmount > 0 && (
-                    <div className="flex justify-between text-[10px] text-emerald-400">
-                      <span className="flex items-center gap-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="flex items-center gap-1 opacity-70">
                         <Tag size={9} />
                         Discount
-                        {activeQuote.discountDescription && <span className="text-slate-500 ml-1">({activeQuote.discountDescription})</span>}
-                        {activeQuote.discountType === 'percentage' && <span className="text-slate-500 ml-1">({activeQuote.discountValue}%)</span>}
+                        {activeQuote.discountDescription && <span className="opacity-50 ml-1">({activeQuote.discountDescription})</span>}
+                        {activeQuote.discountType === 'percentage' && <span className="opacity-50 ml-1">({activeQuote.discountValue}%)</span>}
                       </span>
-                      <span className="text-emerald-300">-£{totals.discountAmount.toFixed(2)}</span>
+                      <span className="font-semibold">-£{totals.discountAmount.toFixed(2)}</span>
                     </div>
                   )}
                   {settings.enableVat && displayOptions.showVat && (
-                    <div className="flex justify-between text-[10px] text-slate-400"><span>VAT ({activeQuote.taxPercent}%)</span><span className="text-blue-300">£{totals.taxAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-[10px] opacity-70"><span>VAT ({activeQuote.taxPercent}%)</span><span className="opacity-90">£{totals.taxAmount.toFixed(2)}</span></div>
                   )}
                   {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
-                    <div className="flex justify-between text-[10px] text-slate-400"><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span className="text-red-300">-£{totals.cisAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between text-[10px] opacity-70"><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span className="opacity-90">-£{totals.cisAmount.toFixed(2)}</span></div>
                   )}
                 </>
               )}
-              <div className="h-px bg-slate-700/50 my-2"></div>
+              <div className="h-px bg-current opacity-20 my-2"></div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400"></div>
-                  <span className="font-bold text-xs text-slate-300 uppercase tracking-wider">Total Due</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></div>
+                  <span className="font-bold text-xs opacity-80 uppercase tracking-wider">Total Due</span>
                 </div>
-                <span className="text-2xl font-black text-white">£{totals.grandTotal.toFixed(2)}</span>
+                <span className="text-2xl font-black">£{totals.grandTotal.toFixed(2)}</span>
               </div>
 
               {/* Part Payment Highlight Box */}
