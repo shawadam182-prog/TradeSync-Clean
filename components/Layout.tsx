@@ -125,6 +125,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
     { id: 'jobpacks', label: 'Jobs', icon: Briefcase },
     { id: 'schedule', label: 'Schedule', icon: CalendarDays },
     { id: 'quotes', label: 'Quotes', icon: FileText },
+    { id: 'invoices', label: 'Invoices', icon: ReceiptText },
     { id: 'more', label: 'More', icon: MoreHorizontal },
   ];
 
