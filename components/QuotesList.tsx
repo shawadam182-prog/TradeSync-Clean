@@ -178,7 +178,7 @@ export const QuotesList: React.FC<QuotesListProps> = ({
         <input
           type="text"
           placeholder="Search quotes or customers..."
-          className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
+          className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
