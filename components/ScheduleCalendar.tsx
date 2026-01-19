@@ -247,9 +247,21 @@ export const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({
     }
   };
 
-  const getDayEntries = (date: Date) => 
-    entries.filter(e => new Date(e.start).toDateString() === date.toDateString())
-           .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+  const getDayEntries = (date: Date) =>
+    entries.filter(e => {
+      const entryStart = new Date(e.start);
+      const entryEnd = new Date(e.end);
+      const checkDate = new Date(date);
+
+      // Normalize dates to midnight for comparison
+      entryStart.setHours(0, 0, 0, 0);
+      entryEnd.setHours(0, 0, 0, 0);
+      checkDate.setHours(0, 0, 0, 0);
+
+      // Check if checkDate falls within the entry's date range (inclusive)
+      return checkDate >= entryStart && checkDate <= entryEnd;
+    })
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
   const daysInMonth = useMemo(() => {
     const year = currentDate.getFullYear();
