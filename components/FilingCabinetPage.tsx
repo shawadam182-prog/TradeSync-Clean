@@ -203,7 +203,7 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
-          className="flex items-center gap-2 bg-amber-500 text-slate-900 px-5 py-2 rounded-xl font-black text-sm hover:bg-amber-400 transition-colors"
+          className="flex items-center gap-2 bg-teal-500 text-slate-900 px-5 py-2 rounded-xl font-black text-sm hover:bg-teal-400 transition-colors"
         >
           <Upload size={18} />
           Upload Document

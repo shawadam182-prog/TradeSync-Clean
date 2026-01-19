@@ -545,7 +545,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ projects, onBack }) 
           <button onClick={() => setShowCategoryManager(true)} className="flex items-center gap-2 bg-white text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm border border-slate-200 hover:bg-slate-50 transition-colors">
             <Settings size={18} />Categories
           </button>
-          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-amber-500 text-slate-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20">
+          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-teal-500 text-slate-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-teal-400 transition-colors shadow-lg shadow-teal-500/20">
             <Plus size={20} />Add Expense
           </button>
         </div>
