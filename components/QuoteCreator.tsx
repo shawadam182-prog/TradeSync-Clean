@@ -385,7 +385,7 @@ export const QuoteCreator: React.FC<QuoteCreatorProps> = ({
     if (section.labourItems && section.labourItems.length > 0) {
       return section.labourItems.reduce((sum, item) => sum + (item.hours * (item.rate || defaultRate)), 0);
     }
-    return section.labourCost || 0;
+    return section.labourCost || (section.labourHours || 0) * defaultRate;
   };
 
   const getTotalLabourHours = (section: QuoteSection) => {
