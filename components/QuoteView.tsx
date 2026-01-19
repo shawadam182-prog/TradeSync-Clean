@@ -859,10 +859,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                       <table className={`hidden md:table w-full text-left ${activeTemplate === 'minimal' ? 'border border-slate-300' : ''}`} style={{ borderCollapse: 'collapse' }}>
                         <thead>
                           <tr className={activeTemplate === 'minimal' ? 'border-b-2 border-slate-300 bg-slate-50' : 'border-b border-slate-100'}>
-                            <th className={`py-2 px-2 text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>Item & Description</th>
-                            {displayOptions.showMaterialQty && <th className={`py-2 px-2 text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-center w-20 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>Qty</th>}
-                            {displayOptions.showMaterialUnitPrice && <th className={`py-2 px-2 text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>Rate</th>}
-                            {displayOptions.showMaterialLineTotals && <th className={`py-2 px-2 text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24`}>Amount</th>}
+                            <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Item & Description</th>
+                            {displayOptions.showMaterialQty && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-center w-20 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Qty</th>}
+                            {displayOptions.showMaterialUnitPrice && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Rate</th>}
+                            {displayOptions.showMaterialLineTotals && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24`} style={{ lineHeight: '1.6' }}>Amount</th>}
                           </tr>
                         </thead>
                         <tbody className={activeTemplate === 'minimal' ? '' : 'divide-y divide-slate-50'}>
@@ -870,7 +870,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                             item.isHeading ? (
                               // Heading row
                               <tr key={item.id} className={`bg-slate-50 ${activeTemplate === 'minimal' ? 'border-b border-slate-300' : ''}`}>
-                                <td colSpan={4} className={`py-2 px-2 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>
+                                <td colSpan={4} className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>
                                   <div className="flex items-center gap-1">
                                     <Type size={10} className="text-slate-400" />
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.name || 'Section'}</span>
@@ -879,10 +879,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                               </tr>
                             ) : (
                               <tr key={item.id} className={activeTemplate === 'minimal' ? 'border-b border-slate-300' : ''}>
-                                <td className={`py-2 px-2 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}><p className="text-[11px] font-medium text-slate-900">{item.name}</p>{item.description && <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{item.description}</p>}</td>
-                                {displayOptions.showMaterialQty && <td className={`py-2 px-2 text-center ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}><span className="text-[10px] font-medium text-slate-700">{item.quantity} {item.unit}</span></td>}
-                                {displayOptions.showMaterialUnitPrice && <td className={`py-2 px-2 text-right text-[10px] font-medium ${activeTemplate === 'minimal' ? 'text-slate-700 border-r border-slate-300' : 'text-slate-600'}`}>£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
-                                {displayOptions.showMaterialLineTotals && <td className={`py-2 px-2 text-right text-[11px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-900' : 'text-slate-900'}`}>£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
+                                <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><p className={`${activeTemplate === 'minimal' ? 'text-[10px]' : 'text-[11px]'} font-medium text-slate-900`} style={{ lineHeight: '1.5' }}>{item.name}</p>{item.description && <p className="text-[9px] text-slate-500 mt-0.5" style={{ lineHeight: '1.5' }}>{item.description}</p>}</td>
+                                {displayOptions.showMaterialQty && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-center ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><span className="text-[10px] font-medium text-slate-700" style={{ lineHeight: '1.5' }}>{item.quantity} {item.unit}</span></td>}
+                                {displayOptions.showMaterialUnitPrice && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-medium ${activeTemplate === 'minimal' ? 'text-slate-700 border-r border-slate-300' : 'text-slate-600'}`} style={{ lineHeight: '1.5' }}>£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
+                                {displayOptions.showMaterialLineTotals && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-900' : 'text-slate-900'}`} style={{ lineHeight: '1.5' }}>£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
                               </tr>
                             )
                           ))}
