@@ -1,7 +1,8 @@
 // Master admin user IDs - only these users can access admin features
 export const ADMIN_USER_IDS = [
   '5ebbf6a3-1477-4d3f-a6e8-6795e26b4d1d', // shawadam182@gmail.com
-  '6b5ad8ba-f1b9-4571-9a91-d2b2359c51f4', // hsa.electrical@gmail.com
+  '83c1804d-f1ba-469e-8f29-4ad0a10d1112', // hsa.electrical@gmail.com (fixed ID)
+  '3b71f70c-35b5-4ace-9f30-b95390007043', // test@tradesync.info
 ] as const;
 
 export const isAdminUser = (userId: string | undefined): boolean => {

@@ -946,6 +946,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                     </div>
                   </div>
                 </div>
+
+                {/* Legal Links */}
+                <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                  <a
+                    href="/privacy-policy.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-teal-500 transition-colors"
+                  >
+                    <ShieldCheck size={14} />
+                    Privacy Policy
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
               </div>
             </div>
           )}
