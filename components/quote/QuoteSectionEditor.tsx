@@ -101,8 +101,16 @@ export const QuoteSectionEditor: React.FC<QuoteSectionEditorProps> = ({
         </div>
       </div>
 
-      {/* Material Items */}
-      <div className="space-y-1 md:space-y-3 mt-3 md:mt-4">
+      {/* Material Items Section */}
+      <div className="pt-1 md:pt-4 mt-1 md:mt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between mb-1 md:mb-3">
+          <div className="flex items-center gap-1 md:gap-2">
+            <Package size={12} className="text-teal-500 md:hidden" />
+            <Package size={18} className="text-teal-500 hidden md:block" />
+            <span className="text-[9px] md:text-sm font-black text-slate-600 uppercase tracking-widest">Materials</span>
+          </div>
+        </div>
+
         {section.items.map((item) => (
           <MaterialItemRow
             key={item.id}
@@ -117,7 +125,7 @@ export const QuoteSectionEditor: React.FC<QuoteSectionEditorProps> = ({
         ))}
 
         {/* Action buttons for materials */}
-        <div className="flex gap-1 md:gap-2 pt-1 md:pt-3">
+        <div className="flex gap-1 md:gap-2 pt-1 md:pt-3 mt-1 md:mt-2">
           <button
             onClick={() => onAddMaterial(section.id)}
             className="flex-1 flex items-center justify-center gap-1 md:gap-2 py-1 md:py-3 bg-white border border-slate-200 rounded md:rounded-xl text-slate-600 font-bold text-[9px] md:text-sm uppercase tracking-wider shadow-sm hover:bg-slate-50 active:scale-95 transition-all"
