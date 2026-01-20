@@ -161,18 +161,18 @@ export interface JobPack {
   materials?: ProjectMaterial[];
 }
 
-// Document template options - Simplified to 3 professional templates
+// Document template options - Simplified to 2 professional templates
 export type DocumentTemplate =
   | 'professional'  // Zoho-style professional invoice (default)
-  | 'compact'       // Ultra-minimal with color schemes
   | 'classic'       // Traditional compact layout
   // Legacy templates for backwards compatibility:
   | 'trade-pro'     // Maps to professional
   | 'statement'     // Maps to professional
-  | 'minimal'       // Maps to compact
+  | 'compact'       // Maps to classic
+  | 'minimal'       // Maps to classic
   | 'detailed'      // Maps to professional
   | 'branded'       // Maps to professional
-  | 'modern-card';  // Maps to compact
+  | 'modern-card';  // Maps to classic
 
 // Alias for backwards compatibility
 export type InvoiceTemplate = DocumentTemplate;

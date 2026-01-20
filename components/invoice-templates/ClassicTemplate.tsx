@@ -90,9 +90,9 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({
     <div
       className="bg-white text-slate-900 font-sans"
       style={{
-        width: '210mm',
-        minHeight: '297mm',
-        padding: '10mm',
+        width: '100%',
+        maxWidth: '750px',
+        padding: '24px',
         fontSize: '9px',
         boxSizing: 'border-box'
       }}

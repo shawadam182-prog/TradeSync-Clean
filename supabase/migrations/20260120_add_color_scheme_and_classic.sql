@@ -8,10 +8,10 @@ ALTER TABLE user_settings DROP CONSTRAINT IF EXISTS user_settings_document_templ
 ALTER TABLE user_settings
 ADD COLUMN IF NOT EXISTS invoice_color_scheme TEXT DEFAULT 'default';
 
--- Step 3: Add constraint for 3 templates (professional, compact, classic)
+-- Step 3: Add constraint for 2 templates (professional, classic)
 ALTER TABLE user_settings ADD CONSTRAINT user_settings_document_template_check CHECK (
   document_template IS NULL OR
-  document_template IN ('professional', 'compact', 'classic')
+  document_template IN ('professional', 'classic')
 );
 
 -- Step 4: Add constraint for color schemes

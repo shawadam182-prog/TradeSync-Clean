@@ -3,8 +3,7 @@
 
 export type InvoiceTemplate =
   | 'professional'  // Zoho-style professional invoice (default)
-  | 'compact'       // Ultra-minimal with color schemes
-  | 'classic';      // Ultra-compact, guaranteed one-page
+  | 'classic';      // Traditional compact layout
 
 export type ColorScheme = 'default' | 'slate' | 'blue' | 'teal' | 'emerald' | 'purple' | 'rose';
 
@@ -156,36 +155,7 @@ export const INVOICE_TEMPLATES: Record<InvoiceTemplate, TemplateConfig> = {
     defaultColorScheme: 'default',  // Defaults to dark (no color)
   },
 
-  // Template 2: Compact - Ultra-minimal with customizable light color schemes
-  compact: {
-    id: 'compact',
-    name: 'Compact',
-    description: 'Ultra-compact with subtle colors',
-    combineLineItems: true,
-    showSectionHeaders: false,
-    showIcons: false,
-    showBackgrounds: false,
-    showTableBorders: true,
-    showColumnHeaders: true,
-    showLineNumbers: false,
-    showPerLineVat: false,
-    centeredLayout: false,
-    inlineLayout: true,
-    logoPosition: 'hidden',
-    logoSize: 'small',
-    containerPadding: 'p-2',
-    containerBg: 'bg-white',
-    headerPadding: 'p-0',
-    rowPadding: 'py-0.5',
-    sectionGap: 'space-y-0.5',
-    fontSize: 'text-[8px]',
-    headerFontSize: 'text-[10px]',
-    borderRadius: 'rounded-none',
-    supportsColorScheme: true,
-    defaultColorScheme: 'slate',
-  },
-
-  // Template 3: Classic - Ultra-compact, most minimal
+  // Template 2: Classic - Traditional compact layout
   classic: {
     id: 'classic',
     name: 'Classic',
@@ -259,12 +229,6 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
     recommended: true
   },
   {
-    id: 'compact',
-    name: 'Compact',
-    desc: 'Minimal with colors',
-    preview: '┌──────────┐\n│Co│IN│Date│\n│Item×3 £X │\n│S+V-C=TOT │\n└──────────┘'
-  },
-  {
     id: 'classic',
     name: 'Classic',
     desc: 'Traditional layout',
@@ -275,6 +239,5 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
 // Template descriptions for preview panel
 export const TEMPLATE_DESCRIPTIONS: Record<InvoiceTemplate, string> = {
   'professional': 'Clean, professional invoice format based on industry standards like Zoho and QuickBooks. Features a clear table layout with line numbers, proper spacing, and all essential details. Optimized to fit on one page for most jobs.',
-  'compact': 'Ultra-compact receipt-style layout with minimal spacing and customizable color schemes. Guaranteed to fit on one page even for jobs with many line items. Perfect for quick jobs, call-outs, and when you need maximum information density.',
-  'classic': 'Traditional compact invoice format with straightforward layout. Clean and simple design that works well for standard jobs. Features all essential information in a traditional business format.',
+  'classic': 'Traditional compact invoice format with straightforward layout. Clean and simple design that works well for standard jobs. Features all essential information in a traditional business format with customizable color schemes.',
 };

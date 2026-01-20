@@ -941,16 +941,16 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             <table className="w-full text-[10px]" style={{ borderCollapse: 'collapse' }}>
               {templateConfig.showColumnHeaders && (
                 <thead>
-                  <tr className={activeTemplate === 'professional' ? 'bg-slate-800 text-white' : tableHeaderStyle}>
+                  <tr className={tableHeaderStyle}>
                     {templateConfig.showLineNumbers && (
-                      <th className={`py-2 px-2 text-left w-10 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[10px] font-semibold'}`}>#</th>
+                      <th className="py-2 px-2 text-left w-10 text-[10px] font-semibold">#</th>
                     )}
-                    <th className={`py-2 px-2 text-left ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[10px] font-semibold'}`}>Item & Description</th>
-                    <th className={`py-2 px-2 text-center w-16 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[10px] font-semibold'}`}>Qty</th>
+                    <th className="py-2 px-2 text-left text-[10px] font-semibold">Item & Description</th>
+                    <th className="py-2 px-2 text-center w-16 text-[10px] font-semibold">Qty</th>
                     {activeTemplate === 'professional' && (
                       <th className="py-2 px-2 text-right w-24 text-[10px] font-semibold">Rate</th>
                     )}
-                    <th className={`py-2 px-2 text-right w-24 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[10px] font-semibold'}`}>Amount</th>
+                    <th className="py-2 px-2 text-right w-24 text-[10px] font-semibold">Amount</th>
                   </tr>
                 </thead>
               )}
