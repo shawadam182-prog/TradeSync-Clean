@@ -3,7 +3,8 @@
 
 export type InvoiceTemplate =
   | 'professional'  // Zoho-style professional invoice (default)
-  | 'classic';      // Traditional compact layout
+  | 'classic'       // Traditional compact layout
+  | 'spacious';     // Professional with larger text and more spacing
 
 export type ColorScheme = 'default' | 'slate' | 'blue' | 'teal' | 'emerald' | 'purple' | 'rose';
 
@@ -183,6 +184,35 @@ export const INVOICE_TEMPLATES: Record<InvoiceTemplate, TemplateConfig> = {
     supportsColorScheme: true,
     defaultColorScheme: 'default',
   },
+
+  // Template 3: Spacious - Professional with larger text and more breathing room
+  spacious: {
+    id: 'spacious',
+    name: 'Spacious',
+    description: 'Professional with larger text and generous spacing',
+    combineLineItems: true,
+    showSectionHeaders: false,
+    showIcons: false,
+    showBackgrounds: false,
+    showTableBorders: true,
+    showColumnHeaders: true,
+    showLineNumbers: true,
+    showPerLineVat: false,
+    centeredLayout: false,
+    inlineLayout: false,
+    logoPosition: 'left',
+    logoSize: 'medium',
+    containerPadding: 'p-6',
+    containerBg: 'bg-white',
+    headerPadding: 'p-0',
+    rowPadding: 'py-3 px-3',      // More vertical padding for breathing room
+    sectionGap: 'space-y-4',       // More space between sections
+    fontSize: 'text-xs',           // Larger than professional (10px → 12px)
+    headerFontSize: 'text-base',   // Larger header text
+    borderRadius: 'rounded-none',
+    supportsColorScheme: true,
+    defaultColorScheme: 'default',
+  },
 };
 
 // Helper to get template config with fallback
@@ -229,6 +259,12 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
     recommended: true
   },
   {
+    id: 'spacious',
+    name: 'Spacious',
+    desc: 'Larger text & spacing',
+    preview: '┌──────┐\n│░░ INV│\n│  £280│\n│══════│\n│# Desc│\n│      │\n│1 Item│\n│      │\n│══════│\n└──────┘'
+  },
+  {
     id: 'classic',
     name: 'Classic',
     desc: 'Traditional layout',
@@ -239,5 +275,6 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
 // Template descriptions for preview panel
 export const TEMPLATE_DESCRIPTIONS: Record<InvoiceTemplate, string> = {
   'professional': 'Clean, professional invoice format based on industry standards like Zoho and QuickBooks. Features a clear table layout with line numbers, proper spacing, and all essential details. Optimized to fit on one page for most jobs.',
+  'spacious': 'Professional invoice with larger text (12px) and generous spacing between lines. Easier to read and looks great for high-value jobs. Features line numbers, clear headers, and customizable color schemes. May span multiple pages for jobs with many items.',
   'classic': 'Traditional compact invoice format with straightforward layout. Clean and simple design that works well for standard jobs. Features all essential information in a traditional business format with customizable color schemes.',
 };

@@ -825,6 +825,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                       {TEMPLATE_METADATA.map(template => {
                         const iconMap: Record<string, React.ElementType> = {
                           'professional': FileText,
+                          'spacious': Type,
                           'classic': List,
                         };
                         const Icon = iconMap[template.id] || FileText;
