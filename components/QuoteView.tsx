@@ -840,7 +840,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                               </tr>
                             ) : (
                               <tr key={item.id} className={activeTemplate === 'minimal' ? 'border-b border-slate-300' : ''}>
-                                <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><p className={`${activeTemplate === 'minimal' ? 'text-[10px]' : 'text-[11px]'} font-medium text-slate-900`} style={{ lineHeight: '1.5' }}>{item.name}</p>{item.description && <p className="text-[9px] text-slate-500 mt-0.5" style={{ lineHeight: '1.5' }}>{item.description}</p>}</td>
+                                <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><p className={`${activeTemplate === 'minimal' ? 'text-[10px]' : 'text-[11px]'} font-medium text-slate-900`} style={{ lineHeight: '1.5' }}>{[item.name, item.description].filter(Boolean).join(' ')}</p></td>
                                 {displayOptions.showMaterialQty && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-center ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><span className="text-[10px] font-medium text-slate-700" style={{ lineHeight: '1.5' }}>{item.quantity} {item.unit}</span></td>}
                                 {displayOptions.showMaterialUnitPrice && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-medium ${activeTemplate === 'minimal' ? 'text-slate-700 border-r border-slate-300' : 'text-slate-600'}`} style={{ lineHeight: '1.5' }}>£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
                                 {displayOptions.showMaterialLineTotals && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-900' : 'text-slate-900'}`} style={{ lineHeight: '1.5' }}>£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
@@ -864,9 +864,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
                                   {displayOptions.showMaterialQty && <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1 rounded">{item.quantity}{item.unit}</span>}
-                                  <span className="font-medium text-slate-900 text-[11px] truncate">{item.name}</span>
+                                  <span className="font-medium text-slate-900 text-[11px]">{[item.name, item.description].filter(Boolean).join(' ')}</span>
                                 </div>
-                                {item.description && <p className="text-[9px] text-slate-400 truncate">{item.description}</p>}
                               </div>
                               <div className="text-right whitespace-nowrap">
                                 {displayOptions.showMaterialLineTotals && <p className="text-[11px] font-bold text-slate-900">£{(item.totalPrice * markupMultiplier).toFixed(2)}</p>}
