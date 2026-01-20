@@ -70,7 +70,7 @@ type TabType =
   | 'quote_edit';
 
 // Valid main tabs that can be restored after page reload (e.g., returning from camera)
-const RESTORABLE_TABS: readonly TabType[] = ['home', 'jobpacks', 'quotes', 'invoices', 'aged_receivables', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'accountant_export', 'files', 'materials', 'wholesalers', 'support', 'trial_analytics', 'future_jobs'];
+const RESTORABLE_TABS: readonly TabType[] = ['home', 'jobpacks', 'jobpack_detail', 'quotes', 'invoices', 'aged_receivables', 'customers', 'settings', 'schedule', 'expenses', 'bank', 'reconcile', 'vat', 'payables', 'accountant_export', 'files', 'materials', 'wholesalers', 'support', 'trial_analytics', 'future_jobs'];
 type RestorableTab = typeof RESTORABLE_TABS[number];
 
 const App: React.FC = () => {
@@ -96,6 +96,14 @@ const App: React.FC = () => {
     return 'home';
   };
 
+  // Restore project ID from sessionStorage (handles iOS PWA state loss when camera opens)
+  const getInitialProjectId = (): string | null => {
+    try {
+      return sessionStorage.getItem('activeProjectId');
+    } catch (e) { /* sessionStorage not available */ }
+    return null;
+  };
+
   const [activeTab, setActiveTabState] = useState<TabType>(getInitialTab);
 
   // Wrapper to persist tab changes
@@ -110,7 +118,22 @@ const App: React.FC = () => {
 
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const [viewingQuoteId, setViewingQuoteId] = useState<string | null>(null);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [activeProjectIdState, setActiveProjectIdState] = useState<string | null>(getInitialProjectId);
+
+  // Wrapper to persist project ID changes (handles iOS PWA state loss when camera opens)
+  const setActiveProjectId = (projectId: string | null) => {
+    setActiveProjectIdState(projectId);
+    try {
+      if (projectId) {
+        sessionStorage.setItem('activeProjectId', projectId);
+      } else {
+        sessionStorage.removeItem('activeProjectId');
+      }
+    } catch (e) { /* sessionStorage not available */ }
+  };
+
+  // Alias for backward compatibility
+  const activeProjectId = activeProjectIdState;
   const [initialQuoteType, setInitialQuoteType] = useState<'estimate' | 'quotation' | 'invoice'>('estimate');
 
   // Handle browser back button navigation
