@@ -748,81 +748,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                   </div>
                 </div>
 
-                {/* Document Template Selection - 8 Templates */}
-                <div className="space-y-5 pt-6 border-t border-slate-100">
-                  <div className="flex items-center gap-2 px-1">
-                    <Layout size={16} className="text-teal-500" />
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Invoice Template</label>
-                  </div>
-                  <p className="text-[10px] text-slate-500 italic px-1">
-                    Choose how your invoices and quotes will look when exported as PDF
-                  </p>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {TEMPLATE_METADATA.map(template => {
-                      const iconMap: Record<string, React.ElementType> = {
-                        'classic': FileText,
-                        'trade-pro': Hammer,
-                        'minimal': Minus,
-                        'detailed': List,
-                        'compact': Minimize2,
-                        'branded': ImageIcon,
-                        'statement': FileSpreadsheet,
-                        'modern-card': LayoutGrid,
-                      };
-                      const Icon = iconMap[template.id] || FileText;
-
-                      return (
-                        <button
-                          key={template.id}
-                          onClick={() => setSettings({ ...settings, documentTemplate: template.id as DocumentTemplate })}
-                          className={`relative flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${
-                            (settings.documentTemplate || 'trade-pro') === template.id
-                              ? 'border-teal-500 bg-teal-50/50 shadow-lg'
-                              : 'border-slate-100 bg-white hover:border-teal-200'
-                          }`}
-                        >
-                          {template.recommended && (
-                            <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-[7px] font-black text-amber-900 px-1.5 py-0.5 rounded-full">
-                              ★
-                            </span>
-                          )}
-
-                          <div className="w-full h-14 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
-                            <pre className="text-[5px] text-slate-400 font-mono leading-tight whitespace-pre">
-                              {template.preview}
-                            </pre>
-                          </div>
-
-                          <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
-                            (settings.documentTemplate || 'trade-pro') === template.id
-                              ? 'bg-teal-500 text-white'
-                              : 'bg-slate-100 text-slate-400'
-                          }`}>
-                            <Icon size={12} />
-                          </div>
-
-                          <div className="text-center">
-                            <span className="text-[9px] font-black uppercase tracking-widest block">{template.name}</span>
-                            <span className="text-[7px] text-slate-400 leading-tight">{template.desc}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye size={12} className="text-slate-400" />
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                        {TEMPLATE_METADATA.find(t => t.id === (settings.documentTemplate || 'trade-pro'))?.name} Template
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-600 leading-relaxed">
-                      {TEMPLATE_DESCRIPTIONS[(settings.documentTemplate || 'trade-pro') as DocumentTemplate]}
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -886,19 +811,78 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                     </div>
                   </div>
 
-                  {/* Invoice Style - Uses same templates as Quotes (defined in Quote Preferences section) */}
-                  <div className="space-y-3 pt-6 border-t border-slate-100">
+                  {/* Document Template Selection - 8 Templates */}
+                  <div className="space-y-5 pt-6 border-t border-slate-100">
                     <div className="flex items-center gap-2 px-1">
                       <Layout size={16} className="text-emerald-500" />
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Invoice Style</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Invoice Template</label>
                     </div>
-                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <p className="text-[10px] text-slate-500 italic px-1">
+                      Choose how your invoices and quotes will look when exported as PDF
+                    </p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {TEMPLATE_METADATA.map(template => {
+                        const iconMap: Record<string, React.ElementType> = {
+                          'classic': FileText,
+                          'trade-pro': Hammer,
+                          'minimal': Minus,
+                          'detailed': List,
+                          'compact': Minimize2,
+                          'branded': ImageIcon,
+                          'statement': FileSpreadsheet,
+                          'modern-card': LayoutGrid,
+                        };
+                        const Icon = iconMap[template.id] || FileText;
+
+                        return (
+                          <button
+                            key={template.id}
+                            onClick={() => setSettings({ ...settings, documentTemplate: template.id as DocumentTemplate })}
+                            className={`relative flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${
+                              (settings.documentTemplate || 'trade-pro') === template.id
+                                ? 'border-emerald-500 bg-emerald-50/50 shadow-lg'
+                                : 'border-slate-100 bg-white hover:border-emerald-200'
+                            }`}
+                          >
+                            {template.recommended && (
+                              <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-[7px] font-black text-amber-900 px-1.5 py-0.5 rounded-full">
+                                ★
+                              </span>
+                            )}
+
+                            <div className="w-full h-14 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-center overflow-hidden">
+                              <pre className="text-[5px] text-slate-400 font-mono leading-tight whitespace-pre">
+                                {template.preview}
+                              </pre>
+                            </div>
+
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+                              (settings.documentTemplate || 'trade-pro') === template.id
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-slate-100 text-slate-400'
+                            }`}>
+                              <Icon size={12} />
+                            </div>
+
+                            <div className="text-center">
+                              <span className="text-[9px] font-black uppercase tracking-widest block">{template.name}</span>
+                              <span className="text-[7px] text-slate-400 leading-tight">{template.desc}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Eye size={12} className="text-slate-400" />
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                          {TEMPLATE_METADATA.find(t => t.id === (settings.documentTemplate || 'trade-pro'))?.name} Template
+                        </span>
+                      </div>
                       <p className="text-[10px] text-slate-600 leading-relaxed">
-                        Invoice templates are configured in <strong>Quote Preferences</strong> above.
-                        The selected template applies to both quotes and invoices.
-                      </p>
-                      <p className="text-[10px] text-slate-500 mt-2">
-                        Current template: <strong className="text-emerald-600">{TEMPLATE_METADATA.find(t => t.id === (settings.documentTemplate || 'trade-pro'))?.name || 'Trade Pro'}</strong>
+                        {TEMPLATE_DESCRIPTIONS[(settings.documentTemplate || 'trade-pro') as DocumentTemplate]}
                       </p>
                     </div>
                   </div>
