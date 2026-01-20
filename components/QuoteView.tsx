@@ -112,9 +112,11 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   const getAllLineItems = () => {
     const items: Array<{
       lineNum: number;
+      name: string;
       description: string;
-      subDescription?: string;
+      subtext?: string;
       qty: string;
+      rate?: number;
       amount: number;
       isHeading?: boolean;
     }> = [];
@@ -128,16 +130,21 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
         if (item.isHeading) {
           items.push({
             lineNum: 0,
+            name: item.name || 'Section',
             description: item.name || 'Section',
             qty: '',
             amount: 0,
             isHeading: true
           });
         } else {
+          const unitPrice = (item.unitPrice || 0) * markupMultiplier;
           items.push({
             lineNum: lineNum++,
+            name: item.name || '',
             description: [item.name, item.description].filter(Boolean).join(' '),
-            qty: `${item.quantity} ${item.unit}`,
+            subtext: item.description || undefined,
+            qty: `${item.quantity}`,
+            rate: unitPrice,
             amount: (item.totalPrice || 0) * markupMultiplier,
           });
         }
@@ -146,21 +153,25 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       // Add labour items
       if (section.labourItems && section.labourItems.length > 0) {
         section.labourItems.forEach(labour => {
-          const rate = labour.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+          const rate = (labour.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier;
           items.push({
             lineNum: lineNum++,
+            name: labour.description || 'Labour',
             description: labour.description || 'Labour',
-            qty: `${labour.hours} hrs`,
-            amount: labour.hours * rate * markupMultiplier,
+            qty: `${labour.hours}`,
+            rate: rate,
+            amount: labour.hours * rate,
           });
         });
       } else if ((section.labourHours || 0) > 0) {
-        const rate = section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+        const rate = (section.labourRate || activeQuote.labourRate || settings.defaultLabourRate) * markupMultiplier;
         items.push({
           lineNum: lineNum++,
+          name: 'Labour',
           description: 'Labour',
-          qty: `${section.labourHours} hrs`,
-          amount: (section.labourHours || 0) * rate * markupMultiplier,
+          qty: `${section.labourHours}`,
+          rate: rate,
+          amount: (section.labourHours || 0) * rate,
         });
       }
     });
@@ -589,7 +600,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
   const templateConfig = getTemplateConfig(settings.documentTemplate);
 
   // Create templateStyle for backwards compatibility with existing rendering
-  const activeTemplate = settings.documentTemplate || 'trade-pro';
+  const activeTemplate = settings.documentTemplate || 'professional';
   const templateStyle = {
     container: templateConfig.borderRadius,
     header: templateConfig.headerPadding,
@@ -771,65 +782,63 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         )}
       </div>
 
-      <div ref={documentRef} className={`bg-white ${templateStyle.container} shadow-xl border ${templateStyle.borderStyle} overflow-hidden print:border-none print:shadow-none print:rounded-none`}>
+      <div ref={documentRef} className={`bg-white ${templateStyle.container} shadow-xl border ${templateStyle.borderStyle} overflow-hidden print:border-none print:shadow-none print:rounded-none max-w-[750px] mx-auto`} style={{ width: '750px' }}>
         {/* Company Header - Statement template has special Zoho-style layout */}
-        {activeTemplate === 'statement' ? (
-          /* STATEMENT TEMPLATE HEADER - Zoho/QuickBooks Style */
-          <div className="p-2">
-            <div className="flex justify-between items-start">
+        {activeTemplate === 'professional' ? (
+          /* PROFESSIONAL TEMPLATE HEADER - Matches Zoho screenshot */
+          <div className="p-4">
+            <div className="flex justify-between items-start mb-3">
               {/* Left: Logo + Company */}
-              <div className="flex items-start gap-2">
+              <div className="flex-1">
                 {displayOptions.showLogo && settings.companyLogo && (
-                  <img src={settings.companyLogo} alt={settings.companyName || 'Logo'} className="h-10 w-auto object-contain" style={{ maxWidth: '100px' }} />
+                  <img src={settings.companyLogo} alt={settings.companyName || 'Logo'} className="h-16 w-auto object-contain mb-2" style={{ maxWidth: '120px' }} />
                 )}
-                <div>
-                  <h2 className="text-sm font-bold text-slate-900">{settings.companyName}</h2>
-                  {settings.companyAddress && (
-                    <p className="text-[10px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
-                  )}
-                  <div className="flex gap-2 mt-0.5 text-[10px] text-slate-400">
-                    {settings.phone && <span>{settings.phone}</span>}
-                    {settings.email && <span>{settings.email}</span>}
-                  </div>
-                  {settings.vatNumber && <p className="text-[9px] text-slate-400">VAT: {settings.vatNumber}</p>}
-                </div>
+                <h2 className="text-sm font-bold text-slate-900">{settings.companyName}</h2>
+                {settings.companyAddress && (
+                  <p className="text-[10px] text-slate-600 leading-snug whitespace-pre-line mt-0.5">{settings.companyAddress}</p>
+                )}
+                {settings.phone && <p className="text-[10px] text-slate-600 mt-0.5">{settings.phone}</p>}
+                {settings.email && <p className="text-[10px] text-slate-600">{settings.email}</p>}
+                {settings.vatNumber && <p className="text-[10px] text-slate-600">{settings.vatNumber}</p>}
               </div>
 
-              {/* Right: INVOICE badge + Balance Due box */}
+              {/* Right: INVOICE header + Balance */}
               <div className="text-right">
-                <div className="text-xl font-bold text-slate-200 uppercase tracking-wider">
+                <h1 className="text-2xl font-bold text-slate-900 mb-1">
                   {activeQuote.type === 'invoice' ? 'INVOICE' : 'QUOTE'}
-                </div>
-                <p className="text-[10px] text-slate-500">{activeQuote.type === 'invoice' ? 'Invoice' : 'Quote'}# {reference}</p>
-
-                {/* Balance Due Box - Key Zoho feature */}
-                <div className="mt-1 bg-slate-100 rounded-lg p-1.5 inline-block min-w-[120px]">
-                  <div className="text-[9px] text-slate-500 uppercase tracking-wider">Balance Due</div>
-                  <div className="text-lg font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
+                </h1>
+                <p className="text-[10px] text-slate-600 font-semibold">{activeQuote.type === 'invoice' ? 'Invoice' : 'Quote'}# {reference}</p>
+                <div className="mt-2">
+                  <div className="text-[10px] text-slate-600 font-semibold">Balance Due</div>
+                  <div className="text-xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
                 </div>
               </div>
             </div>
 
             {/* Bill To + Dates Row */}
-            <div className="mt-1 pt-2 border-t border-slate-200 grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <div className="text-[10px] font-bold text-slate-500 border-b border-slate-200 pb-0.5 mb-1">Bill To</div>
+                <div className="text-[10px] font-bold text-slate-900 mb-1">Bill To</div>
                 <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
                 {customer?.company && <p className="text-[10px] text-slate-600">{customer.company}</p>}
-                {customer?.address && <p className="text-[10px] text-slate-500 leading-snug">{customer.address}</p>}
+                {customer?.address && <p className="text-[10px] text-slate-600 leading-snug">{customer.address}</p>}
               </div>
-              <div className="text-right text-[10px]">
-                <div><span className="text-slate-400">Invoice Date:</span> {activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</div>
-                <div><span className="text-slate-400">Terms:</span> Due on Receipt</div>
+              <div className="space-y-0.5">
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-600">Invoice Date :</span>
+                  <span className="text-slate-900 font-medium">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</span>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="text-slate-600">Terms :</span>
+                  <span className="text-slate-900 font-medium">Due on Receipt</span>
+                </div>
                 {activeQuote.dueDate && (
-                  <div><span className="text-slate-400">Due Date:</span> <span className="text-amber-600 font-bold">{new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}</span></div>
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-slate-600">Due Date :</span>
+                    <span className="text-slate-900 font-medium">{new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}</span>
+                  </div>
                 )}
               </div>
-            </div>
-
-            {/* Project Title */}
-            <div className="mt-1 pt-1 border-t border-slate-100">
-              <h1 className="text-[11px] font-bold text-slate-700 uppercase tracking-wide">{activeQuote?.title || 'Proposed Works'}</h1>
             </div>
           </div>
         ) : (
@@ -912,17 +921,20 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
         {/* COMBINED LINE ITEMS TABLE - For templates that combine materials + labour */}
         {templateConfig.combineLineItems ? (
-          <div className={templateConfig.containerPadding}>
+          <div className="px-4 pb-2">
             <table className="w-full text-[10px]" style={{ borderCollapse: 'collapse' }}>
               {templateConfig.showColumnHeaders && (
                 <thead>
-                  <tr className={activeTemplate === 'statement' ? 'bg-slate-800 text-white' : (templateConfig.tableHeaderStyle || 'border-b border-slate-200')}>
+                  <tr className={activeTemplate === 'professional' ? 'bg-slate-800 text-white' : (templateConfig.tableHeaderStyle || 'border-b border-slate-200')}>
                     {templateConfig.showLineNumbers && (
-                      <th className={`py-1 px-2 text-left w-8 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>#</th>
+                      <th className={`py-2 px-2 text-left w-10 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[9px] font-bold text-slate-500'}`}>#</th>
                     )}
-                    <th className={`py-1 px-2 text-left ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Item & Description</th>
-                    <th className={`py-1 px-2 text-center w-12 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Qty</th>
-                    <th className={`py-1 px-2 text-right w-20 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Amount</th>
+                    <th className={`py-2 px-2 text-left ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[9px] font-bold text-slate-500'}`}>Item & Description</th>
+                    <th className={`py-2 px-2 text-center w-16 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[9px] font-bold text-slate-500'}`}>Qty</th>
+                    {activeTemplate === 'professional' && (
+                      <th className="py-2 px-2 text-right w-24 text-[10px] font-semibold">Rate</th>
+                    )}
+                    <th className={`py-2 px-2 text-right w-24 ${activeTemplate === 'professional' ? 'text-[10px] font-semibold' : 'text-[9px] font-bold text-slate-500'}`}>Amount</th>
                   </tr>
                 </thead>
               )}
@@ -930,21 +942,25 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 {getAllLineItems().map((item, idx) => (
                   item.isHeading ? (
                     <tr key={`heading-${idx}`} className="bg-slate-50">
-                      <td colSpan={templateConfig.showLineNumbers ? 4 : 3} className="py-1 px-2">
+                      <td colSpan={activeTemplate === 'professional' ? 5 : (templateConfig.showLineNumbers ? 4 : 3)} className="py-1 px-2">
                         <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.description}</span>
                       </td>
                     </tr>
                   ) : (
                     <tr key={`item-${idx}`} className={templateConfig.showTableBorders ? 'border-b border-slate-100' : ''}>
                       {templateConfig.showLineNumbers && (
-                        <td className="py-1 px-2 text-slate-400">{item.lineNum}</td>
+                        <td className="py-2 px-2 text-slate-600 text-[10px]">{item.lineNum}</td>
                       )}
-                      <td className="py-1 px-2">
-                        <span className="text-slate-900">{item.description}</span>
+                      <td className="py-2 px-2 text-[10px]">
+                        <div className="text-slate-900 font-medium">{item.name}</div>
+                        {item.subtext && <div className="text-[9px] text-slate-500 mt-0.5">{item.subtext}</div>}
                       </td>
-                      <td className="py-1 px-2 text-slate-600 text-center">{item.qty}</td>
-                      <td className="py-1 px-2 font-medium text-slate-900 text-right">
-                        £{item.amount.toFixed(2)}
+                      <td className="py-2 px-2 text-slate-900 text-[10px] text-center font-medium">{item.qty}</td>
+                      {activeTemplate === 'professional' && (
+                        <td className="py-2 px-2 text-slate-900 text-[10px] text-right">{item.rate ? `${item.rate.toFixed(2)}` : '-'}</td>
+                      )}
+                      <td className="py-2 px-2 text-slate-900 text-[10px] text-right font-medium">
+                        {item.amount.toFixed(2)}
                       </td>
                     </tr>
                   )
@@ -1135,8 +1151,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         )}
 
         {/* TOTALS SECTION - Statement template has special compact right-aligned layout */}
-        {activeTemplate === 'statement' ? (
-          /* STATEMENT TEMPLATE TOTALS - Zoho-style right-aligned */
+        {activeTemplate === 'professional' ? (
+          /* PROFESSIONAL TEMPLATE TOTALS - Zoho-style right-aligned */
           <div className="px-2 py-1">
             <div className="flex justify-end">
               <div className="w-48">
@@ -1298,24 +1314,26 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           </div>
         )}
 
-        {/* Bank Details for Statement Template - Compact one-line style */}
-        {activeTemplate === 'statement' && activeQuote.type === 'invoice' && (
-          settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
-        ) && (
-          <div className="px-2 py-1 border-t border-slate-100">
-            <div className="text-[9px] text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
-              {settings.bankName && <span><strong>Bank:</strong> {settings.bankName}</span>}
-              {settings.bankAccountName && <span><strong>Account:</strong> {settings.bankAccountName}</span>}
-              {settings.bankAccountNumber && <span><strong>Acc No:</strong> {settings.bankAccountNumber}</span>}
-              {settings.bankSortCode && <span><strong>Sort:</strong> {settings.bankSortCode}</span>}
-            </div>
-          </div>
-        )}
-
-        {/* Notes for Statement Template */}
-        {activeTemplate === 'statement' && displayOptions.showNotes && activeQuote?.notes && (
-          <div className="px-2 pb-3 text-[9px] text-slate-500 leading-snug">
-            {activeQuote.notes}
+        {/* Notes section for Professional Template */}
+        {activeTemplate === 'professional' && (displayOptions.showNotes || (settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName)) && (
+          <div className="px-4 py-3 border-t border-slate-200">
+            <div className="text-[10px] font-bold text-slate-900 mb-2">Notes</div>
+            {(settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName) && activeQuote.type === 'invoice' && (
+              <div className="mb-2">
+                <div className="text-[10px] text-slate-900">Payment Details:</div>
+                <div className="text-[10px] text-slate-600 space-y-0.5 mt-1">
+                  {settings.bankAccountName && <div>Mr {settings.bankAccountName}</div>}
+                  {settings.bankAccountNumber && <div>{settings.bankAccountNumber}</div>}
+                  {settings.bankSortCode && <div>{settings.bankSortCode}</div>}
+                  {settings.bankName && <div>{settings.bankName}</div>}
+                </div>
+              </div>
+            )}
+            {displayOptions.showNotes && activeQuote?.notes && (
+              <div className="text-[10px] text-slate-600 leading-relaxed">
+                {activeQuote.notes}
+              </div>
+            )}
           </div>
         )}
       </div>
