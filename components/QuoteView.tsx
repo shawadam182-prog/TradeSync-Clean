@@ -593,8 +593,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
   const templateStyle = {
     container: templateConfig.borderRadius,
     header: templateConfig.headerPadding,
-    titleBar: `border-y border-slate-200 ${templateConfig.showBackgrounds ? 'bg-slate-50' : 'bg-white'} px-4 py-2`,
-    clientSection: `px-4 py-2 ${templateConfig.showBackgrounds ? 'bg-slate-50' : ''}`,
+    titleBar: `border-y border-slate-200 ${templateConfig.showBackgrounds ? 'bg-slate-50' : 'bg-white'} px-2 py-1`,
+    clientSection: `px-2 py-1 ${templateConfig.showBackgrounds ? 'bg-slate-50' : ''}`,
     sectionPadding: templateConfig.containerPadding,
     sectionSpacing: templateConfig.sectionGap,
     sectionTitle: `${templateConfig.fontSize} font-bold text-slate-900 uppercase tracking-wide`,
@@ -607,7 +607,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
   const CustomiseToggle = ({ label, optionKey, activeColor }: { label: string, optionKey: keyof QuoteDisplayOptions, activeColor: string }) => (
     <button
       onClick={() => toggleOption(optionKey)}
-      className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${
+      className={`flex items-center justify-between w-full px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${
         displayOptions[optionKey]
         ? `${activeColor} border-transparent shadow-sm`
         : 'bg-white text-slate-300 border-slate-100 italic opacity-60'
@@ -625,8 +625,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
   return (
     <div className="max-w-4xl mx-auto space-y-4 pb-24">
       {/* Unified Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-slate-100 p-4 flex items-center justify-between shadow-sm -mx-4 md:mx-0 print:hidden mb-4">
-        <div className="flex items-center gap-3">
+      <div className="sticky top-0 z-40 bg-white border-b border-slate-100 p-2 flex items-center justify-between shadow-sm -mx-4 md:mx-0 print:hidden mb-4">
+        <div className="flex items-center gap-2">
           <button onClick={onBack} className="p-2 -ml-2 text-slate-400 hover:text-slate-700">
             <ArrowLeft size={20} />
           </button>
@@ -644,7 +644,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 print:hidden">
+      <div className="flex flex-col gap-2 print:hidden">
         {/* Status Action Buttons for Quotes */}
         {activeQuote.type !== 'invoice' && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
@@ -654,7 +654,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   onUpdateStatus('sent');
                   hapticSuccess();
                 }}
-                className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-colors"
+                className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-xl bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-colors"
               >
                 <Share2 size={14} /> Mark as Sent
               </button>
@@ -666,7 +666,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                     onUpdateStatus('accepted');
                     hapticSuccess();
                   }}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500 text-white text-xs font-bold shadow-lg shadow-green-500/30 hover:bg-green-600 transition-colors"
+                  className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-xl bg-green-500 text-white text-xs font-bold shadow-lg shadow-green-500/30 hover:bg-green-600 transition-colors"
                 >
                   <Check size={14} /> Customer Accepted
                 </button>
@@ -675,19 +675,19 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                     onUpdateStatus('declined');
                     hapticSuccess();
                   }}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30 hover:bg-red-600 transition-colors"
+                  className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-xl bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-500/30 hover:bg-red-600 transition-colors"
                 >
                   <X size={14} /> Customer Declined
                 </button>
               </>
             )}
             {activeQuote.status === 'accepted' && !activeQuote.status.includes('invoiced') && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-100 text-green-700 text-xs font-bold">
+              <div className="flex items-center gap-2 px-2 py-1 rounded-xl bg-green-100 text-green-700 text-xs font-bold">
                 <Check size={14} /> Accepted - Ready to Invoice
               </div>
             )}
             {activeQuote.status === 'declined' && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-100 text-red-700 text-xs font-bold">
+              <div className="flex items-center gap-2 px-2 py-1 rounded-xl bg-red-100 text-red-700 text-xs font-bold">
                 <X size={14} /> Quote Declined
               </div>
             )}
@@ -698,30 +698,30 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
             <button
               onClick={() => setShowCustomiser(!showCustomiser)}
-              className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-100 text-slate-600 text-xs font-bold shadow-sm"
+              className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-lg bg-white border border-slate-100 text-slate-600 text-xs font-bold shadow-sm"
             >
               <Settings2 size={14} /> Layout
             </button>
             {onDuplicate && (
-              <button onClick={onDuplicate} className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-100 text-slate-600 text-xs font-bold shadow-sm">
+              <button onClick={onDuplicate} className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-lg bg-white border border-slate-100 text-slate-600 text-xs font-bold shadow-sm">
                 <Copy size={14} /> Duplicate
               </button>
             )}
             {activeQuote.type !== 'invoice' && onConvertToInvoice && ['draft', 'sent', 'accepted'].includes(activeQuote.status) && (
-              <button onClick={onConvertToInvoice} className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold shadow-sm border border-emerald-100">
+              <button onClick={onConvertToInvoice} className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold shadow-sm border border-emerald-100">
                 <ReceiptText size={14} /> To Invoice
               </button>
             )}
             {activeQuote.type === 'invoice' && activeQuote.status !== 'paid' && (
               <button
                 onClick={() => setShowPaymentRecorder(true)}
-                className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-colors"
+                className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition-colors"
               >
                 <Banknote size={14} /> Record Payment
               </button>
             )}
             {customer?.address && (
-              <button onClick={handleOpenMaps} className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-600 text-xs font-bold shadow-sm border border-blue-100">
+              <button onClick={handleOpenMaps} className="flex-shrink-0 flex items-center gap-2 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-bold shadow-sm border border-blue-100">
                 <MapPin size={14} /> Map
               </button>
             )}
@@ -730,7 +730,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         {showCustomiser && (
           <div className="bg-white p-5 rounded-[28px] border border-slate-200 shadow-2xl animate-in slide-in-from-top-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="space-y-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+              <div className="space-y-1 bg-slate-50/50 p-2 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100"><Package size={12} className="text-amber-500" /><span className="text-[9px] font-black uppercase tracking-widest text-slate-700">Materials</span></div>
                 <CustomiseToggle label="Show Section" optionKey="showMaterials" activeColor="bg-amber-500 text-white" />
                 <div className={`space-y-1 pl-2 border-l border-slate-100 transition-all ${displayOptions.showMaterials ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
@@ -744,7 +744,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 </div>
               </div>
 
-              <div className="space-y-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+              <div className="space-y-1 bg-slate-50/50 p-2 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100"><HardHat size={12} className="text-blue-500" /><span className="text-[9px] font-black uppercase tracking-widest text-slate-700">Labour</span></div>
                 <CustomiseToggle label="Show Section" optionKey="showLabour" activeColor="bg-blue-600 text-white" />
                 <div className={`space-y-1 pl-2 border-l border-slate-100 transition-all ${displayOptions.showLabour ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
@@ -758,7 +758,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 </div>
               </div>
 
-              <div className="space-y-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+              <div className="space-y-1 bg-slate-50/50 p-2 rounded-xl border border-slate-100">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100"><Landmark size={12} className="text-emerald-500" /><span className="text-[9px] font-black uppercase tracking-widest text-slate-700">Tax & Branding</span></div>
                 <CustomiseToggle label="VAT Breakdown" optionKey="showVat" activeColor="bg-emerald-600 text-white" />
                 <CustomiseToggle label="CIS Deductions" optionKey="showCis" activeColor="bg-emerald-600 text-white" />
@@ -775,10 +775,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         {/* Company Header - Statement template has special Zoho-style layout */}
         {activeTemplate === 'statement' ? (
           /* STATEMENT TEMPLATE HEADER - Zoho/QuickBooks Style */
-          <div className="p-4">
+          <div className="p-2">
             <div className="flex justify-between items-start">
               {/* Left: Logo + Company */}
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 {displayOptions.showLogo && settings.companyLogo && (
                   <img src={settings.companyLogo} alt={settings.companyName || 'Logo'} className="h-10 w-auto object-contain" style={{ maxWidth: '100px' }} />
                 )}
@@ -797,21 +797,21 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
               {/* Right: INVOICE badge + Balance Due box */}
               <div className="text-right">
-                <div className="text-2xl font-bold text-slate-200 uppercase tracking-wider">
+                <div className="text-xl font-bold text-slate-200 uppercase tracking-wider">
                   {activeQuote.type === 'invoice' ? 'INVOICE' : 'QUOTE'}
                 </div>
                 <p className="text-[10px] text-slate-500">{activeQuote.type === 'invoice' ? 'Invoice' : 'Quote'}# {reference}</p>
 
                 {/* Balance Due Box - Key Zoho feature */}
-                <div className="mt-2 bg-slate-100 rounded-lg p-2.5 inline-block min-w-[120px]">
+                <div className="mt-1 bg-slate-100 rounded-lg p-1.5 inline-block min-w-[120px]">
                   <div className="text-[9px] text-slate-500 uppercase tracking-wider">Balance Due</div>
-                  <div className="text-xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
+                  <div className="text-lg font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
                 </div>
               </div>
             </div>
 
             {/* Bill To + Dates Row */}
-            <div className="mt-3 pt-3 border-t border-slate-200 grid grid-cols-2 gap-4">
+            <div className="mt-1 pt-2 border-t border-slate-200 grid grid-cols-2 gap-2">
               <div>
                 <div className="text-[10px] font-bold text-slate-500 border-b border-slate-200 pb-0.5 mb-1">Bill To</div>
                 <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
@@ -828,7 +828,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             </div>
 
             {/* Project Title */}
-            <div className="mt-3 pt-2 border-t border-slate-100">
+            <div className="mt-1 pt-1 border-t border-slate-100">
               <h1 className="text-[11px] font-bold text-slate-700 uppercase tracking-wide">{activeQuote?.title || 'Proposed Works'}</h1>
             </div>
           </div>
@@ -837,7 +837,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           <>
             <div className={`${templateStyle.header} flex justify-between items-start`}>
               {/* Logo & Company Info */}
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 {displayOptions.showLogo && settings.companyLogo && (
                   <img
                     src={settings.companyLogo}
@@ -851,7 +851,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   {settings.companyAddress && (
                     <p className="text-[11px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
                   )}
-                  <div className="flex gap-3 mt-1 text-[11px] text-slate-400">
+                  <div className="flex gap-2 mt-1 text-[11px] text-slate-400">
                     {settings.phone && <span>{settings.phone}</span>}
                     {settings.email && <span>{settings.email}</span>}
                   </div>
@@ -883,7 +883,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
             {/* Client and Job Address Section */}
             <div className={templateStyle.clientSection}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {/* To: Client Address */}
                 <div>
                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
@@ -918,11 +918,11 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 <thead>
                   <tr className={activeTemplate === 'statement' ? 'bg-slate-800 text-white' : (templateConfig.tableHeaderStyle || 'border-b border-slate-200')}>
                     {templateConfig.showLineNumbers && (
-                      <th className={`py-1.5 px-2 text-left w-8 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>#</th>
+                      <th className={`py-1 px-2 text-left w-8 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>#</th>
                     )}
-                    <th className={`py-1.5 px-2 text-left ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Item & Description</th>
-                    <th className={`py-1.5 px-2 text-center w-12 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Qty</th>
-                    <th className={`py-1.5 px-2 text-right w-20 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Amount</th>
+                    <th className={`py-1 px-2 text-left ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Item & Description</th>
+                    <th className={`py-1 px-2 text-center w-12 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Qty</th>
+                    <th className={`py-1 px-2 text-right w-20 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Amount</th>
                   </tr>
                 </thead>
               )}
@@ -937,13 +937,13 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   ) : (
                     <tr key={`item-${idx}`} className={templateConfig.showTableBorders ? 'border-b border-slate-100' : ''}>
                       {templateConfig.showLineNumbers && (
-                        <td className="py-1.5 px-2 text-slate-400">{item.lineNum}</td>
+                        <td className="py-1 px-2 text-slate-400">{item.lineNum}</td>
                       )}
-                      <td className="py-1.5 px-2">
+                      <td className="py-1 px-2">
                         <span className="text-slate-900">{item.description}</span>
                       </td>
-                      <td className="py-1.5 px-2 text-slate-600 text-center">{item.qty}</td>
-                      <td className="py-1.5 px-2 font-medium text-slate-900 text-right">
+                      <td className="py-1 px-2 text-slate-600 text-center">{item.qty}</td>
+                      <td className="py-1 px-2 font-medium text-slate-900 text-right">
                         £{item.amount.toFixed(2)}
                       </td>
                     </tr>
@@ -976,11 +976,13 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
               {/* Materials Block */}
               {displayOptions.showMaterials && (rawMaterialsTotal > 0 || (section.items || []).length > 0) && (
-                <div className="space-y-2">
-                  <div className={templateStyle.materialHeader}>
-                    <Package size={12} className="text-amber-500" />
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials</span>
-                  </div>
+                <div className="space-y-1">
+                  {templateConfig.showSectionHeaders && (
+                    <div className={templateStyle.materialHeader}>
+                      {templateConfig.showIcons && <Package size={12} className="text-amber-500" />}
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials</span>
+                    </div>
+                  )}
 
                   {displayOptions.showMaterialItems && (section.items || []).length > 0 && (
                     <div className="w-full">
@@ -988,10 +990,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                       <table className={`hidden md:table w-full text-left ${activeTemplate === 'minimal' ? 'border border-slate-300' : ''}`} style={{ borderCollapse: 'collapse' }}>
                         <thead>
                           <tr className={activeTemplate === 'minimal' ? 'border-b-2 border-slate-300 bg-slate-50' : 'border-b border-slate-100'}>
-                            <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Item & Description</th>
-                            {displayOptions.showMaterialQty && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-center w-20 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Qty</th>}
-                            {displayOptions.showMaterialUnitPrice && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Rate</th>}
-                            {displayOptions.showMaterialLineTotals && <th className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24`} style={{ lineHeight: '1.6' }}>Amount</th>}
+                            <th className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Item & Description</th>
+                            {displayOptions.showMaterialQty && <th className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-center w-20 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Qty</th>}
+                            {displayOptions.showMaterialUnitPrice && <th className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24 ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.6' }}>Rate</th>}
+                            {displayOptions.showMaterialLineTotals && <th className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-[9px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-700' : 'text-slate-400'} uppercase tracking-wider text-right w-24`} style={{ lineHeight: '1.6' }}>Amount</th>}
                           </tr>
                         </thead>
                         <tbody className={activeTemplate === 'minimal' ? '' : 'divide-y divide-slate-50'}>
@@ -999,7 +1001,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                             item.isHeading ? (
                               // Heading row
                               <tr key={item.id} className={`bg-slate-50 ${activeTemplate === 'minimal' ? 'border-b border-slate-300' : ''}`}>
-                                <td colSpan={4} className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>
+                                <td colSpan={4} className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`}>
                                   <div className="flex items-center gap-1">
                                     <Type size={10} className="text-slate-400" />
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.name || 'Section'}</span>
@@ -1008,10 +1010,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                               </tr>
                             ) : (
                               <tr key={item.id} className={activeTemplate === 'minimal' ? 'border-b border-slate-300' : ''}>
-                                <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><p className={`${activeTemplate === 'minimal' ? 'text-[10px]' : 'text-[11px]'} font-medium text-slate-900`} style={{ lineHeight: '1.5' }}>{[item.name, item.description].filter(Boolean).join(' ')}</p></td>
-                                {displayOptions.showMaterialQty && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-center ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><span className="text-[10px] font-medium text-slate-700" style={{ lineHeight: '1.5' }}>{item.quantity} {item.unit}</span></td>}
-                                {displayOptions.showMaterialUnitPrice && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-medium ${activeTemplate === 'minimal' ? 'text-slate-700 border-r border-slate-300' : 'text-slate-600'}`} style={{ lineHeight: '1.5' }}>£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
-                                {displayOptions.showMaterialLineTotals && <td className={`${activeTemplate === 'minimal' ? 'py-3 px-3' : 'py-2 px-2'} text-right text-[10px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-900' : 'text-slate-900'}`} style={{ lineHeight: '1.5' }}>£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
+                                <td className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><p className={`${activeTemplate === 'minimal' ? 'text-[10px]' : 'text-[11px]'} font-medium text-slate-900`} style={{ lineHeight: '1.5' }}>{[item.name, item.description].filter(Boolean).join(' ')}</p></td>
+                                {displayOptions.showMaterialQty && <td className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-center ${activeTemplate === 'minimal' ? 'border-r border-slate-300' : ''}`} style={{ lineHeight: '1.5' }}><span className="text-[10px] font-medium text-slate-700" style={{ lineHeight: '1.5' }}>{item.quantity} {item.unit}</span></td>}
+                                {displayOptions.showMaterialUnitPrice && <td className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-right text-[10px] font-medium ${activeTemplate === 'minimal' ? 'text-slate-700 border-r border-slate-300' : 'text-slate-600'}`} style={{ lineHeight: '1.5' }}>£{(item.unitPrice * markupMultiplier).toFixed(2)}</td>}
+                                {displayOptions.showMaterialLineTotals && <td className={`${activeTemplate === 'minimal' ? 'py-1 px-2' : 'py-1 px-2'} text-right text-[10px] font-bold ${activeTemplate === 'minimal' ? 'text-slate-900' : 'text-slate-900'}`} style={{ lineHeight: '1.5' }}>£{(item.totalPrice * markupMultiplier).toFixed(2)}</td>}
                               </tr>
                             )
                           ))}
@@ -1028,7 +1030,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.name || 'Section'}</span>
                             </div>
                           ) : (
-                            <div key={item.id} className="py-1.5 border-b border-slate-50 last:border-0 flex justify-between items-start gap-2">
+                            <div key={item.id} className="py-1 border-b border-slate-50 last:border-0 flex justify-between items-start gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
                                   {displayOptions.showMaterialQty && <span className="text-[9px] font-medium text-slate-500 bg-slate-100 px-1 rounded">{item.quantity}{item.unit}</span>}
@@ -1046,7 +1048,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   )}
 
                   {displayOptions.showMaterialSectionTotal && (
-                    <div className="flex justify-between items-center py-2 bg-slate-50 px-4 rounded-lg border border-slate-100/50">
+                    <div className={`flex justify-between items-center py-1 ${templateConfig.showBackgrounds ? 'bg-slate-50 px-2 rounded-lg border border-slate-100/50' : 'border-t border-slate-100 px-1'}`}>
                       <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Materials Total</span>
                       <span className="font-bold text-[11px] text-slate-900">£{(rawMaterialsTotal * markupMultiplier).toFixed(2)}</span>
                     </div>
@@ -1056,11 +1058,13 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
               {/* Labour Block - Now with itemized support */}
               {displayOptions.showLabour && rawLabourTotal > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1">
-                    <HardHat size={12} className="text-blue-500" />
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Labour & Site Support</span>
-                  </div>
+                <div className="space-y-1">
+                  {templateConfig.showSectionHeaders && (
+                    <div className="flex items-center gap-1.5 border-b border-slate-100 pb-1">
+                      {templateConfig.showIcons && <HardHat size={12} className="text-blue-500" />}
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Labour & Site Support</span>
+                    </div>
+                  )}
 
                   {displayOptions.showLabourItems && (
                     <div className="space-y-1.5">
@@ -1071,7 +1075,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                             const rate = labourItem.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
                             const itemTotal = labourItem.hours * rate;
                             return (
-                              <div key={labourItem.id} className="py-2 px-3 bg-blue-50/40 rounded-lg border border-blue-100/30 flex justify-between items-center">
+                              <div key={labourItem.id} className={`py-1 px-2 ${templateConfig.showBackgrounds ? 'bg-blue-50/40 rounded-lg border border-blue-100/30' : 'border-b border-slate-100'} flex justify-between items-center`}>
                                 <div className="flex-1">
                                   <p className="text-[11px] font-medium text-slate-900">{labourItem.description || 'Labour'}</p>
                                   {(displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
@@ -1091,7 +1095,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                         </>
                       ) : (
                         // Fallback to old-style single labour block
-                        <div className="py-2 px-3 bg-blue-50/40 rounded-lg border border-blue-100/30 flex justify-between items-center">
+                        <div className={`py-1 px-2 ${templateConfig.showBackgrounds ? 'bg-blue-50/40 rounded-lg border border-blue-100/30' : 'border-b border-slate-100'} flex justify-between items-center`}>
                           <div className="flex-1">
                             <p className="text-[11px] font-medium text-slate-900">Technical Personnel & Site Resource</p>
                             {totalLabourHours > 0 && (displayOptions.showLabourQty || displayOptions.showLabourUnitPrice) && (
@@ -1111,7 +1115,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   )}
 
                   {displayOptions.showLabourSectionTotal && (
-                    <div className="flex justify-between items-center py-2 bg-blue-50/50 px-4 rounded-lg border border-blue-100/50">
+                    <div className={`flex justify-between items-center py-1 ${templateConfig.showBackgrounds ? 'bg-blue-50/50 px-2 rounded-lg border border-blue-100/50' : 'border-t border-slate-100 px-1'}`}>
                       <span className="text-[9px] font-bold text-blue-500 uppercase tracking-wider">
                         Labour Total {totalLabourHours > 0 && `(${totalLabourHours} hrs)`}
                       </span>
@@ -1133,7 +1137,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         {/* TOTALS SECTION - Statement template has special compact right-aligned layout */}
         {activeTemplate === 'statement' ? (
           /* STATEMENT TEMPLATE TOTALS - Zoho-style right-aligned */
-          <div className="px-4 py-3">
+          <div className="px-2 py-1">
             <div className="flex justify-end">
               <div className="w-48">
                 <div className="flex justify-between py-1 border-b border-slate-100 text-[10px]">
@@ -1158,7 +1162,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                     <span className="text-slate-900">-£{totals.cisAmount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between py-2 font-bold bg-slate-100 px-2 -mx-2 mt-1 rounded text-[11px]">
+                <div className="flex justify-between py-1 font-bold bg-slate-100 px-2 -mx-2 mt-1 rounded text-[11px]">
                   <span>Balance Due</span>
                   <span>£{totals.grandTotal.toFixed(2)}</span>
                 </div>
@@ -1167,8 +1171,8 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
             {/* Part Payment - compact version */}
             {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
-              <div className="flex justify-end mt-3">
-                <div className="bg-teal-50 border border-teal-200 p-3 rounded-lg w-48">
+              <div className="flex justify-end mt-2">
+                <div className="bg-teal-50 border border-teal-200 p-2 rounded-lg w-48">
                   <div className="flex justify-between text-[10px]">
                     <span className="text-teal-700">{activeQuote.partPaymentLabel || 'Due Now'}</span>
                     <span className="font-bold text-teal-700">£{partPaymentAmount.toFixed(2)}</span>
@@ -1183,7 +1187,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
           </div>
         ) : (
           /* STANDARD TOTALS - All other templates */
-          <div className={`${activeTemplate === 'minimal' ? 'bg-white border-t-2 border-slate-300 text-slate-900' : currentThemeClass} px-4 py-3 ${templateStyle.footerRounding} ${activeTemplate === 'minimal' ? '' : 'shadow-sm'}`}>
+          <div className={`${activeTemplate === 'minimal' ? 'bg-white border-t-2 border-slate-300 text-slate-900' : currentThemeClass} px-2 py-1 ${templateStyle.footerRounding} ${activeTemplate === 'minimal' ? '' : 'shadow-sm'}`}>
             <div className="flex flex-col gap-2">
               <div className="space-y-1">
                 {displayOptions.showTotalsBreakdown && (
@@ -1219,7 +1223,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
                 {/* Part Payment Highlight Box */}
                 {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
-                  <div className="bg-white border border-teal-200 p-3 rounded-xl mt-3 shadow-sm">
+                  <div className="bg-white border border-teal-200 p-2 rounded-xl mt-2 shadow-sm">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
@@ -1250,7 +1254,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
               ) && (
                 <div className="mt-4 pt-4 border-t border-slate-200">
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-3">
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-2">
                     <div className="flex items-center gap-2 mb-2">
                       <Landmark size={14} className="text-emerald-600" />
                       <h4 className="text-[10px] font-black text-emerald-900 uppercase tracking-widest">Payment Details</h4>
@@ -1298,7 +1302,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
         {activeTemplate === 'statement' && activeQuote.type === 'invoice' && (
           settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
         ) && (
-          <div className="px-4 py-3 border-t border-slate-100">
+          <div className="px-2 py-1 border-t border-slate-100">
             <div className="text-[9px] text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
               {settings.bankName && <span><strong>Bank:</strong> {settings.bankName}</span>}
               {settings.bankAccountName && <span><strong>Account:</strong> {settings.bankAccountName}</span>}
@@ -1310,13 +1314,13 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
         {/* Notes for Statement Template */}
         {activeTemplate === 'statement' && displayOptions.showNotes && activeQuote?.notes && (
-          <div className="px-4 pb-3 text-[9px] text-slate-500 leading-snug">
+          <div className="px-2 pb-3 text-[9px] text-slate-500 leading-snug">
             {activeQuote.notes}
           </div>
         )}
       </div>
       <div className="flex justify-center pt-4 print:hidden">
-        <div className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2.5 ${statusColors[activeQuote.status || 'draft']}`}>Status: {activeQuote.status || 'draft'}</div>
+        <div className={`px-6 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2.5 ${statusColors[activeQuote.status || 'draft']}`}>Status: {activeQuote.status || 'draft'}</div>
       </div>
 
       {/* Payment Recorder Modal */}
@@ -1331,11 +1335,11 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
       {/* Email Helper Modal */}
       {emailHelper?.show && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-2">
           <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom-4">
             {/* Header */}
             <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
                   <Mail size={20} />
                 </div>
@@ -1354,7 +1358,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
 
             {/* Content */}
             <div className="p-5 space-y-4">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2 flex items-start gap-2">
                 <Check size={18} className="text-emerald-600 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-emerald-800">
                   PDF saved to your downloads. Now send it via email:
@@ -1362,7 +1366,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               </div>
 
               {/* Email preview */}
-              <div className="space-y-3">
+              <div className="space-y-1.5">
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">To</label>
                   <p className="text-sm font-medium text-slate-700">{emailHelper.email || '(add recipient)'}</p>
@@ -1373,7 +1377,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 </div>
                 <div>
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Message</label>
-                  <div className="bg-slate-50 rounded-xl p-3 mt-1 border border-slate-100">
+                  <div className="bg-slate-50 rounded-xl p-2 mt-1 border border-slate-100">
                     <p className="text-sm text-slate-600 whitespace-pre-line">{emailHelper.body}</p>
                   </div>
                 </div>
@@ -1381,14 +1385,14 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             </div>
 
             {/* Actions */}
-            <div className="p-5 pt-0 space-y-3">
+            <div className="p-5 pt-0 space-y-1.5">
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(emailHelper.body);
                   setEmailHelper({ ...emailHelper, copied: true });
                   setTimeout(() => setEmailHelper(prev => prev ? { ...prev, copied: false } : null), 2000);
                 }}
-                className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                className={`w-full py-1 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
                   emailHelper.copied
                     ? 'bg-emerald-500 text-white'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -1403,13 +1407,13 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                   const mailtoLink = `mailto:${emailHelper.email}?subject=${encodeURIComponent(emailHelper.subject)}&body=${encodeURIComponent(emailHelper.body)}`;
                   window.location.href = mailtoLink;
                 }}
-                className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
+                className="w-full py-1.5 bg-blue-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30"
               >
                 <Mail size={18} />
                 Open Email App
               </button>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-2 mt-2">
                 <p className="text-xs text-amber-800 text-center">
                   In your email app, tap the <strong>paperclip icon</strong> to attach the PDF from your Downloads folder
                 </p>
