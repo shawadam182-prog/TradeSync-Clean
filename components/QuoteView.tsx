@@ -108,6 +108,66 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     activeQuote.partPaymentValue
   );
 
+  // Helper to flatten all items (materials + labour) into a single table
+  const getAllLineItems = () => {
+    const items: Array<{
+      lineNum: number;
+      description: string;
+      subDescription?: string;
+      qty: string;
+      amount: number;
+      isHeading?: boolean;
+    }> = [];
+
+    const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
+    let lineNum = 1;
+
+    (activeQuote.sections || []).forEach(section => {
+      // Add materials
+      (section.items || []).forEach(item => {
+        if (item.isHeading) {
+          items.push({
+            lineNum: 0,
+            description: item.name || 'Section',
+            qty: '',
+            amount: 0,
+            isHeading: true
+          });
+        } else {
+          items.push({
+            lineNum: lineNum++,
+            description: [item.name, item.description].filter(Boolean).join(' '),
+            qty: `${item.quantity} ${item.unit}`,
+            amount: (item.totalPrice || 0) * markupMultiplier,
+          });
+        }
+      });
+
+      // Add labour items
+      if (section.labourItems && section.labourItems.length > 0) {
+        section.labourItems.forEach(labour => {
+          const rate = labour.rate || section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+          items.push({
+            lineNum: lineNum++,
+            description: labour.description || 'Labour',
+            qty: `${labour.hours} hrs`,
+            amount: labour.hours * rate * markupMultiplier,
+          });
+        });
+      } else if ((section.labourHours || 0) > 0) {
+        const rate = section.labourRate || activeQuote.labourRate || settings.defaultLabourRate;
+        items.push({
+          lineNum: lineNum++,
+          description: 'Labour',
+          qty: `${section.labourHours} hrs`,
+          amount: (section.labourHours || 0) * rate * markupMultiplier,
+        });
+      }
+    });
+
+    return items;
+  };
+
   // Generate PDF as a Blob for filing
   const generatePDFBlob = async (): Promise<{ blob: Blob; filename: string } | null> => {
     if (!documentRef.current) return null;
@@ -544,7 +604,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
     borderStyle: 'border-slate-200'
   };
 
-  const CustomiseToggle = ({ label, optionKey, activeColor }: { label, optionKey: keyof QuoteDisplayOptions, activeColor: string }) => (
+  const CustomiseToggle = ({ label, optionKey, activeColor }: { label: string, optionKey: keyof QuoteDisplayOptions, activeColor: string }) => (
     <button
       onClick={() => toggleOption(optionKey)}
       className={`flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${
@@ -712,81 +772,189 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
       </div>
 
       <div ref={documentRef} className={`bg-white ${templateStyle.container} shadow-xl border ${templateStyle.borderStyle} overflow-hidden print:border-none print:shadow-none print:rounded-none`}>
-        {/* Company Header */}
-        <div className={`${templateStyle.header} flex justify-between items-start`}>
-          {/* Logo & Company Info */}
-          <div className="flex items-start gap-3">
-            {displayOptions.showLogo && settings.companyLogo && (
-              <img
-                src={settings.companyLogo}
-                alt={settings.companyName || 'Company Logo'}
-                className="h-12 w-auto object-contain"
-                style={{ maxWidth: '120px' }}
-              />
-            )}
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">{settings.companyName}</h2>
-              {settings.companyAddress && (
-                <p className="text-[11px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
-              )}
-              <div className="flex gap-3 mt-1 text-[11px] text-slate-400">
-                {settings.phone && <span>{settings.phone}</span>}
-                {settings.email && <span>{settings.email}</span>}
+        {/* Company Header - Statement template has special Zoho-style layout */}
+        {activeTemplate === 'statement' ? (
+          /* STATEMENT TEMPLATE HEADER - Zoho/QuickBooks Style */
+          <div className="p-4">
+            <div className="flex justify-between items-start">
+              {/* Left: Logo + Company */}
+              <div className="flex items-start gap-3">
+                {displayOptions.showLogo && settings.companyLogo && (
+                  <img src={settings.companyLogo} alt={settings.companyName || 'Logo'} className="h-10 w-auto object-contain" style={{ maxWidth: '100px' }} />
+                )}
+                <div>
+                  <h2 className="text-sm font-bold text-slate-900">{settings.companyName}</h2>
+                  {settings.companyAddress && (
+                    <p className="text-[10px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
+                  )}
+                  <div className="flex gap-2 mt-0.5 text-[10px] text-slate-400">
+                    {settings.phone && <span>{settings.phone}</span>}
+                    {settings.email && <span>{settings.email}</span>}
+                  </div>
+                  {settings.vatNumber && <p className="text-[9px] text-slate-400">VAT: {settings.vatNumber}</p>}
+                </div>
               </div>
-              {settings.vatNumber && (
-                <p className="text-[10px] text-slate-400">VAT: {settings.vatNumber}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Document Type Badge */}
-          <div className="text-right">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {activeQuote.type === 'invoice' ? 'Invoice' : activeQuote.type === 'quotation' ? 'Quotation' : 'Estimate'}
-            </span>
-            <p className="text-base font-mono font-bold text-slate-900">{reference}</p>
-            <p className="text-[11px] text-slate-500">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</p>
-            {activeQuote.type === 'invoice' && activeQuote.dueDate && (
-              <p className="text-[11px] text-amber-600 font-bold">
-                Due: {new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}
-              </p>
-            )}
-          </div>
-        </div>
+              {/* Right: INVOICE badge + Balance Due box */}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-slate-200 uppercase tracking-wider">
+                  {activeQuote.type === 'invoice' ? 'INVOICE' : 'QUOTE'}
+                </div>
+                <p className="text-[10px] text-slate-500">{activeQuote.type === 'invoice' ? 'Invoice' : 'Quote'}# {reference}</p>
 
-        {/* Project Title Bar */}
-        <div className={templateStyle.titleBar}>
-          <h1 className={templateStyle.sectionTitle}>{activeQuote?.title || 'Proposed Works'}</h1>
-        </div>
-
-        {/* Client and Job Address Section */}
-        <div className={templateStyle.clientSection}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* To: Client Address */}
-            <div>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
-                <User size={9} /> To
-              </p>
-              <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
-              {customer?.company && <p className="text-[11px] text-slate-600">{customer.company}</p>}
-              {customer?.address && (
-                <p className="text-[11px] text-slate-500 leading-snug">{customer.address}</p>
-              )}
+                {/* Balance Due Box - Key Zoho feature */}
+                <div className="mt-2 bg-slate-100 rounded-lg p-2.5 inline-block min-w-[120px]">
+                  <div className="text-[9px] text-slate-500 uppercase tracking-wider">Balance Due</div>
+                  <div className="text-xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
+                </div>
+              </div>
             </div>
 
-            {/* For: Job Address (only show if different from client) */}
-            {activeQuote.jobAddress && activeQuote.jobAddress !== customer?.address && (
+            {/* Bill To + Dates Row */}
+            <div className="mt-3 pt-3 border-t border-slate-200 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1 mb-0.5">
-                  <MapPin size={9} /> Job Site
-                </p>
-                <p className="text-[11px] text-slate-500 leading-snug">{activeQuote.jobAddress}</p>
+                <div className="text-[10px] font-bold text-slate-500 border-b border-slate-200 pb-0.5 mb-1">Bill To</div>
+                <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
+                {customer?.company && <p className="text-[10px] text-slate-600">{customer.company}</p>}
+                {customer?.address && <p className="text-[10px] text-slate-500 leading-snug">{customer.address}</p>}
               </div>
-            )}
-          </div>
-        </div>
+              <div className="text-right text-[10px]">
+                <div><span className="text-slate-400">Invoice Date:</span> {activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</div>
+                <div><span className="text-slate-400">Terms:</span> Due on Receipt</div>
+                {activeQuote.dueDate && (
+                  <div><span className="text-slate-400">Due Date:</span> <span className="text-amber-600 font-bold">{new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}</span></div>
+                )}
+              </div>
+            </div>
 
-        {(activeQuote.sections || []).map((section, idx) => {
+            {/* Project Title */}
+            <div className="mt-3 pt-2 border-t border-slate-100">
+              <h1 className="text-[11px] font-bold text-slate-700 uppercase tracking-wide">{activeQuote?.title || 'Proposed Works'}</h1>
+            </div>
+          </div>
+        ) : (
+          /* STANDARD HEADER - All other templates */
+          <>
+            <div className={`${templateStyle.header} flex justify-between items-start`}>
+              {/* Logo & Company Info */}
+              <div className="flex items-start gap-3">
+                {displayOptions.showLogo && settings.companyLogo && (
+                  <img
+                    src={settings.companyLogo}
+                    alt={settings.companyName || 'Company Logo'}
+                    className="h-12 w-auto object-contain"
+                    style={{ maxWidth: '120px' }}
+                  />
+                )}
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">{settings.companyName}</h2>
+                  {settings.companyAddress && (
+                    <p className="text-[11px] text-slate-500 leading-tight whitespace-pre-line">{settings.companyAddress}</p>
+                  )}
+                  <div className="flex gap-3 mt-1 text-[11px] text-slate-400">
+                    {settings.phone && <span>{settings.phone}</span>}
+                    {settings.email && <span>{settings.email}</span>}
+                  </div>
+                  {settings.vatNumber && (
+                    <p className="text-[10px] text-slate-400">VAT: {settings.vatNumber}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Document Type Badge */}
+              <div className="text-right">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {activeQuote.type === 'invoice' ? 'Invoice' : activeQuote.type === 'quotation' ? 'Quotation' : 'Estimate'}
+                </span>
+                <p className="text-base font-mono font-bold text-slate-900">{reference}</p>
+                <p className="text-[11px] text-slate-500">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</p>
+                {activeQuote.type === 'invoice' && activeQuote.dueDate && (
+                  <p className="text-[11px] text-amber-600 font-bold">
+                    Due: {new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Project Title Bar */}
+            <div className={templateStyle.titleBar}>
+              <h1 className={templateStyle.sectionTitle}>{activeQuote?.title || 'Proposed Works'}</h1>
+            </div>
+
+            {/* Client and Job Address Section */}
+            <div className={templateStyle.clientSection}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* To: Client Address */}
+                <div>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+                    <User size={9} /> To
+                  </p>
+                  <p className="text-sm font-bold text-slate-900">{customer?.name}</p>
+                  {customer?.company && <p className="text-[11px] text-slate-600">{customer.company}</p>}
+                  {customer?.address && (
+                    <p className="text-[11px] text-slate-500 leading-snug">{customer.address}</p>
+                  )}
+                </div>
+
+                {/* For: Job Address (only show if different from client) */}
+                {activeQuote.jobAddress && activeQuote.jobAddress !== customer?.address && (
+                  <div>
+                    <p className="text-[9px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1 mb-0.5">
+                      <MapPin size={9} /> Job Site
+                    </p>
+                    <p className="text-[11px] text-slate-500 leading-snug">{activeQuote.jobAddress}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* COMBINED LINE ITEMS TABLE - For templates that combine materials + labour */}
+        {templateConfig.combineLineItems ? (
+          <div className={templateConfig.containerPadding}>
+            <table className="w-full text-[10px]" style={{ borderCollapse: 'collapse' }}>
+              {templateConfig.showColumnHeaders && (
+                <thead>
+                  <tr className={activeTemplate === 'statement' ? 'bg-slate-800 text-white' : (templateConfig.tableHeaderStyle || 'border-b border-slate-200')}>
+                    {templateConfig.showLineNumbers && (
+                      <th className={`py-1.5 px-2 text-left w-8 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>#</th>
+                    )}
+                    <th className={`py-1.5 px-2 text-left ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Item & Description</th>
+                    <th className={`py-1.5 px-2 text-center w-12 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Qty</th>
+                    <th className={`py-1.5 px-2 text-right w-20 ${activeTemplate === 'statement' ? 'text-[9px] font-bold' : 'text-[9px] font-bold text-slate-500'}`}>Amount</th>
+                  </tr>
+                </thead>
+              )}
+              <tbody>
+                {getAllLineItems().map((item, idx) => (
+                  item.isHeading ? (
+                    <tr key={`heading-${idx}`} className="bg-slate-50">
+                      <td colSpan={templateConfig.showLineNumbers ? 4 : 3} className="py-1 px-2">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.description}</span>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={`item-${idx}`} className={templateConfig.showTableBorders ? 'border-b border-slate-100' : ''}>
+                      {templateConfig.showLineNumbers && (
+                        <td className="py-1.5 px-2 text-slate-400">{item.lineNum}</td>
+                      )}
+                      <td className="py-1.5 px-2">
+                        <span className="text-slate-900">{item.description}</span>
+                      </td>
+                      <td className="py-1.5 px-2 text-slate-600 text-center">{item.qty}</td>
+                      <td className="py-1.5 px-2 font-medium text-slate-900 text-right">
+                        £{item.amount.toFixed(2)}
+                      </td>
+                    </tr>
+                  )
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* SEPARATE SECTIONS - For templates that split materials/labour */
+          (activeQuote.sections || []).map((section, idx) => {
           const markupMultiplier = 1 + ((activeQuote.markupPercent || 0) / 100);
           // Filter out heading items from materials total
           const rawMaterialsTotal = (section.items || []).filter(i => !i.isHeading).reduce((s, i) => s + (i.totalPrice || 0), 0);
@@ -959,118 +1127,193 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               </div>
             </div>
           );
-        })}
+        })
+        )}
 
-        <div className={`${activeTemplate === 'minimal' ? 'bg-white border-t-2 border-slate-300 text-slate-900' : currentThemeClass} px-4 py-3 ${templateStyle.footerRounding} ${activeTemplate === 'minimal' ? '' : 'shadow-sm'}`}>
-          <div className="flex flex-col gap-2">
-            <div className="space-y-1">
-              {displayOptions.showTotalsBreakdown && (
-                <>
-                  <div className={`flex justify-between text-[11px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>Sub Total</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>£{totals.clientSubtotal.toFixed(2)}</span></div>
-                  {/* Discount */}
-                  {totals.discountAmount > 0 && (
-                    <div className={`flex justify-between text-[11px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : ''}`}>
-                      <span className={`flex items-center gap-1 ${activeTemplate === 'minimal' ? '' : 'opacity-70'}`}>
-                        <Tag size={9} />
-                        Discount
-                        {activeQuote.discountDescription && <span className={activeTemplate === 'minimal' ? 'text-slate-500 ml-1' : 'opacity-50 ml-1'}>({activeQuote.discountDescription})</span>}
-                        {activeQuote.discountType === 'percentage' && <span className={activeTemplate === 'minimal' ? 'text-slate-500 ml-1' : 'opacity-50 ml-1'}>({activeQuote.discountValue}%)</span>}
-                      </span>
-                      <span className="font-semibold">-£{totals.discountAmount.toFixed(2)}</span>
-                    </div>
-                  )}
-                  {settings.enableVat && displayOptions.showVat && (
-                    <div className={`flex justify-between text-[11px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>VAT ({activeQuote.taxPercent}%)</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>£{totals.taxAmount.toFixed(2)}</span></div>
-                  )}
-                  {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
-                    <div className={`flex justify-between text-[11px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>-£{totals.cisAmount.toFixed(2)}</span></div>
-                  )}
-                </>
-              )}
-              <div className={`h-px ${activeTemplate === 'minimal' ? 'bg-slate-300' : 'bg-current opacity-20'} my-2`}></div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  {activeTemplate !== 'minimal' && <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></div>}
-                  <span className={`font-bold ${activeTemplate === 'minimal' ? 'text-sm' : 'text-xs opacity-80'} uppercase tracking-wider`}>{activeQuote.type === 'invoice' ? 'Balance Due' : 'Total Due'}</span>
+        {/* TOTALS SECTION - Statement template has special compact right-aligned layout */}
+        {activeTemplate === 'statement' ? (
+          /* STATEMENT TEMPLATE TOTALS - Zoho-style right-aligned */
+          <div className="px-4 py-3">
+            <div className="flex justify-end">
+              <div className="w-48">
+                <div className="flex justify-between py-1 border-b border-slate-100 text-[10px]">
+                  <span className="text-slate-500">Sub Total</span>
+                  <span className="text-slate-900">£{totals.clientSubtotal.toFixed(2)}</span>
                 </div>
-                <span className={`${activeTemplate === 'minimal' ? 'text-3xl' : 'text-2xl'} font-black`}>£{totals.grandTotal.toFixed(2)}</span>
-              </div>
-
-              {/* Part Payment Highlight Box */}
-              {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
-                <div className="bg-white border border-teal-200 p-5 rounded-2xl mt-4 shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                        {activeQuote.partPaymentLabel || 'Amount Due Now'}
-                      </p>
-                      <p className="text-2xl font-black text-teal-600">
-                        £{partPaymentAmount.toFixed(2)}
-                      </p>
-                      {activeQuote.partPaymentType === 'percentage' && (
-                        <p className="text-[10px] font-bold text-slate-400 mt-1">
-                          ({activeQuote.partPaymentValue}% of £{totals.grandTotal.toFixed(2)})
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance Due</p>
-                      <p className="text-lg font-black text-slate-700">
-                        £{(totals.grandTotal - partPaymentAmount).toFixed(2)}
-                      </p>
-                    </div>
+                {totals.discountAmount > 0 && (
+                  <div className="flex justify-between py-1 border-b border-slate-100 text-[10px]">
+                    <span className="text-slate-500">Discount</span>
+                    <span className="text-slate-900">-£{totals.discountAmount.toFixed(2)}</span>
                   </div>
+                )}
+                {settings.enableVat && displayOptions.showVat && totals.taxAmount > 0 && (
+                  <div className="flex justify-between py-1 border-b border-slate-100 text-[10px]">
+                    <span className="text-slate-500">VAT ({activeQuote.taxPercent}%)</span>
+                    <span className="text-slate-900">£{totals.taxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
+                  <div className="flex justify-between py-1 border-b border-slate-100 text-[10px]">
+                    <span className="text-slate-500">CIS Deduction</span>
+                    <span className="text-slate-900">-£{totals.cisAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between py-2 font-bold bg-slate-100 px-2 -mx-2 mt-1 rounded text-[11px]">
+                  <span>Balance Due</span>
+                  <span>£{totals.grandTotal.toFixed(2)}</span>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Bank Details Section - Only for invoices */}
-            {activeQuote.type === 'invoice' && (
-              settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
-            ) && (
-              <div className="mt-6 pt-6 border-t border-slate-200">
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Landmark size={16} className="text-emerald-600" />
-                    <h4 className="text-xs font-black text-emerald-900 uppercase tracking-widest">Payment Details</h4>
+            {/* Part Payment - compact version */}
+            {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
+              <div className="flex justify-end mt-3">
+                <div className="bg-teal-50 border border-teal-200 p-3 rounded-lg w-48">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-teal-700">{activeQuote.partPaymentLabel || 'Due Now'}</span>
+                    <span className="font-bold text-teal-700">£{partPaymentAmount.toFixed(2)}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                    {settings.bankAccountName && (
-                      <div>
-                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Account Name</p>
-                        <p className="text-[11px] font-bold text-slate-900">{settings.bankAccountName}</p>
-                      </div>
-                    )}
-                    {settings.bankName && (
-                      <div>
-                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Bank</p>
-                        <p className="text-[11px] font-bold text-slate-900">{settings.bankName}</p>
-                      </div>
-                    )}
-                    {settings.bankAccountNumber && (
-                      <div>
-                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Account Number</p>
-                        <p className="text-[11px] font-bold text-slate-900">{settings.bankAccountNumber}</p>
-                      </div>
-                    )}
-                    {settings.bankSortCode && (
-                      <div>
-                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider">Sort Code</p>
-                        <p className="text-[11px] font-bold text-slate-900">{settings.bankSortCode}</p>
-                      </div>
-                    )}
+                  <div className="flex justify-between text-[9px] mt-1">
+                    <span className="text-slate-500">Remaining</span>
+                    <span className="text-slate-700">£{(totals.grandTotal - partPaymentAmount).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
             )}
-
-            {displayOptions.showNotes && activeQuote?.notes && (
-                <div className="text-[8px] leading-snug opacity-60 mt-1">
-                  {activeQuote.notes}
-                </div>
-            )}
           </div>
-        </div>
+        ) : (
+          /* STANDARD TOTALS - All other templates */
+          <div className={`${activeTemplate === 'minimal' ? 'bg-white border-t-2 border-slate-300 text-slate-900' : currentThemeClass} px-4 py-3 ${templateStyle.footerRounding} ${activeTemplate === 'minimal' ? '' : 'shadow-sm'}`}>
+            <div className="flex flex-col gap-2">
+              <div className="space-y-1">
+                {displayOptions.showTotalsBreakdown && (
+                  <>
+                    <div className={`flex justify-between text-[10px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>Sub Total</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>£{totals.clientSubtotal.toFixed(2)}</span></div>
+                    {totals.discountAmount > 0 && (
+                      <div className={`flex justify-between text-[10px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : ''}`}>
+                        <span className={`flex items-center gap-1 ${activeTemplate === 'minimal' ? '' : 'opacity-70'}`}>
+                          <Tag size={9} />
+                          Discount
+                          {activeQuote.discountDescription && <span className={activeTemplate === 'minimal' ? 'text-slate-500 ml-1' : 'opacity-50 ml-1'}>({activeQuote.discountDescription})</span>}
+                          {activeQuote.discountType === 'percentage' && <span className={activeTemplate === 'minimal' ? 'text-slate-500 ml-1' : 'opacity-50 ml-1'}>({activeQuote.discountValue}%)</span>}
+                        </span>
+                        <span className="font-semibold">-£{totals.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {settings.enableVat && displayOptions.showVat && (
+                      <div className={`flex justify-between text-[10px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>VAT ({activeQuote.taxPercent}%)</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>£{totals.taxAmount.toFixed(2)}</span></div>
+                    )}
+                    {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
+                      <div className={`flex justify-between text-[10px] ${activeTemplate === 'minimal' ? 'text-slate-700 font-medium' : 'opacity-70'}`}><span>CIS Deduction ({activeQuote.cisPercent}%)</span><span className={activeTemplate === 'minimal' ? '' : 'opacity-90'}>-£{totals.cisAmount.toFixed(2)}</span></div>
+                    )}
+                  </>
+                )}
+                <div className={`h-px ${activeTemplate === 'minimal' ? 'bg-slate-300' : 'bg-current opacity-20'} my-1`}></div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    {activeTemplate !== 'minimal' && <div className="w-1 h-1 rounded-full bg-current opacity-60"></div>}
+                    <span className={`font-bold ${activeTemplate === 'minimal' ? 'text-sm' : 'text-[10px] opacity-80'} uppercase tracking-wider`}>{activeQuote.type === 'invoice' ? 'Balance Due' : 'Total Due'}</span>
+                  </div>
+                  <span className={`${activeTemplate === 'minimal' ? 'text-2xl' : 'text-xl'} font-black`}>£{totals.grandTotal.toFixed(2)}</span>
+                </div>
+
+                {/* Part Payment Highlight Box */}
+                {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
+                  <div className="bg-white border border-teal-200 p-3 rounded-xl mt-3 shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">
+                          {activeQuote.partPaymentLabel || 'Amount Due Now'}
+                        </p>
+                        <p className="text-lg font-black text-teal-600">
+                          £{partPaymentAmount.toFixed(2)}
+                        </p>
+                        {activeQuote.partPaymentType === 'percentage' && (
+                          <p className="text-[9px] font-bold text-slate-400">
+                            ({activeQuote.partPaymentValue}% of £{totals.grandTotal.toFixed(2)})
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Balance</p>
+                        <p className="text-base font-black text-slate-700">
+                          £{(totals.grandTotal - partPaymentAmount).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bank Details Section - Only for invoices */}
+              {activeQuote.type === 'invoice' && (
+                settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
+              ) && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Landmark size={14} className="text-emerald-600" />
+                      <h4 className="text-[10px] font-black text-emerald-900 uppercase tracking-widest">Payment Details</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      {settings.bankAccountName && (
+                        <div>
+                          <p className="text-[8px] font-bold text-emerald-700 uppercase">Account Name</p>
+                          <p className="text-[10px] font-bold text-slate-900">{settings.bankAccountName}</p>
+                        </div>
+                      )}
+                      {settings.bankName && (
+                        <div>
+                          <p className="text-[8px] font-bold text-emerald-700 uppercase">Bank</p>
+                          <p className="text-[10px] font-bold text-slate-900">{settings.bankName}</p>
+                        </div>
+                      )}
+                      {settings.bankAccountNumber && (
+                        <div>
+                          <p className="text-[8px] font-bold text-emerald-700 uppercase">Account Number</p>
+                          <p className="text-[10px] font-bold text-slate-900">{settings.bankAccountNumber}</p>
+                        </div>
+                      )}
+                      {settings.bankSortCode && (
+                        <div>
+                          <p className="text-[8px] font-bold text-emerald-700 uppercase">Sort Code</p>
+                          <p className="text-[10px] font-bold text-slate-900">{settings.bankSortCode}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {displayOptions.showNotes && activeQuote?.notes && (
+                  <div className="text-[8px] leading-snug opacity-60 mt-2">
+                    {activeQuote.notes}
+                  </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Bank Details for Statement Template - Compact one-line style */}
+        {activeTemplate === 'statement' && activeQuote.type === 'invoice' && (
+          settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName
+        ) && (
+          <div className="px-4 py-3 border-t border-slate-100">
+            <div className="text-[9px] text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
+              {settings.bankName && <span><strong>Bank:</strong> {settings.bankName}</span>}
+              {settings.bankAccountName && <span><strong>Account:</strong> {settings.bankAccountName}</span>}
+              {settings.bankAccountNumber && <span><strong>Acc No:</strong> {settings.bankAccountNumber}</span>}
+              {settings.bankSortCode && <span><strong>Sort:</strong> {settings.bankSortCode}</span>}
+            </div>
+          </div>
+        )}
+
+        {/* Notes for Statement Template */}
+        {activeTemplate === 'statement' && displayOptions.showNotes && activeQuote?.notes && (
+          <div className="px-4 pb-3 text-[9px] text-slate-500 leading-snug">
+            {activeQuote.notes}
+          </div>
+        )}
       </div>
       <div className="flex justify-center pt-4 print:hidden">
         <div className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-2.5 ${statusColors[activeQuote.status || 'draft']}`}>Status: {activeQuote.status || 'draft'}</div>

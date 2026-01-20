@@ -886,33 +886,20 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                     </div>
                   </div>
 
-                  {/* Invoice Style Selection */}
-                  <div className="space-y-5 pt-6 border-t border-slate-100">
+                  {/* Invoice Style - Uses same templates as Quotes (defined in Quote Preferences section) */}
+                  <div className="space-y-3 pt-6 border-t border-slate-100">
                     <div className="flex items-center gap-2 px-1">
                       <Layout size={16} className="text-emerald-500" />
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Invoice Style</label>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {[
-                        { id: 'classic', name: 'Classic', icon: FileText, desc: 'Traditional layout' },
-                        { id: 'modern', name: 'Modern', icon: FileSpreadsheet, desc: 'Clean & minimal' },
-                        { id: 'minimal', name: 'Minimal', icon: FileEdit, desc: 'Simple & elegant' },
-                        { id: 'detailed', name: 'Detailed', icon: List, desc: 'Full breakdown' }
-                      ].map(template => (
-                        <button
-                          key={template.id}
-                          onClick={() => setSettings({ ...settings, documentTemplate: template.id as DocumentTemplate })}
-                          className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${(settings.documentTemplate || 'classic') === template.id ? 'border-emerald-500 bg-emerald-50/50 shadow-lg' : 'border-slate-100 bg-white hover:border-emerald-200'}`}
-                        >
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${(settings.documentTemplate || 'classic') === template.id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                            <template.icon size={20} />
-                          </div>
-                          <div className="text-center">
-                            <span className="text-[10px] font-black uppercase tracking-widest block">{template.name}</span>
-                            <span className="text-[8px] text-slate-400">{template.desc}</span>
-                          </div>
-                        </button>
-                      ))}
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                      <p className="text-[10px] text-slate-600 leading-relaxed">
+                        Invoice templates are configured in <strong>Quote Preferences</strong> above.
+                        The selected template applies to both quotes and invoices.
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-2">
+                        Current template: <strong className="text-emerald-600">{TEMPLATE_METADATA.find(t => t.id === (settings.documentTemplate || 'trade-pro'))?.name || 'Trade Pro'}</strong>
+                      </p>
                     </div>
                   </div>
 
