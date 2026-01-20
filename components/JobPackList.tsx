@@ -464,24 +464,24 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                 <div className="space-y-3 md:space-y-6">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Project Title (Optional)</label>
-                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
+                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-xl sm:rounded-[24px] p-3 sm:p-5 font-bold text-slate-950 text-sm sm:text-base focus:border-teal-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
                   </div>
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Assign To Client *</label>
-                    <div className="flex gap-2">
-                      <select className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
+                    <div className="flex gap-2 items-stretch">
+                      <select className="flex-1 min-w-0 border-2 border-slate-100 bg-slate-50 rounded-xl sm:rounded-[24px] p-3 sm:p-5 font-bold text-slate-950 text-sm sm:text-base focus:border-teal-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner truncate" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
                         <option value="">Select a client...</option>
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>)}
                       </select>
-                      <button onClick={() => { setIsAddingCustomer(true); setCustomerError(null); }} className="p-5 bg-slate-900 text-amber-500 rounded-[24px] hover:bg-black transition-all shadow-lg border-b-4 border-slate-950 active:translate-y-1 active:border-b-0"><UserPlus size={24} /></button>
+                      <button onClick={() => { setIsAddingCustomer(true); setCustomerError(null); }} className="p-3 sm:p-5 bg-slate-900 text-amber-500 rounded-xl sm:rounded-[24px] hover:bg-black transition-all shadow-lg border-b-4 border-slate-950 active:translate-y-1 active:border-b-0 flex-shrink-0"><UserPlus size={20} className="sm:w-6 sm:h-6" /></button>
                     </div>
                   </div>
                   <div className="flex flex-col gap-3 pt-4">
-                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-teal-500 text-white font-black py-6 rounded-[32px] hover:bg-teal-600 shadow-2xl shadow-teal-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3">
-                      {isCreating ? <Loader2 className="animate-spin" size={20}/> : <FolderPlus size={20}/>}
+                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-teal-500 text-white font-black py-4 sm:py-6 rounded-xl sm:rounded-[32px] hover:bg-teal-600 shadow-2xl shadow-teal-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-xs sm:text-sm flex items-center justify-center gap-2 sm:gap-3">
+                      {isCreating ? <Loader2 className="animate-spin" size={18}/> : <FolderPlus size={18}/>}
                       Start Job Pack
                     </button>
-                    <button onClick={() => { setIsAdding(false); setNewTitle(''); setSelectedCustomer(''); }} className="w-full bg-slate-50 text-slate-400 font-black py-6 rounded-[32px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Dismiss</button>
+                    <button onClick={() => { setIsAdding(false); setNewTitle(''); setSelectedCustomer(''); }} className="w-full bg-slate-50 text-slate-400 font-black py-4 sm:py-6 rounded-xl sm:rounded-[32px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Dismiss</button>
                   </div>
                 </div>
               </div>
@@ -490,7 +490,10 @@ export const JobPackList: React.FC<JobPackListProps> = ({
         </div>
       )}
 
-      <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
+        <input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         {filtered.map(project => (
