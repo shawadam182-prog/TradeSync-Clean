@@ -901,7 +901,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                               key={scheme.id}
                               onClick={() => setSettings({ ...settings, invoiceColorScheme: scheme.id })}
                               className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                                (settings.invoiceColorScheme || 'slate') === scheme.id
+                                (settings.invoiceColorScheme || 'default') === scheme.id
                                   ? 'border-emerald-500 bg-emerald-50/30 shadow-lg'
                                   : 'border-slate-100 bg-white hover:border-emerald-200'
                               }`}
@@ -912,7 +912,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                               <div className="text-center">
                                 <span className="text-[10px] font-black uppercase tracking-widest block">{scheme.name}</span>
                                 <div className="flex items-center gap-1 justify-center mt-1">
-                                  {(settings.invoiceColorScheme || 'slate') === scheme.id && (
+                                  {(settings.invoiceColorScheme || 'default') === scheme.id && (
                                     <Check size={12} className="text-emerald-500" />
                                   )}
                                 </div>

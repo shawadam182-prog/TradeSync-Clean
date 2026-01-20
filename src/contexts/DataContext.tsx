@@ -291,7 +291,8 @@ function dbSettingsToApp(dbSettings: any): AppSettings {
     costBoxColor: (dbSettings.cost_box_color as 'slate' | 'amber' | 'blue') || 'slate',
     showBreakdown: dbSettings.show_breakdown ?? true,
     defaultDisplayOptions: dbSettings.default_display_options || DEFAULT_SETTINGS.defaultDisplayOptions,
-    documentTemplate: (dbSettings.document_template as DocumentTemplate) || 'classic',
+    documentTemplate: (dbSettings.document_template as DocumentTemplate) || 'professional',
+    invoiceColorScheme: (dbSettings.invoice_color_scheme as 'default' | 'slate' | 'blue' | 'teal' | 'emerald' | 'purple' | 'rose') || 'default',
     // Bank details for payment instructions
     bankAccountName: dbSettings.bank_account_name || undefined,
     bankAccountNumber: dbSettings.bank_account_number || undefined,
@@ -763,6 +764,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       show_breakdown: updates.showBreakdown,
       default_display_options: updates.defaultDisplayOptions as any,
       document_template: updates.documentTemplate || null,
+      invoice_color_scheme: updates.invoiceColorScheme || null,
       bank_account_name: updates.bankAccountName || null,
       bank_account_number: updates.bankAccountNumber || null,
       bank_sort_code: updates.bankSortCode || null,
