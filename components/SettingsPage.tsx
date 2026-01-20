@@ -9,7 +9,7 @@ import {
   Plus, Eye, EyeOff, HardHat, Package, Landmark, ShieldCheck, Hash, Loader2,
   Calendar, Layout, FileSpreadsheet, FileEdit, List, ArrowLeft,
   Crown, Zap, Clock, Users, Briefcase, Camera, FileBox, ExternalLink,
-  HelpCircle, MessageSquare, Send, Hammer, Minus, Minimize2, LayoutGrid, Check
+  HelpCircle, MessageSquare, Send, Hammer, Minus, Minimize2, LayoutGrid, Check, Type
 } from 'lucide-react';
 import { TEMPLATE_METADATA, TEMPLATE_DESCRIPTIONS, COLOR_SCHEMES, getTemplateConfig } from '../src/lib/invoiceTemplates';
 import { useToast } from '../src/contexts/ToastContext';
