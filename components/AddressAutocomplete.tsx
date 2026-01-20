@@ -1,5 +1,5 @@
 /// <reference types="@types/google.maps" />
-import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   MapPin, Mic, Loader2, MapPinned, LocateFixed, Navigation
 } from 'lucide-react';
@@ -89,9 +89,6 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Generate unique ID to prevent browser from matching this input to saved form data
-  const uniqueId = useId();
 
   // Load Google Places API
   useEffect(() => {
@@ -263,27 +260,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         <input
           ref={inputRef}
           type="text"
-          // Use unique name/id to prevent browser from matching to saved addresses
-          name={`address-search-${uniqueId}`}
-          id={`address-search-${uniqueId}`}
           className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-2.5 md:px-4 md:py-4 md:pr-44 text-slate-950 font-bold text-sm md:text-base placeholder:text-xs md:placeholder:text-sm outline-none focus:bg-white focus:border-teal-500 transition-all ${className}`}
           placeholder={placeholder}
           value={value}
           onChange={handleInputChange}
           onFocus={() => value.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
           disabled={disabled}
-          // Multiple techniques to aggressively suppress browser autocomplete:
-          // 1. "new-password" is a hack that Chrome/Safari actually respect
-          // 2. "off" for older browsers
-          // 3. "nope" as additional fallback (some browsers check for any value other than "on")
-          autoComplete="new-password"
-          autoCorrect="off"
-          autoCapitalize="off"
-          spellCheck={false}
-          data-lpignore="true"
-          data-form-type="other"
-          data-1p-ignore="true"
-          aria-autocomplete="none"
+          autoComplete="off"
         />
 
         {/* Action buttons - hidden on mobile, shown inside input on desktop */}
