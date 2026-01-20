@@ -600,9 +600,10 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
   // Get template configuration from the template system
   const templateConfig = getTemplateConfig(settings.documentTemplate);
 
-  // Get the table header style with color scheme support
-  const tableHeaderStyle = getTableHeaderStyle(templateConfig, settings.invoiceColorScheme);
-  const colorScheme = getColorScheme(settings.invoiceColorScheme || templateConfig.defaultColorScheme);
+  // Get the table header style with color scheme support (use invoice color for invoices, quote color for quotes)
+  const colorSchemeToUse = activeQuote.type === 'invoice' ? settings.invoiceColorScheme : settings.quoteColorScheme;
+  const tableHeaderStyle = getTableHeaderStyle(templateConfig, colorSchemeToUse);
+  const colorScheme = getColorScheme(colorSchemeToUse || templateConfig.defaultColorScheme);
 
   // Create templateStyle for backwards compatibility with existing rendering
   const activeTemplate = settings.documentTemplate || 'professional';
