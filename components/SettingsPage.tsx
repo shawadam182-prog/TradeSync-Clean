@@ -630,63 +630,71 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
               </div>
 
               <div className="bg-white rounded-2xl md:rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-4 md:p-10 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
-                    <div className="p-2 md:p-3 bg-purple-100 text-purple-600 rounded-xl md:rounded-2xl"><Eye size={20} className="md:w-6 md:h-6" /></div>
-                    <h3 className="text-base md:text-xl font-black text-slate-900 uppercase tracking-tight">Default Visibility</h3>
+                <div className="p-3 md:p-10 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-3 bg-purple-100 text-purple-600 rounded-lg md:rounded-2xl"><Eye size={16} className="md:w-6 md:h-6" /></div>
+                    <div>
+                      <h3 className="text-sm md:text-xl font-black text-slate-900 uppercase tracking-tight">Default Visibility</h3>
+                      <p className="text-slate-500 text-[10px] md:text-sm font-medium italic hidden md:block">Set business-wide standards for what clients see on your quotes.</p>
+                    </div>
                   </div>
-                  <p className="text-slate-500 text-xs md:text-sm font-medium italic hidden md:block">Set business-wide standards for what clients see on your quotes.</p>
                 </div>
-                <div className="p-4 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 md:gap-y-10">
-                  <div className="space-y-2 md:space-y-4">
-                    <div className="flex items-center gap-2 px-2 pb-1.5 md:pb-2 border-b border-slate-100">
-                      <Package size={14} className="md:w-4 md:h-4 text-teal-500" />
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Materials Defaults</h4>
+                <div className="p-3 md:p-10 grid grid-cols-2 gap-x-4 md:gap-x-12 gap-y-2 md:gap-y-10">
+                  <div className="space-y-1 md:space-y-4">
+                    <div className="flex items-center gap-1 md:gap-2 px-1 md:px-2 pb-1 md:pb-2 border-b border-slate-100">
+                      <Package size={10} className="md:w-4 md:h-4 text-teal-500" />
+                      <h4 className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-900">Materials</h4>
                     </div>
                     {[
-                      { key: 'showMaterials', label: 'Show Section', info: 'Master toggle for materials.' },
-                      { key: 'showMaterialQty', label: 'Show Quantities', info: 'Display item counts.' },
-                      { key: 'showMaterialUnitPrice', label: 'Show Unit Prices', info: 'Display individual costs.' },
-                      { key: 'showMaterialLineTotals', label: 'Show Line Totals', info: 'Display row subtotals.' },
-                      { key: 'showMaterialSectionTotal', label: 'Show Section Total', info: 'Show materials subtotal.' }
+                      { key: 'showMaterials', label: 'Section', mobileLabel: 'Show', info: 'Master toggle for materials.' },
+                      { key: 'showMaterialQty', label: 'Quantities', mobileLabel: 'Qty', info: 'Display item counts.' },
+                      { key: 'showMaterialUnitPrice', label: 'Unit Prices', mobileLabel: 'Price', info: 'Display individual costs.' },
+                      { key: 'showMaterialLineTotals', label: 'Line Totals', mobileLabel: 'Lines', info: 'Display row subtotals.' },
+                      { key: 'showMaterialSectionTotal', label: 'Section Total', mobileLabel: 'Total', info: 'Show materials subtotal.' }
                     ].map(option => (
-                      <div key={option.key} className="flex items-center justify-between group py-0.5 md:py-0">
-                        <div className="max-w-[180px]">
-                          <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{option.label}</p>
+                      <div key={option.key} className="flex items-center justify-between group py-0 md:py-0">
+                        <div className="max-w-[80px] md:max-w-[180px]">
+                          <p className="text-[8px] md:text-[10px] font-black text-slate-900 uppercase tracking-tight">
+                            <span className="md:hidden">{option.mobileLabel}</span>
+                            <span className="hidden md:inline">{option.label}</span>
+                          </p>
                           <p className="text-[8px] text-slate-400 font-bold italic hidden md:block">{option.info}</p>
                         </div>
                         <button
                           onClick={() => toggleDisplayOption(option.key as keyof QuoteDisplayOptions)}
-                          className={`w-9 md:w-10 h-5 md:h-6 rounded-full relative transition-all duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'bg-purple-500' : 'bg-slate-200'}`}
+                          className={`w-8 md:w-10 h-4 md:h-6 rounded-full relative transition-all duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'bg-purple-500' : 'bg-slate-200'}`}
                         >
-                          <div className={`absolute top-0.5 md:top-1 left-0.5 md:left-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'translate-x-4' : 'translate-x-0'}`} />
+                          <div className={`absolute top-0.5 md:top-1 left-0.5 md:left-1 bg-white w-3 md:w-4 h-3 md:h-4 rounded-full transition-transform duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'translate-x-3.5 md:translate-x-4' : 'translate-x-0'}`} />
                         </button>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-2 md:space-y-4">
-                    <div className="flex items-center gap-2 px-2 pb-1.5 md:pb-2 border-b border-slate-100">
-                      <HardHat size={14} className="md:w-4 md:h-4 text-blue-500" />
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Labour Defaults</h4>
+                  <div className="space-y-1 md:space-y-4">
+                    <div className="flex items-center gap-1 md:gap-2 px-1 md:px-2 pb-1 md:pb-2 border-b border-slate-100">
+                      <HardHat size={10} className="md:w-4 md:h-4 text-blue-500" />
+                      <h4 className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-900">Labour</h4>
                     </div>
                     {[
-                      { key: 'showLabour', label: 'Show Section', info: 'Master toggle for site work.' },
-                      { key: 'showLabourQty', label: 'Show Hours', info: 'Display estimated time.' },
-                      { key: 'showLabourUnitPrice', label: 'Show Hourly Rate', info: 'Display trade rate.' },
-                      { key: 'showLabourLineTotals', label: 'Show Subtotals', info: 'Display row subtotals.' },
-                      { key: 'showLabourSectionTotal', label: 'Show Section Total', info: 'Show labour subtotal.' }
+                      { key: 'showLabour', label: 'Section', mobileLabel: 'Show', info: 'Master toggle for site work.' },
+                      { key: 'showLabourQty', label: 'Hours', mobileLabel: 'Hrs', info: 'Display estimated time.' },
+                      { key: 'showLabourUnitPrice', label: 'Hourly Rate', mobileLabel: 'Rate', info: 'Display trade rate.' },
+                      { key: 'showLabourLineTotals', label: 'Subtotals', mobileLabel: 'Lines', info: 'Display row subtotals.' },
+                      { key: 'showLabourSectionTotal', label: 'Section Total', mobileLabel: 'Total', info: 'Show labour subtotal.' }
                     ].map(option => (
-                      <div key={option.key} className="flex items-center justify-between group py-0.5 md:py-0">
-                        <div className="max-w-[180px]">
-                          <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{option.label}</p>
+                      <div key={option.key} className="flex items-center justify-between group py-0 md:py-0">
+                        <div className="max-w-[80px] md:max-w-[180px]">
+                          <p className="text-[8px] md:text-[10px] font-black text-slate-900 uppercase tracking-tight">
+                            <span className="md:hidden">{option.mobileLabel}</span>
+                            <span className="hidden md:inline">{option.label}</span>
+                          </p>
                           <p className="text-[8px] text-slate-400 font-bold italic hidden md:block">{option.info}</p>
                         </div>
                         <button
                           onClick={() => toggleDisplayOption(option.key as keyof QuoteDisplayOptions)}
-                          className={`w-9 md:w-10 h-5 md:h-6 rounded-full relative transition-all duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'bg-blue-500' : 'bg-slate-200'}`}
+                          className={`w-8 md:w-10 h-4 md:h-6 rounded-full relative transition-all duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'bg-blue-500' : 'bg-slate-200'}`}
                         >
-                          <div className={`absolute top-0.5 md:top-1 left-0.5 md:left-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'translate-x-4' : 'translate-x-0'}`} />
+                          <div className={`absolute top-0.5 md:top-1 left-0.5 md:left-1 bg-white w-3 md:w-4 h-3 md:h-4 rounded-full transition-transform duration-300 ${settings.defaultDisplayOptions[option.key as keyof QuoteDisplayOptions] ? 'translate-x-3.5 md:translate-x-4' : 'translate-x-0'}`} />
                         </button>
                       </div>
                     ))}
@@ -1068,38 +1076,87 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                 </form>
               </div>
 
-              {/* Quick Links */}
+              {/* Quick Tips - Interactive Guide */}
               <div className="bg-white rounded-2xl md:rounded-[40px] border border-slate-200 shadow-sm overflow-hidden p-4 md:p-10">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 mb-3 md:mb-6">Quick Tips</h4>
-                <div className="grid grid-cols-2 gap-2 md:gap-4">
-                  <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 bg-slate-50 p-3 md:p-5 rounded-xl md:rounded-2xl">
-                    <div className="p-2 md:p-2.5 bg-amber-100 text-amber-600 rounded-lg md:rounded-xl"><FileText size={14} className="md:w-[18px] md:h-[18px]" /></div>
-                    <div>
-                      <p className="text-xs md:text-sm font-black text-slate-900">Creating Quotes</p>
-                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 hidden md:block">Start from a Job Pack or Quotes tab.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                  {/* Add Company Logo */}
+                  <button
+                    onClick={() => setActiveCategory('company')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-amber-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-amber-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-amber-100 text-amber-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><ImageIcon size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-amber-700">Add Company Logo</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Upload your brand logo for documents</p>
                     </div>
-                  </div>
-                  <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 bg-slate-50 p-3 md:p-5 rounded-xl md:rounded-2xl">
-                    <div className="p-2 md:p-2.5 bg-emerald-100 text-emerald-600 rounded-lg md:rounded-xl"><ReceiptText size={14} className="md:w-[18px] md:h-[18px]" /></div>
-                    <div>
-                      <p className="text-xs md:text-sm font-black text-slate-900">To Invoices</p>
-                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 hidden md:block">Convert quotes to invoices easily.</p>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+
+                  {/* Add Bank Details */}
+                  <button
+                    onClick={() => setActiveCategory('invoices')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-emerald-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-emerald-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-emerald-100 text-emerald-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><Landmark size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-emerald-700">Add Bank Details</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Set up payment info for invoices</p>
                     </div>
-                  </div>
-                  <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 bg-slate-50 p-3 md:p-5 rounded-xl md:rounded-2xl">
-                    <div className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-lg md:rounded-xl"><Building2 size={14} className="md:w-[18px] md:h-[18px]" /></div>
-                    <div>
-                      <p className="text-xs md:text-sm font-black text-slate-900">Company Info</p>
-                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 hidden md:block">Appears on all documents.</p>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+
+                  {/* Set Labour Rate */}
+                  <button
+                    onClick={() => setActiveCategory('quotes')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-blue-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-blue-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><PoundSterling size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-blue-700">Set Labour Rate</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Default hourly rate for quotes</p>
                     </div>
-                  </div>
-                  <div className="flex flex-col md:flex-row items-start gap-2 md:gap-4 bg-slate-50 p-3 md:p-5 rounded-xl md:rounded-2xl">
-                    <div className="p-2 md:p-2.5 bg-purple-100 text-purple-600 rounded-lg md:rounded-xl"><Crown size={14} className="md:w-[18px] md:h-[18px]" /></div>
-                    <div>
-                      <p className="text-xs md:text-sm font-black text-slate-900">Upgrade</p>
-                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 hidden md:block">Unlock more features.</p>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+
+                  {/* VAT Registration */}
+                  <button
+                    onClick={() => setActiveCategory('company')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-purple-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-purple-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-purple-100 text-purple-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><Landmark size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-purple-700">VAT Registration</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Add your VAT number if registered</p>
                     </div>
-                  </div>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+
+                  {/* Choose Invoice Template */}
+                  <button
+                    onClick={() => setActiveCategory('invoices')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-teal-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-teal-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-teal-100 text-teal-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><Layout size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-teal-700">Choose Template</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Pick a style for your documents</p>
+                    </div>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-teal-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+
+                  {/* View Subscription */}
+                  <button
+                    onClick={() => setActiveCategory('subscription')}
+                    className="flex items-center gap-3 md:gap-4 bg-slate-50 hover:bg-amber-50 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all group text-left border-2 border-transparent hover:border-amber-200"
+                  >
+                    <div className="p-2 md:p-2.5 bg-amber-100 text-amber-600 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform"><Crown size={14} className="md:w-[18px] md:h-[18px]" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs md:text-sm font-black text-slate-900 group-hover:text-amber-700">View Subscription</p>
+                      <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 truncate">Check plan limits and upgrade</p>
+                    </div>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
                 </div>
 
                 {/* Legal Links */}
