@@ -334,7 +334,7 @@ const App: React.FC = () => {
         onRefresh={refresh}
         onNavigateToFutureJobs={() => setActiveTab('future_jobs')}
       />}
-      {activeTab === 'jobpacks' && <JobPackList projects={[...projects].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} onOpenProject={openProject} onAddProject={handleAddProject} onAddCustomer={handleAddCustomer} onBack={() => setActiveTab('home')} />}
+      {activeTab === 'jobpacks' && <JobPackList projects={[...projects].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())} customers={customers} onOpenProject={openProject} onAddProject={handleAddProject} onAddCustomer={handleAddCustomer} onDeleteProject={deleteProject} onBack={() => setActiveTab('home')} />}
 
       <Suspense fallback={<PageLoader />}>
         {activeTab === 'schedule' && <ScheduleCalendar entries={schedule} projects={projects} customers={customers} onAddCustomer={handleAddCustomer} onAddEntry={addScheduleEntry} onUpdateEntry={updateScheduleEntry} onDeleteEntry={deleteScheduleEntry} onBack={() => setActiveTab('home')} />}

@@ -4,7 +4,7 @@ import { JobPack, Customer, TIER_LIMITS } from '../types';
 import {
   FolderPlus, Search, Calendar, User, ArrowRight, Clock,
   CheckCircle2, AlertCircle, Loader2, UserPlus, X, Mic,
-  MicOff, Sparkles, MapPinned, Mail, Phone, MapPin, Hammer, LocateFixed
+  MicOff, Sparkles, MapPinned, Mail, Phone, MapPin, Hammer, LocateFixed, Trash2
 } from 'lucide-react';
 import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
@@ -17,11 +17,12 @@ interface JobPackListProps {
   onOpenProject: (id: string) => void;
   onAddProject: (project: JobPack) => void;
   onAddCustomer: (customer: Customer) => Promise<Customer>;
+  onDeleteProject?: (id: string) => Promise<void>;
   onBack?: () => void;
 }
 
 export const JobPackList: React.FC<JobPackListProps> = ({
-  projects, customers, onOpenProject, onAddProject, onAddCustomer, onBack
+  projects, customers, onOpenProject, onAddProject, onAddCustomer, onDeleteProject, onBack
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -29,6 +30,7 @@ export const JobPackList: React.FC<JobPackListProps> = ({
   const [newTitle, setNewTitle] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Get subscription info for limit checking
   const subscription = useSubscription();
@@ -218,6 +220,18 @@ export const JobPackList: React.FC<JobPackListProps> = ({
     setIsAdding(false);
     setNewTitle('');
     setSelectedCustomer('');
+  };
+
+  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
+    e.stopPropagation();
+    if (!onDeleteProject) return;
+    if (!confirm('Delete this job pack? This cannot be undone.')) return;
+    setDeletingId(projectId);
+    try {
+      await onDeleteProject(projectId);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const filteredAddresses = useMemo(() => {
@@ -495,14 +509,37 @@ export const JobPackList: React.FC<JobPackListProps> = ({
         <input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-14 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {filtered.map(project => (
-          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-[32px] border-2 border-slate-100 p-7 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-2xl relative overflow-hidden flex flex-col h-full">
-            <div className="absolute top-0 left-0 w-2 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="flex justify-between items-start mb-3 md:mb-6"><div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{project.status}</div><div className="p-2 bg-slate-50 rounded-xl group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors"><ArrowRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-transform" /></div></div>
-            <h3 className="text-sm md:text-xl font-black text-slate-900 group-hover:text-teal-600 transition-colors mb-2 leading-tight">{project.title}</h3>
-            <div className="space-y-3 mb-4 md:mb-8"><div className="flex items-center gap-2 text-slate-500 text-xs font-bold italic"><User size={14} className="text-slate-400" /> <span className="truncate">{customers.find(c => c.id === project.customerId)?.name || 'Unknown Client'}</span></div><div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-tight"><Clock size={14} className="text-slate-400" /> Updated {new Date(project.updatedAt).toLocaleDateString()}</div></div>
-            <div className="grid grid-cols-3 gap-3 mt-auto pt-6 border-t border-slate-50 text-center"><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Photos</p><p className="text-sm font-black text-slate-900">{project.photos.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Notes</p><p className="text-sm font-black text-slate-900">{project.notes.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Docs</p><p className="text-sm font-black text-slate-900">{project.documents.length}</p></div></div>
+          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-xl border border-slate-100 p-2.5 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-md relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="flex items-center gap-2">
+              <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{project.status}</div>
+              <h3 className="flex-1 text-xs font-bold text-slate-900 group-hover:text-teal-600 transition-colors truncate">{project.title}</h3>
+              <div className="flex items-center gap-1">
+                {onDeleteProject && (
+                  <button
+                    onClick={(e) => handleDeleteProject(e, project.id)}
+                    disabled={deletingId === project.id}
+                    className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                  >
+                    {deletingId === project.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  </button>
+                )}
+                <div className="p-1 bg-slate-50 rounded-md group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
+                  <ArrowRight size={14} className="text-slate-300 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mt-1.5 text-[10px] text-slate-500">
+              <span className="flex items-center gap-1 font-medium truncate"><User size={10} className="text-slate-400 flex-shrink-0" />{customers.find(c => c.id === project.customerId)?.name || 'Unknown'}</span>
+              <span className="flex items-center gap-1 text-slate-400"><Clock size={10} />{new Date(project.updatedAt).toLocaleDateString()}</span>
+              <span className="flex items-center gap-2 ml-auto text-[9px] text-slate-400">
+                <span>{project.photos.length} photos</span>
+                <span>{project.notes.length} notes</span>
+                <span>{project.documents.length} docs</span>
+              </span>
+            </div>
           </div>
         ))}
       </div>
