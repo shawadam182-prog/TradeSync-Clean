@@ -449,13 +449,13 @@ ${settings.companyName || 'Your Company'}`;
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hidden md:block" size={18} />
           <input
             type="text"
             placeholder="Search by customer or invoice..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 md:pl-12 pr-4 py-3 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
 

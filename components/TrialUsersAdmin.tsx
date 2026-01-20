@@ -297,13 +297,13 @@ export const TrialUsersAdmin: React.FC<TrialUsersAdminProps> = ({ onBack }) => {
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hidden sm:block" />
             <input
               type="text"
               placeholder="Search by email or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 sm:pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
         </div>
