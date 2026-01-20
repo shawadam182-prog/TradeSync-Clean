@@ -1,8 +1,9 @@
 -- Add invoice color scheme support and classic template
 -- Part of the 3-template system with universal color schemes
 
--- Step 1: Drop existing template constraint
+-- Step 1: Drop existing constraints first
 ALTER TABLE user_settings DROP CONSTRAINT IF EXISTS user_settings_document_template_check;
+ALTER TABLE user_settings DROP CONSTRAINT IF EXISTS user_settings_invoice_color_scheme_check;
 
 -- Step 2: Add invoice_color_scheme column
 ALTER TABLE user_settings
