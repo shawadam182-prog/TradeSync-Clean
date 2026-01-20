@@ -201,14 +201,14 @@ export const INVOICE_TEMPLATES: Record<InvoiceTemplate, TemplateConfig> = {
     centeredLayout: false,
     inlineLayout: false,
     logoPosition: 'left',
-    logoSize: 'medium',
-    containerPadding: 'p-6',
+    logoSize: 'large',             // Larger logo than professional
+    containerPadding: 'p-8',       // Much more padding than professional (p-3)
     containerBg: 'bg-white',
     headerPadding: 'p-0',
-    rowPadding: 'py-3 px-3',      // More vertical padding for breathing room
-    sectionGap: 'space-y-4',       // More space between sections
-    fontSize: 'text-xs',           // Larger than professional (10px → 12px)
-    headerFontSize: 'text-base',   // Larger header text
+    rowPadding: 'py-4 px-4',       // More vertical & horizontal padding for breathing room
+    sectionGap: 'space-y-6',       // More space between sections
+    fontSize: 'text-sm',           // Larger than professional (10px → 14px)
+    headerFontSize: 'text-xl',     // Much larger header text (14px → 20px)
     borderRadius: 'rounded-none',
     supportsColorScheme: true,
     defaultColorScheme: 'default',
@@ -275,6 +275,6 @@ export const TEMPLATE_METADATA: TemplateMetadata[] = [
 // Template descriptions for preview panel
 export const TEMPLATE_DESCRIPTIONS: Record<InvoiceTemplate, string> = {
   'professional': 'Clean, professional invoice format based on industry standards like Zoho and QuickBooks. Features a clear table layout with line numbers, proper spacing, and all essential details. Optimized to fit on one page for most jobs.',
-  'spacious': 'Professional invoice with larger text (12px) and generous spacing between lines. Easier to read and looks great for high-value jobs. Features line numbers, clear headers, and customizable color schemes. May span multiple pages for jobs with many items.',
+  'spacious': 'Professional invoice with larger text (14px) and generous spacing between lines. Easier to read and looks great for high-value jobs or clients who prefer larger print. Features line numbers, clear headers, and customizable color schemes. May span multiple pages for jobs with many items.',
   'classic': 'Traditional compact invoice format with straightforward layout. Clean and simple design that works well for standard jobs. Features all essential information in a traditional business format with customizable color schemes.',
 };

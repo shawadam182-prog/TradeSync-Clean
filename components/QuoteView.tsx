@@ -858,6 +858,63 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               </div>
             </div>
           </div>
+        ) : activeTemplate === 'spacious' ? (
+          /* SPACIOUS TEMPLATE HEADER - Like professional but with larger text */
+          <div className={templateConfig.containerPadding}>
+            <div className={`flex justify-between items-start ${templateConfig.sectionGap.replace('space-y-', 'mb-')}`}>
+              {/* Left: Logo + Company */}
+              <div className="flex-1">
+                {displayOptions.showLogo && settings.companyLogo && (
+                  <img src={settings.companyLogo} alt={settings.companyName || 'Logo'} className="h-20 w-auto object-contain mb-2" style={{ maxWidth: '160px' }} />
+                )}
+                <h2 className={`${templateConfig.headerFontSize} font-bold text-slate-900`}>{settings.companyName}</h2>
+                {settings.companyAddress && (
+                  <p className={`${templateConfig.fontSize} text-slate-600 leading-snug whitespace-pre-line mt-0.5`}>{settings.companyAddress}</p>
+                )}
+                {settings.phone && <p className={`${templateConfig.fontSize} text-slate-600 mt-0.5`}>{settings.phone}</p>}
+                {settings.email && <p className={`${templateConfig.fontSize} text-slate-600`}>{settings.email}</p>}
+                {settings.vatNumber && <p className={`${templateConfig.fontSize} text-slate-600`}>{settings.vatNumber}</p>}
+              </div>
+
+              {/* Right: INVOICE header + Balance */}
+              <div className="text-right">
+                <h1 className="text-3xl font-bold text-slate-900 mb-1">
+                  {activeQuote.type === 'invoice' ? 'INVOICE' : 'QUOTE'}
+                </h1>
+                <p className={`${templateConfig.fontSize} text-slate-600 font-semibold`}>{activeQuote.type === 'invoice' ? 'Invoice' : 'Quote'}# {reference}</p>
+                <div className="mt-2">
+                  <div className={`${templateConfig.fontSize} text-slate-600 font-semibold`}>Balance Due</div>
+                  <div className="text-2xl font-bold text-slate-900">£{totals.grandTotal.toFixed(2)}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bill To + Dates Row */}
+            <div className={`grid grid-cols-2 gap-4 ${templateConfig.sectionGap.replace('space-y-', 'mb-')}`}>
+              <div>
+                <div className={`${templateConfig.fontSize} font-bold text-slate-900 mb-1`}>Bill To</div>
+                <p className={`${templateConfig.headerFontSize} font-bold text-slate-900`}>{customer?.name}</p>
+                {customer?.company && <p className={`${templateConfig.fontSize} text-slate-600`}>{customer.company}</p>}
+                {customer?.address && <p className={`${templateConfig.fontSize} text-slate-600 leading-snug`}>{customer.address}</p>}
+              </div>
+              <div className="space-y-0.5">
+                <div className={`flex justify-between ${templateConfig.fontSize}`}>
+                  <span className="text-slate-600">Invoice Date :</span>
+                  <span className="text-slate-900 font-medium">{activeQuote?.date ? new Date(activeQuote.date).toLocaleDateString('en-GB') : ''}</span>
+                </div>
+                <div className={`flex justify-between ${templateConfig.fontSize}`}>
+                  <span className="text-slate-600">Terms :</span>
+                  <span className="text-slate-900 font-medium">Due on Receipt</span>
+                </div>
+                {activeQuote.dueDate && (
+                  <div className={`flex justify-between ${templateConfig.fontSize}`}>
+                    <span className="text-slate-600">Due Date :</span>
+                    <span className="text-slate-900 font-medium">{new Date(activeQuote.dueDate).toLocaleDateString('en-GB')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         ) : (
           /* STANDARD HEADER - All other templates */
           <>
@@ -948,7 +1005,7 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                     )}
                     <th className="py-2 px-2 text-left text-[10px] font-semibold">Item & Description</th>
                     <th className="py-2 px-2 text-center w-16 text-[10px] font-semibold">Qty</th>
-                    {activeTemplate === 'professional' && (
+                    {(activeTemplate === 'professional' || activeTemplate === 'spacious') && (
                       <th className="py-2 px-2 text-right w-24 text-[10px] font-semibold">Rate</th>
                     )}
                     <th className="py-2 px-2 text-right w-24 text-[10px] font-semibold">Amount</th>
@@ -959,8 +1016,23 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
                 {getAllLineItems().map((item, idx) => (
                   item.isHeading ? (
                     <tr key={`heading-${idx}`} className="bg-slate-50">
-                      <td colSpan={activeTemplate === 'professional' ? 5 : (templateConfig.showLineNumbers ? 4 : 3)} className="py-1 px-2">
+                      <td colSpan={(activeTemplate === 'professional' || activeTemplate === 'spacious') ? 5 : (templateConfig.showLineNumbers ? 4 : 3)} className="py-1 px-2">
                         <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">{item.description}</span>
+                      </td>
+                    </tr>
+                  ) : activeTemplate === 'spacious' ? (
+                    <tr key={`item-${idx}`} className={templateConfig.showTableBorders ? 'border-b border-slate-100' : ''}>
+                      {templateConfig.showLineNumbers && (
+                        <td className={`${templateConfig.rowPadding} text-slate-600 ${templateConfig.fontSize}`}>{item.lineNum}</td>
+                      )}
+                      <td className={templateConfig.rowPadding}>
+                        <div className={`text-slate-900 font-medium ${templateConfig.fontSize}`}>{item.name}</div>
+                        {item.subtext && <div className="text-[11px] text-slate-500 mt-0.5">{item.subtext}</div>}
+                      </td>
+                      <td className={`${templateConfig.rowPadding} text-slate-900 text-center font-medium ${templateConfig.fontSize}`}>{item.qty}</td>
+                      <td className={`${templateConfig.rowPadding} text-slate-900 text-right ${templateConfig.fontSize}`}>{item.rate ? `${item.rate.toFixed(2)}` : '-'}</td>
+                      <td className={`${templateConfig.rowPadding} text-slate-900 text-right font-medium ${templateConfig.fontSize}`}>
+                        {item.amount.toFixed(2)}
                       </td>
                     </tr>
                   ) : (
@@ -1218,6 +1290,56 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
               </div>
             )}
           </div>
+        ) : activeTemplate === 'spacious' ? (
+          /* SPACIOUS TEMPLATE TOTALS - Like professional but with larger text */
+          <div className={`${templateConfig.containerPadding} py-1`}>
+            <div className="flex justify-end">
+              <div className="w-56">
+                <div className={`flex justify-between py-1 border-b border-slate-100 ${templateConfig.fontSize}`}>
+                  <span className="text-slate-500">Sub Total</span>
+                  <span className="text-slate-900">£{totals.clientSubtotal.toFixed(2)}</span>
+                </div>
+                {totals.discountAmount > 0 && (
+                  <div className={`flex justify-between py-1 border-b border-slate-100 ${templateConfig.fontSize}`}>
+                    <span className="text-slate-500">Discount</span>
+                    <span className="text-slate-900">-£{totals.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {settings.enableVat && displayOptions.showVat && totals.taxAmount > 0 && (
+                  <div className={`flex justify-between py-1 border-b border-slate-100 ${templateConfig.fontSize}`}>
+                    <span className="text-slate-500">VAT ({activeQuote.taxPercent}%)</span>
+                    <span className="text-slate-900">£{totals.taxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {settings.enableCis && displayOptions.showCis && totals.cisAmount > 0 && (
+                  <div className={`flex justify-between py-1 border-b border-slate-100 ${templateConfig.fontSize}`}>
+                    <span className="text-slate-500">CIS Deduction</span>
+                    <span className="text-slate-900">-£{totals.cisAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className={`flex justify-between py-1 font-bold bg-slate-100 px-2 -mx-2 mt-1 rounded ${templateConfig.headerFontSize}`}>
+                  <span>Balance Due</span>
+                  <span>£{totals.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Part Payment - compact version */}
+            {activeQuote.type === 'invoice' && activeQuote.partPaymentEnabled && activeQuote.partPaymentValue && (
+              <div className="flex justify-end mt-2">
+                <div className="bg-teal-50 border border-teal-200 p-2 rounded-lg w-56">
+                  <div className={`flex justify-between ${templateConfig.fontSize}`}>
+                    <span className="text-teal-700">{activeQuote.partPaymentLabel || 'Due Now'}</span>
+                    <span className="font-bold text-teal-700">£{partPaymentAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-[9px] mt-1">
+                    <span className="text-slate-500">Remaining</span>
+                    <span className="text-slate-700">£{(totals.grandTotal - partPaymentAmount).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           /* STANDARD TOTALS - All other templates */
           <div className={`${activeTemplate === 'minimal' ? 'bg-white border-t-2 border-slate-300 text-slate-900' : currentThemeClass} px-2 py-1 ${templateStyle.footerRounding} ${activeTemplate === 'minimal' ? '' : 'shadow-sm'}`}>
@@ -1348,6 +1470,29 @@ ${settings?.companyName || ''}${settings?.phone ? `\n${settings.phone}` : ''}${s
             )}
             {displayOptions.showNotes && activeQuote?.notes && (
               <div className="text-[10px] text-slate-600 leading-relaxed">
+                {activeQuote.notes}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notes section for Spacious Template */}
+        {activeTemplate === 'spacious' && (displayOptions.showNotes || (settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName)) && (
+          <div className={`${templateConfig.containerPadding} py-3 border-t border-slate-200`}>
+            <div className={`${templateConfig.fontSize} font-bold text-slate-900 mb-2`}>Notes</div>
+            {(settings.bankAccountName || settings.bankAccountNumber || settings.bankSortCode || settings.bankName) && activeQuote.type === 'invoice' && (
+              <div className="mb-2">
+                <div className={`${templateConfig.fontSize} text-slate-900`}>Payment Details:</div>
+                <div className={`${templateConfig.fontSize} text-slate-600 space-y-0.5 mt-1`}>
+                  {settings.bankAccountName && <div>Mr {settings.bankAccountName}</div>}
+                  {settings.bankAccountNumber && <div>{settings.bankAccountNumber}</div>}
+                  {settings.bankSortCode && <div>{settings.bankSortCode}</div>}
+                  {settings.bankName && <div>{settings.bankName}</div>}
+                </div>
+              </div>
+            )}
+            {displayOptions.showNotes && activeQuote?.notes && (
+              <div className={`${templateConfig.fontSize} text-slate-600 leading-relaxed`}>
                 {activeQuote.notes}
               </div>
             )}
