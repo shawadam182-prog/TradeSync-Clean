@@ -732,17 +732,34 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, setSetting
                 <div className="space-y-5">
                   <div className="flex items-center gap-2 px-1">
                     <Palette size={16} className="text-teal-500" />
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Visual Design Theme</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Quote Color Scheme</label>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 md:gap-6">
-                    {['slate', 'amber', 'blue'].map(color => (
+                  <p className="text-[10px] text-slate-500 italic px-1">
+                    Choose a light, subtle color scheme for your quote headers and accents when exported as PDF.
+                  </p>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.values(COLOR_SCHEMES).map(scheme => (
                       <button
-                        key={color}
-                        onClick={() => setSettings({ ...settings, costBoxColor: color as any })}
-                        className={`flex flex-col items-center gap-4 p-3 md:p-6 rounded-[32px] border-2 transition-all ${settings.costBoxColor === color ? 'border-teal-500 bg-teal-50/30 shadow-lg' : 'border-slate-100 bg-white hover:border-teal-200'}`}
+                        key={scheme.id}
+                        onClick={() => setSettings({ ...settings, quoteColorScheme: scheme.id })}
+                        className={`flex flex-col items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
+                          (settings.quoteColorScheme || 'default') === scheme.id
+                            ? 'border-blue-500 bg-blue-50/30 shadow-lg'
+                            : 'border-slate-100 bg-white hover:border-blue-200'
+                        }`}
                       >
-                        <div className={`w-12 h-12 rounded-[14px] shadow-lg ${color === 'slate' ? 'bg-slate-900' : color === 'amber' ? 'bg-amber-500' : 'bg-blue-600'}`}></div>
-                        <span className="text-[10px] font-black uppercase tracking-widest">{color}</span>
+                        <div className={`w-full h-12 rounded-xl ${scheme.headerBg} flex items-center justify-center border border-slate-200`}>
+                          <span className={`text-[9px] font-bold ${scheme.headerText}`}>Quote Header</span>
+                        </div>
+                        <div className="text-center">
+                          <span className="text-[10px] font-black uppercase tracking-widest block">{scheme.name}</span>
+                          <div className="flex items-center gap-1 justify-center mt-1">
+                            {(settings.quoteColorScheme || 'default') === scheme.id && (
+                              <Check size={12} className="text-blue-500" />
+                            )}
+                          </div>
+                        </div>
                       </button>
                     ))}
                   </div>
