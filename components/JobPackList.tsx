@@ -1,15 +1,16 @@
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { JobPack, Customer, TIER_LIMITS } from '../types';
 import {
-  FolderPlus, Search, Calendar, User, ArrowRight, Clock,
-  CheckCircle2, AlertCircle, Loader2, UserPlus, X, Mic,
-  MicOff, Sparkles, MapPinned, Mail, Phone, MapPin, Hammer, LocateFixed, Trash2
+  FolderPlus, User, ArrowRight, Clock,
+  AlertCircle, Loader2, UserPlus, Mic,
+  MicOff, Sparkles, Mail, Phone, Hammer, Trash2
 } from 'lucide-react';
-import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
+import { parseCustomerVoiceInput } from '../src/services/geminiService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
 import { UpgradePrompt } from './UpgradePrompt';
 import { PageHeader } from './common/PageHeader';
+import { AddressAutocomplete } from './AddressAutocomplete';
 
 interface JobPackListProps {
   projects: JobPack[];
@@ -44,15 +45,9 @@ export const JobPackList: React.FC<JobPackListProps> = ({
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({});
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isVerifyingAddress, setIsVerifyingAddress] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
   const [isListeningField, setIsListeningField] = useState<string | null>(null);
   const activeFieldVoiceRef = useRef<string | null>(null);
-
-  // Autocomplete
-  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
-  const [addressSearchTerm, setAddressSearchTerm] = useState('');
 
   const recognitionRef = useRef<any>(null);
 
@@ -118,53 +113,6 @@ export const JobPackList: React.FC<JobPackListProps> = ({
     setIsListeningField(fieldName || null);
     activeFieldVoiceRef.current = fieldName || null;
     try { recognitionRef.current?.start(); } catch (e) { setIsListening(false); }
-  };
-
-  const handleVerifyAddress = async () => {
-    if (!newCustomer.address) return;
-    setIsVerifyingAddress(true);
-    setCustomerError(null);
-    try {
-      const formatted = await formatAddressAI(newCustomer.address);
-      setNewCustomer(prev => ({ ...prev, address: formatted }));
-    } catch (err) {
-      setCustomerError("Address verification failed.");
-    } finally {
-      setIsVerifyingAddress(false);
-    }
-  };
-
-  const handleUseCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setCustomerError("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    setIsLocating(true);
-    setCustomerError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const address = await reverseGeocode(latitude, longitude);
-          if (address) {
-            setNewCustomer(prev => ({ ...prev, address }));
-            setAddressSearchTerm(address);
-          } else {
-            setCustomerError("Could not determine address from your location.");
-          }
-        } catch (err) {
-          setCustomerError("Failed to geocode your location.");
-        } finally {
-          setIsLocating(false);
-        }
-      },
-      (err) => {
-        setIsLocating(false);
-        setCustomerError("Location access denied or unavailable.");
-      }
-    );
   };
 
   const handleQuickAddCustomer = async (e?: React.FormEvent | React.MouseEvent) => {
@@ -233,13 +181,6 @@ export const JobPackList: React.FC<JobPackListProps> = ({
       setDeletingId(null);
     }
   };
-
-  const filteredAddresses = useMemo(() => {
-    if (!addressSearchTerm || addressSearchTerm.length < 2) return [];
-    const search = addressSearchTerm.toLowerCase();
-    const allAddresses = Array.from(new Set(customers.map(c => c.address).filter(Boolean))) as string[];
-    return allAddresses.filter(addr => addr.toLowerCase().includes(search)).slice(0, 5);
-  }, [customers, addressSearchTerm]);
 
   return (
     <div className="space-y-3 md:space-y-6">
@@ -392,71 +333,15 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                   </div>
 
                   {/* Address Field */}
-                  <div className="md:col-span-2 space-y-0.5 relative">
-                    <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
-                      <MapPin size={10} className="md:w-3 md:h-3" /> Main Site Address
-                    </label>
-                    <div className="relative">
-                      <textarea
-                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-teal-500 transition-all"
-                        placeholder="Street, Town, Postcode..."
-                        value={newCustomer.address || ''}
-                        onChange={e => {
-                          const val = e.target.value;
-                          setNewCustomer({...newCustomer, address: val});
-                          setAddressSearchTerm(val);
-                          setShowAddressSuggestions(true);
-                        }}
-                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
-                      />
-                      <div className="absolute right-1 top-1 flex gap-0.5">
-                        <button
-                          type="button"
-                          onClick={() => startListening('address')}
-                          className={`p-1 md:p-2 rounded-lg transition-all ${isListeningField === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
-                          title="Voice input"
-                        >
-                          <Mic size={14} className="md:w-[18px] md:h-[18px]" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleUseCurrentLocation}
-                          disabled={isLocating}
-                          className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
-                          title="Use current location"
-                        >
-                          {isLocating ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleVerifyAddress}
-                          disabled={!newCustomer.address || isVerifyingAddress}
-                          className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
-                          title="AI verify address"
-                        >
-                          {isVerifyingAddress ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />}
-                        </button>
-                      </div>
-                    </div>
-                    {showAddressSuggestions && filteredAddresses.length > 0 && (
-                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white border-2 border-slate-100 rounded-[24px] shadow-2xl animate-in slide-in-from-top-2 overflow-hidden">
-                        {filteredAddresses.map((addr, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => {
-                              setNewCustomer(prev => ({ ...prev, address: addr }));
-                              setShowAddressSuggestions(false);
-                              setAddressSearchTerm('');
-                            }}
-                            className="w-full text-left p-4 hover:bg-amber-50 text-sm font-bold text-slate-900 border-b border-slate-50 last:border-0 flex items-center gap-3 transition-colors"
-                          >
-                            <MapPin size={14} className="text-amber-500" />
-                            <span className="truncate">{addr}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                  <div className="md:col-span-2">
+                    <AddressAutocomplete
+                      value={newCustomer.address || ''}
+                      onChange={(address) => setNewCustomer({...newCustomer, address})}
+                      placeholder="Start typing address or postcode..."
+                      onVoiceStart={() => startListening('address')}
+                      onVoiceEnd={() => recognitionRef.current?.stop()}
+                      isListening={isListeningField === 'address'}
+                    />
                   </div>
                 </div>
 
