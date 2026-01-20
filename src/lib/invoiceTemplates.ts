@@ -238,7 +238,7 @@ export const getTableHeaderStyle = (
 ): string => {
   // All templates now support color schemes
   const scheme = getColorScheme(colorScheme || template.defaultColorScheme);
-  return `${scheme.headerBg} ${scheme.headerText} py-1.5 px-2 ${template.fontSize} font-semibold`;
+  return `${scheme.headerBg} ${scheme.headerText} py-1.5 px-2 text-[10px] font-semibold`;
 };
 
 // Template metadata for settings UI
