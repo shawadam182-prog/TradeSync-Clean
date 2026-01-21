@@ -443,12 +443,12 @@ export const CustomerManager: React.FC<CustomerManagerProps> = ({ customers, add
       ) : (
         <>
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hidden sm:block" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input
               type="search"
               inputMode="search"
               placeholder="Search by name, email or company..."
-              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 px-4 sm:pl-12 pr-4 min-h-[52px] font-bold text-base text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
+              className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 min-h-[52px] font-bold text-base text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />

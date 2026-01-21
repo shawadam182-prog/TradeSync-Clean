@@ -1,16 +1,15 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { JobPack, Customer, TIER_LIMITS } from '../types';
 import {
-  FolderPlus, User, ArrowRight, Clock,
-  AlertCircle, Loader2, UserPlus, Mic,
-  MicOff, Sparkles, Mail, Phone, Hammer, Trash2
+  FolderPlus, Search, Calendar, User, ArrowRight, Clock,
+  CheckCircle2, AlertCircle, Loader2, UserPlus, X, Mic,
+  MicOff, Sparkles, MapPinned, Mail, Phone, MapPin, Hammer, LocateFixed
 } from 'lucide-react';
-import { parseCustomerVoiceInput } from '../src/services/geminiService';
+import { parseCustomerVoiceInput, formatAddressAI, reverseGeocode } from '../src/services/geminiService';
 import { useSubscription } from '../src/hooks/useFeatureAccess';
 import { UpgradePrompt } from './UpgradePrompt';
 import { PageHeader } from './common/PageHeader';
-import { AddressAutocomplete } from './AddressAutocomplete';
 
 interface JobPackListProps {
   projects: JobPack[];
@@ -18,12 +17,11 @@ interface JobPackListProps {
   onOpenProject: (id: string) => void;
   onAddProject: (project: JobPack) => void;
   onAddCustomer: (customer: Customer) => Promise<Customer>;
-  onDeleteProject?: (id: string) => Promise<void>;
   onBack?: () => void;
 }
 
 export const JobPackList: React.FC<JobPackListProps> = ({
-  projects, customers, onOpenProject, onAddProject, onAddCustomer, onDeleteProject, onBack
+  projects, customers, onOpenProject, onAddProject, onAddCustomer, onBack
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -31,7 +29,6 @@ export const JobPackList: React.FC<JobPackListProps> = ({
   const [newTitle, setNewTitle] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('');
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Get subscription info for limit checking
   const subscription = useSubscription();
@@ -45,9 +42,15 @@ export const JobPackList: React.FC<JobPackListProps> = ({
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({});
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isVerifyingAddress, setIsVerifyingAddress] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
   const [isListeningField, setIsListeningField] = useState<string | null>(null);
   const activeFieldVoiceRef = useRef<string | null>(null);
+
+  // Autocomplete
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [addressSearchTerm, setAddressSearchTerm] = useState('');
 
   const recognitionRef = useRef<any>(null);
 
@@ -115,6 +118,53 @@ export const JobPackList: React.FC<JobPackListProps> = ({
     try { recognitionRef.current?.start(); } catch (e) { setIsListening(false); }
   };
 
+  const handleVerifyAddress = async () => {
+    if (!newCustomer.address) return;
+    setIsVerifyingAddress(true);
+    setCustomerError(null);
+    try {
+      const formatted = await formatAddressAI(newCustomer.address);
+      setNewCustomer(prev => ({ ...prev, address: formatted }));
+    } catch (err) {
+      setCustomerError("Address verification failed.");
+    } finally {
+      setIsVerifyingAddress(false);
+    }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setCustomerError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setCustomerError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const address = await reverseGeocode(latitude, longitude);
+          if (address) {
+            setNewCustomer(prev => ({ ...prev, address }));
+            setAddressSearchTerm(address);
+          } else {
+            setCustomerError("Could not determine address from your location.");
+          }
+        } catch (err) {
+          setCustomerError("Failed to geocode your location.");
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (err) => {
+        setIsLocating(false);
+        setCustomerError("Location access denied or unavailable.");
+      }
+    );
+  };
+
   const handleQuickAddCustomer = async (e?: React.FormEvent | React.MouseEvent) => {
     if (e) e.preventDefault();
     setCustomerError(null);
@@ -170,17 +220,12 @@ export const JobPackList: React.FC<JobPackListProps> = ({
     setSelectedCustomer('');
   };
 
-  const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
-    e.stopPropagation();
-    if (!onDeleteProject) return;
-    if (!confirm('Delete this job pack? This cannot be undone.')) return;
-    setDeletingId(projectId);
-    try {
-      await onDeleteProject(projectId);
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  const filteredAddresses = useMemo(() => {
+    if (!addressSearchTerm || addressSearchTerm.length < 2) return [];
+    const search = addressSearchTerm.toLowerCase();
+    const allAddresses = Array.from(new Set(customers.map(c => c.address).filter(Boolean))) as string[];
+    return allAddresses.filter(addr => addr.toLowerCase().includes(search)).slice(0, 5);
+  }, [customers, addressSearchTerm]);
 
   return (
     <div className="space-y-3 md:space-y-6">
@@ -333,15 +378,71 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                   </div>
 
                   {/* Address Field */}
-                  <div className="md:col-span-2">
-                    <AddressAutocomplete
-                      value={newCustomer.address || ''}
-                      onChange={(address) => setNewCustomer({...newCustomer, address})}
-                      placeholder="Start typing address or postcode..."
-                      onVoiceStart={() => startListening('address')}
-                      onVoiceEnd={() => recognitionRef.current?.stop()}
-                      isListening={isListeningField === 'address'}
-                    />
+                  <div className="md:col-span-2 space-y-0.5 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-1.5 italic px-1">
+                      <MapPin size={10} className="md:w-3 md:h-3" /> Main Site Address
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-3 py-1.5 md:px-4 md:py-4 pr-28 md:pr-32 text-slate-950 font-bold text-sm outline-none min-h-[50px] md:min-h-[100px] focus:bg-white focus:border-teal-500 transition-all"
+                        placeholder="Street, Town, Postcode..."
+                        value={newCustomer.address || ''}
+                        onChange={e => {
+                          const val = e.target.value;
+                          setNewCustomer({...newCustomer, address: val});
+                          setAddressSearchTerm(val);
+                          setShowAddressSuggestions(true);
+                        }}
+                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                      />
+                      <div className="absolute right-1 top-1 flex gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => startListening('address')}
+                          className={`p-1 md:p-2 rounded-lg transition-all ${isListeningField === 'address' ? 'bg-red-500 text-white' : 'text-slate-300 hover:text-teal-500 bg-transparent'}`}
+                          title="Voice input"
+                        >
+                          <Mic size={14} className="md:w-[18px] md:h-[18px]" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleUseCurrentLocation}
+                          disabled={isLocating}
+                          className="p-1 md:p-2 rounded-lg transition-all text-blue-500 hover:text-blue-700 disabled:opacity-30 bg-transparent"
+                          title="Use current location"
+                        >
+                          {isLocating ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <LocateFixed size={14} className="md:w-[18px] md:h-[18px]" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleVerifyAddress}
+                          disabled={!newCustomer.address || isVerifyingAddress}
+                          className="p-1 md:p-2 rounded-lg transition-all text-amber-500 hover:text-amber-700 disabled:opacity-30 bg-transparent"
+                          title="AI verify address"
+                        >
+                          {isVerifyingAddress ? <Loader2 size={14} className="md:w-[18px] md:h-[18px] animate-spin" /> : <MapPinned size={14} className="md:w-[18px] md:h-[18px]" />}
+                        </button>
+                      </div>
+                    </div>
+                    {showAddressSuggestions && filteredAddresses.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white border-2 border-slate-100 rounded-[24px] shadow-2xl animate-in slide-in-from-top-2 overflow-hidden">
+                        {filteredAddresses.map((addr, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => {
+                              setNewCustomer(prev => ({ ...prev, address: addr }));
+                              setShowAddressSuggestions(false);
+                              setAddressSearchTerm('');
+                            }}
+                            className="w-full text-left p-4 hover:bg-amber-50 text-sm font-bold text-slate-900 border-b border-slate-50 last:border-0 flex items-center gap-3 transition-colors"
+                          >
+                            <MapPin size={14} className="text-amber-500" />
+                            <span className="truncate">{addr}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -363,24 +464,24 @@ export const JobPackList: React.FC<JobPackListProps> = ({
                 <div className="space-y-3 md:space-y-6">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Project Title (Optional)</label>
-                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-xl sm:rounded-[24px] p-3 sm:p-5 font-bold text-slate-950 text-sm sm:text-base focus:border-teal-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
+                    <input className="w-full border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none transition-all shadow-inner" placeholder="e.g. Miller - Extension" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
                   </div>
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Assign To Client *</label>
-                    <div className="flex gap-2 items-stretch">
-                      <select className="flex-1 min-w-0 border-2 border-slate-100 bg-slate-50 rounded-xl sm:rounded-[24px] p-3 sm:p-5 font-bold text-slate-950 text-sm sm:text-base focus:border-teal-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner truncate" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
+                    <div className="flex gap-2">
+                      <select className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-[24px] p-5 font-bold text-slate-950 focus:border-teal-400 focus:bg-white outline-none appearance-none cursor-pointer shadow-inner" value={selectedCustomer} onChange={e => setSelectedCustomer(e.target.value)}>
                         <option value="">Select a client...</option>
                         {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.company ? `(${c.company})` : ''}</option>)}
                       </select>
-                      <button onClick={() => { setIsAddingCustomer(true); setCustomerError(null); }} className="p-3 sm:p-5 bg-slate-900 text-amber-500 rounded-xl sm:rounded-[24px] hover:bg-black transition-all shadow-lg border-b-4 border-slate-950 active:translate-y-1 active:border-b-0 flex-shrink-0"><UserPlus size={20} className="sm:w-6 sm:h-6" /></button>
+                      <button onClick={() => { setIsAddingCustomer(true); setCustomerError(null); }} className="p-5 bg-slate-900 text-amber-500 rounded-[24px] hover:bg-black transition-all shadow-lg border-b-4 border-slate-950 active:translate-y-1 active:border-b-0"><UserPlus size={24} /></button>
                     </div>
                   </div>
                   <div className="flex flex-col gap-3 pt-4">
-                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-teal-500 text-white font-black py-4 sm:py-6 rounded-xl sm:rounded-[32px] hover:bg-teal-600 shadow-2xl shadow-teal-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-xs sm:text-sm flex items-center justify-center gap-2 sm:gap-3">
-                      {isCreating ? <Loader2 className="animate-spin" size={18}/> : <FolderPlus size={18}/>}
+                    <button onClick={handleCreateProject} disabled={!selectedCustomer || isCreating} className="w-full bg-teal-500 text-white font-black py-6 rounded-[32px] hover:bg-teal-600 shadow-2xl shadow-teal-500/30 disabled:opacity-30 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3">
+                      {isCreating ? <Loader2 className="animate-spin" size={20}/> : <FolderPlus size={20}/>}
                       Start Job Pack
                     </button>
-                    <button onClick={() => { setIsAdding(false); setNewTitle(''); setSelectedCustomer(''); }} className="w-full bg-slate-50 text-slate-400 font-black py-4 sm:py-6 rounded-xl sm:rounded-[32px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Dismiss</button>
+                    <button onClick={() => { setIsAdding(false); setNewTitle(''); setSelectedCustomer(''); }} className="w-full bg-slate-50 text-slate-400 font-black py-6 rounded-[32px] hover:bg-slate-100 transition-all uppercase tracking-widest text-xs">Dismiss</button>
                   </div>
                 </div>
               </div>
@@ -389,41 +490,16 @@ export const JobPackList: React.FC<JobPackListProps> = ({
         </div>
       )}
 
-      <div className="relative">
-        <input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-      </div>
+      <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} /><input type="text" placeholder="Search active projects..." className="w-full bg-white border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 font-bold text-slate-900 focus:border-teal-200 outline-none shadow-sm transition-all" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         {filtered.map(project => (
-          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-xl border border-slate-100 p-2.5 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-md relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="flex items-center gap-2">
-              <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wide ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{project.status}</div>
-              <h3 className="flex-1 text-xs font-bold text-slate-900 group-hover:text-teal-600 transition-colors truncate">{project.title}</h3>
-              <div className="flex items-center gap-1">
-                {onDeleteProject && (
-                  <button
-                    onClick={(e) => handleDeleteProject(e, project.id)}
-                    disabled={deletingId === project.id}
-                    className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                  >
-                    {deletingId === project.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                  </button>
-                )}
-                <div className="p-1 bg-slate-50 rounded-md group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
-                  <ArrowRight size={14} className="text-slate-300 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 mt-1.5 text-[10px] text-slate-500">
-              <span className="flex items-center gap-1 font-medium truncate"><User size={10} className="text-slate-400 flex-shrink-0" />{customers.find(c => c.id === project.customerId)?.name || 'Unknown'}</span>
-              <span className="flex items-center gap-1 text-slate-400"><Clock size={10} />{new Date(project.updatedAt).toLocaleDateString()}</span>
-              <span className="flex items-center gap-2 ml-auto text-[9px] text-slate-400">
-                <span>{project.photos.length} photos</span>
-                <span>{project.notes.length} notes</span>
-                <span>{project.documents.length} docs</span>
-              </span>
-            </div>
+          <div key={project.id} onClick={() => onOpenProject(project.id)} className="bg-white rounded-[32px] border-2 border-slate-100 p-7 hover:border-teal-500 transition-all group cursor-pointer shadow-sm hover:shadow-2xl relative overflow-hidden flex flex-col h-full">
+            <div className="absolute top-0 left-0 w-2 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="flex justify-between items-start mb-3 md:mb-6"><div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${project.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>{project.status}</div><div className="p-2 bg-slate-50 rounded-xl group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors"><ArrowRight size={18} className="text-slate-300 group-hover:translate-x-1 transition-transform" /></div></div>
+            <h3 className="text-sm md:text-xl font-black text-slate-900 group-hover:text-teal-600 transition-colors mb-2 leading-tight">{project.title}</h3>
+            <div className="space-y-3 mb-4 md:mb-8"><div className="flex items-center gap-2 text-slate-500 text-xs font-bold italic"><User size={14} className="text-slate-400" /> <span className="truncate">{customers.find(c => c.id === project.customerId)?.name || 'Unknown Client'}</span></div><div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-tight"><Clock size={14} className="text-slate-400" /> Updated {new Date(project.updatedAt).toLocaleDateString()}</div></div>
+            <div className="grid grid-cols-3 gap-3 mt-auto pt-6 border-t border-slate-50 text-center"><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Photos</p><p className="text-sm font-black text-slate-900">{project.photos.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Notes</p><p className="text-sm font-black text-slate-900">{project.notes.length}</p></div><div className="bg-slate-50 rounded-2xl p-3"><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1">Docs</p><p className="text-sm font-black text-slate-900">{project.documents.length}</p></div></div>
           </div>
         ))}
       </div>

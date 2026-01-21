@@ -259,13 +259,13 @@ export const FilingCabinetPage: React.FC<FilingCabinetPageProps> = ({ onBack }) 
 
       {/* Search */}
       <div className="relative mb-3 md:mb-6">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hidden md:block" size={18} />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
         <input
           type="text"
           placeholder="Search documents..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 md:pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
         />
       </div>
 

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ScheduleEntry, Customer, JobPack, Quote, AppSettings, TIER_LIMITS } from '../types';
 import {
@@ -124,7 +124,6 @@ export const Home: React.FC<HomeProps> = ({
   const recognitionRef = useRef<any>(null);
   const noteRecognitionRef = useRef<any>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const handleVoiceReminderRef = useRef<(transcript: string) => void>(() => {});
 
   useEffect(() => {
     try {
@@ -168,74 +167,41 @@ export const Home: React.FC<HomeProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Keep the ref updated with the latest handler to avoid stale closures
-  useEffect(() => {
-    handleVoiceReminderRef.current = handleVoiceReminder;
-  }, [handleVoiceReminder]);
-
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    if (SpeechRecognition) {
+      // Setup for Reminders
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'en-GB';
+      recognition.onstart = () => setIsListeningReminder(true);
+      recognition.onend = () => setIsListeningReminder(false);
+      recognition.onerror = () => setIsListeningReminder(false);
+      recognition.onresult = async (event: any) => {
+        if (event.results?.[0]?.[0]?.transcript) {
+          handleVoiceReminder(event.results[0][0].transcript);
+        }
+      };
+      recognitionRef.current = recognition;
 
-    // Setup for Reminders
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.lang = 'en-GB';
-
-    const onReminderStart = () => setIsListeningReminder(true);
-    const onReminderEnd = () => setIsListeningReminder(false);
-    const onReminderError = () => setIsListeningReminder(false);
-    const onReminderResult = (event: any) => {
-      if (event.results?.[0]?.[0]?.transcript) {
-        handleVoiceReminderRef.current(event.results[0][0].transcript);
-      }
-    };
-
-    recognition.onstart = onReminderStart;
-    recognition.onend = onReminderEnd;
-    recognition.onerror = onReminderError;
-    recognition.onresult = onReminderResult;
-    recognitionRef.current = recognition;
-
-    // Setup for Quick Notes
-    const noteRecognition = new SpeechRecognition();
-    noteRecognition.continuous = false;
-    noteRecognition.lang = 'en-GB';
-
-    const onNoteStart = () => setIsListeningNote(true);
-    const onNoteEnd = () => setIsListeningNote(false);
-    const onNoteError = () => setIsListeningNote(false);
-    const onNoteResult = (event: any) => {
-      if (event.results?.[0]?.[0]?.transcript) {
-        const transcript = event.results[0][0].transcript;
-        setQuickNotes(prev => (prev ? `${prev}\n${transcript}` : transcript));
-      }
-    };
-
-    noteRecognition.onstart = onNoteStart;
-    noteRecognition.onend = onNoteEnd;
-    noteRecognition.onerror = onNoteError;
-    noteRecognition.onresult = onNoteResult;
-    noteRecognitionRef.current = noteRecognition;
-
+      // Setup for Quick Notes
+      const noteRecognition = new SpeechRecognition();
+      noteRecognition.continuous = false;
+      noteRecognition.lang = 'en-GB';
+      noteRecognition.onstart = () => setIsListeningNote(true);
+      noteRecognition.onend = () => setIsListeningNote(false);
+      noteRecognition.onerror = () => setIsListeningNote(false);
+      noteRecognition.onresult = (event: any) => {
+        if (event.results?.[0]?.[0]?.transcript) {
+          const transcript = event.results[0][0].transcript;
+          setQuickNotes(prev => (prev ? `${prev}\n${transcript}` : transcript));
+        }
+      };
+      noteRecognitionRef.current = noteRecognition;
+    }
     return () => {
-      // Stop any active recognition sessions
-      recognition.abort();
-      noteRecognition.abort();
-
-      // Clear event handlers to prevent memory leaks
-      recognition.onstart = null;
-      recognition.onend = null;
-      recognition.onerror = null;
-      recognition.onresult = null;
-
-      noteRecognition.onstart = null;
-      noteRecognition.onend = null;
-      noteRecognition.onerror = null;
-      noteRecognition.onresult = null;
-
-      recognitionRef.current = null;
-      noteRecognitionRef.current = null;
+      recognitionRef.current?.abort();
+      noteRecognitionRef.current?.abort();
     };
   }, []);
 
@@ -263,7 +229,7 @@ export const Home: React.FC<HomeProps> = ({
     }
   };
 
-  const handleVoiceReminder = useCallback(async (transcript: string) => {
+  const handleVoiceReminder = async (transcript: string) => {
     setIsProcessingReminder(true);
     try {
       const parsed = await parseReminderVoiceInput(transcript);
@@ -281,7 +247,7 @@ export const Home: React.FC<HomeProps> = ({
     } finally {
       setIsProcessingReminder(false);
     }
-  }, []);
+  };
 
   const addReminder = () => {
     if (!newReminderText || !newReminderTime) return;

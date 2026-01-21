@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Users, FileText, Settings, Briefcase, ReceiptText, CalendarDays, Home, LogOut, Receipt, Landmark, Link2, Calculator, CreditCard, FolderOpen, ChevronDown, ChevronRight, Package, MoreHorizontal, X, QrCode, Shield, MessageSquare, TrendingUp, Activity, Download, Clock } from 'lucide-react';
 import { hapticTap } from '../src/hooks/useHaptic';
 import { useAuth } from '../src/contexts/AuthContext';
@@ -35,11 +35,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
   const [moreMenuGroup, setMoreMenuGroup] = useState<string | null>(null);
 
   const isAdmin = isAdminUser(user?.id);
-
-  // Reset expanded groups when user changes (login/logout/app return)
-  useEffect(() => {
-    setExpandedGroups(new Set());
-  }, [user?.id]);
 
   // Get display tier name
   const getTierDisplay = () => {
@@ -178,38 +173,36 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             <div key={group.id} className="mb-1">
               <button
                 onClick={() => toggleGroup(group.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors border-l-2 ${
-                  isActiveInGroup(group)
-                    ? 'bg-slate-800 text-white border-teal-500'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-300 border-transparent hover:border-slate-600'
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                  isActiveInGroup(group) ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <group.icon size={18} className="opacity-80" />
-                  <span className="font-black text-[11px] uppercase tracking-widest">{group.label}</span>
+                  <group.icon size={16} />
+                  <span className="font-bold text-xs uppercase tracking-wider">{group.label}</span>
                   {group.badge && (
-                    <span className={`text-[9px] text-white px-1.5 py-0.5 rounded-full font-bold ${
+                    <span className={`text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold ${
                       group.tier === 'professional' ? 'bg-teal-600' :
                       group.tier === 'business' ? 'bg-purple-500' : 'bg-slate-500'
                     }`}>{group.badge}</span>
                   )}
                 </div>
-                {expandedGroups.has(group.id) ? <ChevronDown size={14} className="text-slate-500" /> : <ChevronRight size={14} className="text-slate-600" />}
+                {expandedGroups.has(group.id) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
               {expandedGroups.has(group.id) && (
-                <div className="mt-1.5 ml-4 space-y-0.5 border-l border-slate-700/50 pl-3">
+                <div className="mt-1 ml-2 space-y-0.5">
                   {group.items.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id)}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-colors ${
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                         activeTab === item.id
                           ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20'
-                          : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'
+                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                       }`}
                     >
-                      <item.icon size={16} strokeWidth={activeTab === item.id ? 2.5 : 1.5} />
-                      <span className="font-medium text-[13px]">{item.label}</span>
+                      <item.icon size={18} />
+                      <span className="font-bold text-sm">{item.label}</span>
                     </button>
                   ))}
                 </div>

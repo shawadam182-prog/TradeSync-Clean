@@ -1501,102 +1501,54 @@ export const materialsLibraryService = {
       errors: [] as string[],
     };
 
-    // Collect all product codes to check for existing materials in one query
-    const productCodes = materials
-      .map(m => m.product_code)
-      .filter((code): code is string => Boolean(code));
-
-    // Fetch all existing materials for this supplier in a single query
-    let existingMap = new Map<string, string>();
-    if (productCodes.length > 0) {
-      const { data: existingMaterials } = await supabase
-        .from('materials_library')
-        .select('id, product_code')
-        .eq('user_id', user.id)
-        .eq('supplier', supplier)
-        .in('product_code', productCodes);
-
-      if (existingMaterials) {
-        for (const m of existingMaterials) {
-          if (m.product_code) {
-            existingMap.set(m.product_code, m.id);
-          }
-        }
-      }
-    }
-
-    // Separate materials into inserts and updates
-    const toInsert: Array<MaterialLibraryInsert & { user_id: string; supplier: string }> = [];
-    const toUpdate: Array<{ id: string; data: MaterialLibraryInsert & { supplier: string; last_updated: string } }> = [];
-
     for (const material of materials) {
-      const existingId = material.product_code ? existingMap.get(material.product_code) : undefined;
-
-      if (existingId) {
-        toUpdate.push({
-          id: existingId,
-          data: {
-            ...material,
-            supplier,
-            last_updated: new Date().toISOString(),
-          },
-        });
-      } else {
-        toInsert.push({
-          ...material,
-          supplier,
-          user_id: user.id,
-        });
-      }
-    }
-
-    // Batch insert new materials (Supabase handles arrays efficiently)
-    const BATCH_SIZE = 100;
-
-    for (let i = 0; i < toInsert.length; i += BATCH_SIZE) {
-      const batch = toInsert.slice(i, i + BATCH_SIZE);
       try {
-        const { error } = await supabase
-          .from('materials_library')
-          .insert(batch);
+        // Check if exists by product_code + supplier
+        if (material.product_code) {
+          const { data: existing } = await supabase
+            .from('materials_library')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('supplier', supplier)
+            .eq('product_code', material.product_code)
+            .single();
 
-        if (error) {
-          results.failed += batch.length;
-          results.errors.push(`Insert batch failed: ${error.message}`);
-        } else {
-          results.imported += batch.length;
-        }
-      } catch (err) {
-        results.failed += batch.length;
-        results.errors.push(`Insert batch failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      }
-    }
-
-    // Batch update existing materials
-    // Supabase doesn't support bulk update with different values, so we use Promise.all with batching
-    for (let i = 0; i < toUpdate.length; i += BATCH_SIZE) {
-      const batch = toUpdate.slice(i, i + BATCH_SIZE);
-      const updatePromises = batch.map(({ id, data }) =>
-        supabase
-          .from('materials_library')
-          .update(data)
-          .eq('id', id)
-          .then(({ error }) => ({ id, error }))
-      );
-
-      try {
-        const updateResults = await Promise.all(updatePromises);
-        for (const result of updateResults) {
-          if (result.error) {
-            results.failed++;
-            results.errors.push(`Update ${result.id} failed: ${result.error.message}`);
-          } else {
+          if (existing) {
+            // Update existing
+            await supabase
+              .from('materials_library')
+              .update({
+                ...material,
+                supplier,
+                last_updated: new Date().toISOString(),
+              })
+              .eq('id', existing.id);
             results.updated++;
+          } else {
+            // Insert new
+            await supabase
+              .from('materials_library')
+              .insert({
+                ...material,
+                supplier,
+                user_id: user.id,
+              });
+            results.imported++;
           }
+        } else {
+          // No product code - just insert
+          await supabase
+            .from('materials_library')
+            .insert({
+              ...material,
+              supplier,
+              user_id: user.id,
+            });
+          results.imported++;
         }
       } catch (err) {
-        results.failed += batch.length;
-        results.errors.push(`Update batch failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        results.failed++;
+        results.errors.push(`${material.name}: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     }
 

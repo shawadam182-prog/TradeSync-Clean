@@ -223,13 +223,13 @@ export const SupportRequestsAdmin: React.FC<{ onBack?: () => void }> = ({ onBack
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hidden sm:block" />
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search requests..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full px-4 sm:pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           />
         </div>
         <div className="flex items-center gap-2">

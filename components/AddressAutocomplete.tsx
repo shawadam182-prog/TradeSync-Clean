@@ -120,8 +120,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
   // Handle search with debounce
   const searchPlaces = useCallback((query: string) => {
-    // Trigger search after just 1 character to support UK addresses with 1-2 digit house numbers
-    if (!autocompleteServiceRef.current || query.length < 1) {
+    if (!autocompleteServiceRef.current || query.length < 3) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -265,7 +264,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           placeholder={placeholder}
           value={value}
           onChange={handleInputChange}
-          onFocus={() => value.length >= 1 && suggestions.length > 0 && setShowSuggestions(true)}
+          onFocus={() => value.length >= 3 && suggestions.length > 0 && setShowSuggestions(true)}
           disabled={disabled}
           autoComplete="off"
         />

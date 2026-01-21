@@ -25,9 +25,8 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({
   const markupMultiplier = 1 + ((quote.markupPercent || 0) / 100);
   const displayOptions = quote.displayOptions || settings.defaultDisplayOptions;
 
-  // Get color scheme based on document type
-  const colorSchemeToUse = quote.type === 'invoice' ? settings.invoiceColorScheme : settings.quoteColorScheme;
-  const colorScheme = getColorScheme(colorSchemeToUse);
+  // Get color scheme
+  const colorScheme = getColorScheme(settings.invoiceColorScheme);
   const isDark = colorScheme.isDark;
 
   // Convert Tailwind classes to inline styles
